@@ -1,0 +1,12 @@
+[Unit]
+Description=Fcitx5 input method daemon
+PartOf=sway-session.target
+After=sway-session.target
+
+[Service]
+ExecStart=/usr/bin/fcitx5
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=sway-session.target

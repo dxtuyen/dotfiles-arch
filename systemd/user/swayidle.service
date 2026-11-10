@@ -1,0 +1,23 @@
+[Install]
+WantedBy=sway-session.target
+
+[Service]
+Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin
+ExecStart=/usr/bin/swayidle -w \
+  idlehint 600 \
+  timeout 300 '/usr/bin/swaymsg "output * power off"' \
+  resume '/usr/bin/swaymsg "output * power on"' \
+  timeout 600 '%h/.local/bin/lock-screen' \
+  timeout 900 '/usr/bin/systemctl --user start idle-suspend.timer' \
+  resume '/usr/bin/systemctl --user stop idle-suspend.timer idle-suspend.service'
+
+ExecStopPost=-/usr/bin/swaymsg 'output * power on'
+Restart=on-failure
+RestartSec=3
+Type=simple
+
+[Unit]
+After=sway-session.target
+Description=Idle manager for Wayland (screen off → lock → sleep)
+PartOf=sway-session.target
+StartLimitIntervalSec=60

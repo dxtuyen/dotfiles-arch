@@ -1,0 +1,11 @@
+[Install]
+WantedBy=sway-session.target
+
+[Service]
+ExecStart=/usr/bin/swaybg -i %h/.local/share/wallpapers/desktop.png -m fill
+Type=simple
+
+[Unit]
+After=sway-session.target
+Description=Static Sway wallpaper
+PartOf=sway-session.target

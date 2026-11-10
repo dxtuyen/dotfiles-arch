@@ -1,0 +1,12 @@
+ascii = false
+mode = "station"
+esc_quit = true
+
+[theme]
+background = "#282828"
+border = "#7daea3"
+text_color = "#d4be98"
+hidden_color = "#928374"
+info_color = "#a9b665"
+warning_color = "#d8a657"
+error_color = "#ea6962"

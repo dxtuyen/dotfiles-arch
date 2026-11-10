@@ -1,0 +1,8 @@
+[Service]
+ExecStart=%h/.local/bin/idle-suspend
+Type=oneshot
+
+[Unit]
+After=idle-suspend.timer
+BindsTo=idle-suspend.timer
+Description=Sleep an idle session only when running on battery

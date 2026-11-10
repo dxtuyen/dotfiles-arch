@@ -1,0 +1,2 @@
+-- LazyVim loads its default autocmds automatically.
+-- Add local autocmds here as workflow needs arise.

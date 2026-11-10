@@ -1,0 +1,13 @@
+# Minimal keybinding overrides. Yazi merges these with its defaults.
+# prepend_keymap keeps the default keybindings available.
+
+[mgr]
+prepend_keymap = [
+  # Enter directories and open files with their default applications.
+  { on = "<Enter>", run = "plugin smart-enter", desc = "Enter the child directory, or open the file" },
+
+  { on = "B", run = 'shell --orphan "foot --title=term -D \"$PWD\""', desc = "Open a new terminal" },
+  { on = "b", run = 'shell --block "$SHELL"', desc = "Open a shell here (in Yazi's window)" },
+]
+
+# Keep the default Shift+O (open with), navigation, trash, and delete bindings.

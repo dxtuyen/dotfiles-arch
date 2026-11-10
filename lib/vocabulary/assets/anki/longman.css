@@ -1,0 +1,230 @@
+/* Longman notes imported by GoldenDict-ng. Keep imported audio in its field. */
+.card {
+  --lm-bg: #f6f4ef;
+  --lm-surface: #fffdf8;
+  --lm-text: #343b35;
+  --lm-muted: #697166;
+  --lm-accent: #386b60;
+  --lm-border: #dedfd5;
+  --lm-tint: #edf2e9;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 36px 20px;
+  background: var(--lm-bg);
+  color: var(--lm-text);
+  font-family: Inter, "Noto Sans", system-ui, sans-serif;
+  font-size: 20px;
+  line-height: 1.7;
+  text-align: left;
+}
+
+.card.nightMode,
+.card.night_mode,
+.nightMode .card,
+.night_mode .card {
+  --lm-bg: #282828;
+  --lm-surface: #32302f;
+  --lm-text: #ddc7a1;
+  --lm-muted: #a89984;
+  --lm-accent: #89b482;
+  --lm-border: #504945;
+  --lm-tint: #37413a;
+}
+
+.lm-card,
+.lm-card * {
+  box-sizing: border-box;
+}
+
+.lm-card {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 32px 36px 24px;
+  background: var(--lm-surface);
+  border: 1px solid var(--lm-border);
+  border-radius: 18px;
+}
+
+.lm-question {
+  margin-top: 6vh;
+  padding-bottom: 36px;
+}
+
+.lm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.lm-label {
+  margin: 0 0 12px;
+  color: var(--lm-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+.lm-header .lm-label {
+  margin: 0;
+}
+
+.lm-source {
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: var(--lm-tint);
+  color: var(--lm-accent);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.lm-word {
+  color: var(--lm-text);
+  font-size: 42px;
+  font-weight: 650;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.lm-prompt {
+  margin: 24px 0 0;
+  color: var(--lm-muted);
+  font-size: 14px;
+}
+
+.lm-divider {
+  height: 0;
+  margin: 26px 0;
+  border: 0;
+  border-top: 1px solid var(--lm-border);
+}
+
+.lm-definition,
+.lm-sentence {
+  overflow-wrap: anywhere;
+}
+
+.lm-definition p {
+  margin: 0 0 12px;
+}
+
+.lm-meta {
+  color: var(--lm-muted);
+  font-size: 15px;
+}
+
+.lm-example {
+  margin-top: 18px !important;
+  padding-left: 16px;
+  border-left: 2px solid var(--lm-border);
+}
+
+.lm-phrase {
+  color: var(--lm-accent);
+  font-size: 16px;
+}
+
+.lm-original {
+  margin-top: 22px;
+  color: var(--lm-muted);
+  font-size: 14px;
+}
+
+.lm-original summary {
+  width: fit-content;
+  cursor: pointer;
+}
+
+.lm-original-text {
+  margin-top: 12px;
+  overflow-wrap: anywhere;
+}
+
+.lm-definition b,
+.lm-definition strong,
+.lm-sentence b,
+.lm-sentence strong {
+  color: var(--lm-accent);
+  font-weight: 650;
+}
+
+.lm-context {
+  margin-top: 26px;
+  padding: 16px 18px;
+  border-left: 3px solid var(--lm-accent);
+  border-radius: 0 8px 8px 0;
+  background: var(--lm-tint);
+  font-size: 17px;
+}
+
+.lm-context[hidden] {
+  display: none;
+}
+
+.lm-context .lm-label {
+  margin-bottom: 8px;
+}
+
+.lm-footer {
+  margin-top: 28px;
+  padding-top: 16px;
+  border-top: 1px solid var(--lm-border);
+  font-size: 12px;
+}
+
+.lm-card a {
+  color: var(--lm-accent);
+  text-decoration: none;
+  text-underline-offset: 3px;
+}
+
+.lm-card a:hover,
+.lm-card a:focus-visible {
+  text-decoration: underline;
+}
+
+.lm-card img {
+  max-width: 100%;
+  height: auto;
+}
+
+.lm-card .replay-button {
+  display: inline-block;
+  margin: 6px 4px;
+  vertical-align: middle;
+}
+
+.lm-card .replay-button svg {
+  width: 32px;
+  height: 32px;
+}
+
+.lm-card .replay-button svg circle {
+  fill: var(--lm-tint);
+  stroke: var(--lm-border);
+}
+
+.lm-card .replay-button svg path {
+  fill: var(--lm-accent);
+}
+
+@media (max-width: 600px) {
+  .card {
+    padding: 16px 12px;
+    font-size: 18px;
+  }
+
+  .lm-card {
+    padding: 24px 20px 20px;
+    border-radius: 12px;
+  }
+
+  .lm-word {
+    font-size: 34px;
+  }
+}

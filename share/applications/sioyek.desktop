@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Sioyek
+Comment=Read PDF documents
+Exec=sioyek-open %F
+Icon=sioyek
+Terminal=false
+Categories=Office;Viewer;
+MimeType=application/pdf;

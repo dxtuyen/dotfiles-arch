@@ -1,0 +1,18 @@
+# Local state, secrets and build products never belong to dotfiles.
+__pycache__/
+*.pyc
+.venv/
+.vscode/
+*.swp
+*.tmp
+*.log
+.env
+*.key
+*.pem
+*.pkg.tar.*
+/src/
+/pkg/
+/dist/
+
+# Local verification only; not distributed with the Arch dotfiles.
+/tests/

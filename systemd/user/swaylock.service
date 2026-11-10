@@ -1,0 +1,12 @@
+[Service]
+ExecStart=/usr/bin/swaylock -f -e
+ExitType=cgroup
+GuessMainPID=false
+Type=forking
+
+[Unit]
+After=sway-session.target
+Description=Sway screen lock
+PartOf=sway-session.target
+Wants=locked-display.service
+Wants=session-locked.target

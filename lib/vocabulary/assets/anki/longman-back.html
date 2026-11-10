@@ -1,0 +1,192 @@
+<main class="lm-card" id="longman-answer">
+  <header class="lm-header">
+    <span class="lm-label">Vocabulary</span>
+    <span class="lm-source">Longman</span>
+  </header>
+  <div class="lm-word">{{Word}}</div>
+  <hr class="lm-divider" id="answer">
+  <section class="lm-section">
+    <h2 class="lm-label">Meaning &amp; usage</h2>
+    <div class="lm-definition">{{selected_text}}</div>
+  </section>
+  {{#marked_sentence}}
+  <section class="lm-section lm-context" hidden>
+    <h2 class="lm-label">Lookup context</h2>
+    <div class="lm-sentence">{{marked_sentence}}</div>
+  </section>
+  {{/marked_sentence}}
+  <footer class="lm-footer">
+    <a href="goldendict://{{text:Word}}">Open in GoldenDict &#8599;</a>
+  </footer>
+</main>
+<script>
+  (function () {
+    var card = document.getElementById("longman-answer");
+    if (!card) return;
+
+    function normalize(text) {
+      return text.replace(/\s+/g, " ").trim().toLowerCase();
+    }
+    function escapeRegex(text) {
+      return text.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
+    }
+
+    var word = card.querySelector(".lm-word").textContent.trim();
+    if (!word) return;
+    var source = card.querySelector(".lm-definition");
+    var walker = document.createTreeWalker(source, NodeFilter.SHOW_TEXT);
+    var node;
+    while ((node = walker.nextNode())) {
+      node.nodeValue = node.nodeValue.replace(/\uFFFC/g, "");
+    }
+
+    function readLines() {
+      var copy = source.cloneNode(true);
+      Array.prototype.forEach.call(
+        copy.querySelectorAll(".replay-button, audio, script, style"),
+        function (element) { element.remove(); }
+      );
+      Array.prototype.forEach.call(copy.querySelectorAll("br"), function (element) {
+        element.replaceWith(document.createTextNode("\n"));
+      });
+      return copy.textContent.split(/\r?\n/).map(function (raw) {
+        return {
+          text: raw.replace(new RegExp("\\[(?:sound|anki:play):[^\\]]+\\]", "g"), "").trim(),
+          indented: /^\s|^[·•]/.test(raw)
+        };
+      }).filter(function (line) { return line.text; });
+    }
+
+    var partsOfSpeech = /\b(?:noun|verb|adjective|adverb|interjection|preposition|pronoun|conjunction|determiner|auxiliary|modal)(?:\s*,\s*(?:noun|verb|adjective|adverb|interjection))*\b/i;
+    var headword = new RegExp("^" + escapeRegex(word) + "(?:\\d+)?(?=\\s|[!?,(/]|$)", "i");
+    var navigation = /^(?:(?:WORD ORIGIN|WORD FAMILY|VERB TABLE|EXAMPLES|THESAURUS|COLLOCATIONS|PHRASES|PICTURES|GRAMMAR)\s*)+$/;
+    var boundary = /^(?:Register|THESAURUS|COLLOCATIONS|WORD FAMILY|WORD ORIGIN|PHRASES|GRAMMAR)$/i;
+
+    function heading(text) {
+      if (!headword.test(text)) return null;
+      var pos = text.match(partsOfSpeech);
+      var ipa = text.match(/\/[^/\n]+\/(?:\s*\/[^/\n]+\/)?/);
+      if (!pos && !/\btrademark\b/i.test(text)) return null;
+      var grammar = text.match(/\[(?!sound:)[^\]]+\]/g) || [];
+      return {
+        ipa: ipa ? ipa[0] : "",
+        pos: pos ? pos[0] + (grammar.length ? " " + grammar.join(" ") : "") : "trademark"
+      };
+    }
+
+    function compactSelection(lines) {
+      var headings = [];
+      lines.forEach(function (line, index) {
+        var metadata = heading(line.text);
+        if (metadata) headings.push({ index: index, metadata: metadata });
+      });
+      // Prefer the ordinary entry over a preceding proper-name/trademark entry.
+      var selected = headings.filter(function (item) {
+        return item.metadata.pos !== "trademark";
+      })[0] || headings[0];
+      var start = selected ? selected.index + 1 : 0;
+      var end = lines.length;
+      if (selected) {
+        headings.some(function (item) {
+          if (item.index > selected.index) {
+            end = item.index;
+            return true;
+          }
+          return false;
+        });
+      }
+      var result = {
+        ipa: selected ? selected.metadata.ipa : "",
+        pos: selected ? selected.metadata.pos : "",
+        meaning: "",
+        example: "",
+        phrase: ""
+      };
+      for (var i = start; i < end; i++) {
+        var line = lines[i];
+        var text = line.text;
+        if (result.meaning && (boundary.test(text) || /^\d+(?=\s|[a-z])/i.test(text))) break;
+        if (navigation.test(text) || text.indexOf("|") !== -1 && partsOfSpeech.test(text)) continue;
+        if (/^[A-Z][A-Z \-/]+$/.test(text) || normalize(text) === normalize(word)) continue;
+        if (!result.meaning) {
+          // A selected example alone is not a definition; leave it untouched.
+          if (line.indented && /^[“‘"']?[A-Z]/.test(text)) return null;
+          // Longman copies "1a feeling..." without a space after the sense number.
+          result.meaning = text.replace(/^\d+[.)]?\s*/, "").replace(/:\s*$/, "");
+          if (!result.meaning) continue;
+        } else if (line.indented || /^[“‘"']?[A-Z].*[.!?][”’"']?$/.test(text)) {
+          if (!result.example) result.example = text.replace(/^[·•]\s*/, "");
+        } else if (!result.phrase && text.length <= 100 && !/^[—–]/.test(text)) {
+          result.phrase = text;
+        }
+      }
+      return result.meaning ? result : null;
+    }
+
+    function paragraph(className, text) {
+      var element = document.createElement("p");
+      element.className = className;
+      element.textContent = text;
+      return element;
+    }
+
+    function highlight(element, text, target) {
+      var pattern = new RegExp("\\b" + escapeRegex(target) + "\\b", "gi");
+      var match;
+      var position = 0;
+      element.textContent = "";
+      while ((match = pattern.exec(text))) {
+        element.appendChild(document.createTextNode(text.slice(position, match.index)));
+        var bold = document.createElement("b");
+        bold.textContent = match[0];
+        element.appendChild(bold);
+        position = pattern.lastIndex;
+      }
+      element.appendChild(document.createTextNode(text.slice(position)));
+    }
+
+    // Respect notes that have already been manually laid out with paragraphs.
+    // Formatting runs only at review time; all imported text stays in the note.
+    if (!source.querySelector("p, ul, ol, table, .lm-compact")) {
+      var result = compactSelection(readLines());
+      if (result) {
+        var compact = document.createElement("div");
+        compact.className = "lm-compact";
+        var metadata = [result.ipa, result.pos].filter(Boolean).join(" · ");
+        if (metadata) compact.appendChild(paragraph("lm-meta", metadata));
+        compact.appendChild(paragraph("lm-meaning", result.meaning));
+        if (result.example) {
+          var example = paragraph("lm-example", result.example);
+          var target = result.phrase && normalize(result.example).indexOf(normalize(result.phrase)) !== -1
+            ? result.phrase : word;
+          highlight(example, result.example, target);
+          compact.appendChild(example);
+        }
+        if (result.phrase) compact.appendChild(paragraph("lm-phrase", result.phrase));
+        var media = document.createElement("div");
+        media.className = "lm-audio";
+        Array.prototype.forEach.call(source.querySelectorAll(".replay-button, audio"), function (element) {
+          media.appendChild(element);
+        });
+        var original = document.createElement("details");
+        original.className = "lm-original";
+        var summary = document.createElement("summary");
+        summary.textContent = "Full selection";
+        original.appendChild(summary);
+        var fullText = document.createElement("div");
+        fullText.className = "lm-original-text";
+        while (source.firstChild) fullText.appendChild(source.firstChild);
+        original.appendChild(fullText);
+        source.appendChild(compact);
+        if (media.childNodes.length) source.appendChild(media);
+        source.appendChild(original);
+      }
+    }
+
+    var context = card.querySelector(".lm-context");
+    if (context) {
+      var sentence = normalize(context.querySelector(".lm-sentence").textContent);
+      context.hidden = !sentence || sentence === normalize(word);
+    }
+  })();
+</script>

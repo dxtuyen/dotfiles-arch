@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+"$HOME/.local/bin/goldendict-anki-config"
+exec python3 "$HOME/.local/lib/dotfiles/vocabulary/scripts/apply-longman.py" "$@"

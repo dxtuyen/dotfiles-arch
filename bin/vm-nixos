@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# Boot the NixOS training VM from disk (default) or an ISO.
+set -euo pipefail
+
+DIR="${VM_DIR:-$HOME/VMs}"
+DISK="$DIR/disk/training.qcow2"
+ISO="$(find "$DIR/iso" -maxdepth 1 -name '*.iso' 2>/dev/null | sort | head -1 || true)"
+
+MODE="${1:-disk}"
+case "$MODE" in
+  iso|install) MODE=iso ;;
+  disk|boot)   MODE=disk ;;
+  *) echo "Usage: vm-nixos [iso|disk]" >&2; exit 1 ;;
+esac
+
+[ -f "$DISK" ] || {
+  echo "Disk not found: $DISK" >&2
+  echo "Create it with: qemu-img create -f qcow2 \"$DISK\" 30G" >&2
+  exit 1
+}
+if [ "$MODE" = iso ] && [ -z "$ISO" ]; then
+  echo "No ISO found in $DIR/iso; add a NixOS installer ISO to that directory." >&2
+  exit 1
+fi
+
+# Arch ships the OVMF firmware through edk2-ovmf.
+OVMF_CODE="${OVMF_CODE:-/usr/share/edk2/x64/OVMF_CODE.4m.fd}"
+[ -r "$OVMF_CODE" ] || { echo "Missing OVMF firmware: $OVMF_CODE" >&2; exit 1; }
+
+ARGS=(
+  -machine "q35,accel=kvm"
+  -cpu host
+  -m 3G
+  -drive "if=pflash,format=raw,readonly=on,file=$OVMF_CODE"
+  -drive "file=$DISK,if=virtio,format=qcow2"
+  -nic "user,model=virtio"
+  -display gtk
+)
+if [ "$MODE" = iso ]; then
+  ARGS+=(-boot d -cdrom "$ISO")
+else
+  ARGS+=(-boot c)
+fi
+
+exec qemu-system-x86_64 "${ARGS[@]}"

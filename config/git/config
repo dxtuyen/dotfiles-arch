@@ -1,0 +1,13 @@
+[core]
+	editor = "nvim"
+	pager = "cat"
+
+[init]
+	defaultBranch = "main"
+
+[pull]
+	rebase = true
+
+[user]
+	email = "tuyendoxuan05@gmail.com"
+	name = "dxtuyen"

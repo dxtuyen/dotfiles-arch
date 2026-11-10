@@ -1,0 +1,9 @@
+[Service]
+ExecStart=%h/.local/bin/wlsunset-run %i
+Type=exec
+
+[Unit]
+After=sway-session.target
+Description=Display temperature (%i)
+PartOf=sway-session.target
+StartLimitIntervalSec=0

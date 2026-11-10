@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Retain GoldenDict's Qt environment when launching from its popup shortcut.
+set -u
+export QT_QPA_PLATFORMTHEME=qt6ct
+export QT_STYLE_OVERRIDE=Fusion
+exec "$HOME/.local/bin/sway-popup" popup-dictionary -- goldendict

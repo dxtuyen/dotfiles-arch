@@ -1,0 +1,10 @@
+[Unit]
+Description=Set supported battery charge thresholds to 85-90 percent
+After=systemd-modules-load.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/set-battery-threshold
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,212 @@
+/* Markdown-friendly Yanki cards: centered reading column, left-aligned content. */
+.card {
+  font-family: arial, sans-serif;
+  font-size: 16px;
+  text-align: left;
+  color: #000000;
+  background-color: #ffffff;
+}
+
+.yanki {
+  --yanki-link: #0969da;
+  --yanki-muted-bg: rgba(128, 128, 128, 0.1);
+  --yanki-border: rgba(128, 128, 128, 0.5);
+  --yanki-highlight-bg: #fff0a6;
+  --yanki-highlight-text: #242424;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 46rem;
+  margin: 0 auto;
+  text-align: left;
+  line-height: 1.6;
+}
+
+.yanki h1,
+.yanki h2,
+.yanki h3 {
+  line-height: 1.3;
+  margin: 1.15em 0 0.5em;
+}
+
+.yanki h1 { font-size: 1.45em; }
+.yanki h2 { font-size: 1.25em; }
+.yanki h3 { font-size: 1.1em; }
+
+.yanki p {
+  margin: 0.75em 0;
+}
+
+.yanki ul,
+.yanki ol {
+  padding-left: 1.4em;
+}
+
+/* Style existing Markdown output without changing its content or behavior. */
+.yanki blockquote,
+.yanki .admonition {
+  margin: 1rem 0;
+  padding: 0.6rem 1rem;
+  border-left: 3px solid var(--yanki-border);
+  background-color: var(--yanki-muted-bg);
+  overflow-wrap: anywhere;
+}
+
+.yanki .admonition {
+  border-left-color: var(--yanki-link);
+}
+
+.yanki .admonition-title {
+  color: var(--yanki-link);
+  font-weight: bold;
+}
+
+.yanki blockquote > :first-child,
+.yanki .admonition > :first-child {
+  margin-top: 0;
+}
+
+.yanki blockquote > :last-child,
+.yanki .admonition > :last-child {
+  margin-bottom: 0;
+}
+
+.yanki a:not(.replay-button):not(.soundLink) {
+  color: var(--yanki-link);
+  text-underline-offset: 0.15em;
+  overflow-wrap: anywhere;
+}
+
+.yanki :not(pre) > code {
+  padding: 0.1em 0.3em;
+  border-radius: 4px;
+  background-color: var(--yanki-muted-bg);
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.9em;
+  overflow-wrap: anywhere;
+}
+
+.yanki mark {
+  padding: 0.05em 0.15em;
+  border-radius: 3px;
+  color: var(--yanki-highlight-text);
+  background-color: var(--yanki-highlight-bg);
+}
+
+.yanki img,
+.yanki video {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Keep Markdown tables visibly divided in both light and night modes. */
+.yanki table {
+  width: 100%;
+  margin: 1rem 0;
+  border-collapse: collapse;
+}
+
+.yanki th,
+.yanki td {
+  padding: 0.5em 0.75em;
+  border: 1px solid var(--yanki-border);
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.yanki th {
+  background-color: rgba(128, 128, 128, 0.12);
+}
+
+/* Keep inline math in the text flow. :only-child also matches math surrounded
+   by text nodes, so it cannot identify a standalone equation. */
+.yanki .math-inline {
+  display: inline-grid;
+  align-items: baseline;
+  vertical-align: baseline;
+  box-sizing: border-box;
+  max-width: 100%;
+  padding: 0.2em 0.1em;
+  margin-block: -0.2em;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* Center display equations that fit; scroll oversized ones from the left edge. */
+.yanki .math-display {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin: 1em auto;
+  padding: 0.2em 0.1em;
+  overflow-x: auto;
+  overflow-y: hidden;
+  text-align: left;
+  font-size: 1em;
+}
+
+/* The wrapper centers the equation; left alignment keeps the start of long
+   equations reachable when scrolling. */
+.yanki .math-display > mjx-container[display="true"] {
+  margin: 0;
+  text-align: left;
+}
+
+.yanki pre.shiki {
+  box-sizing: border-box;
+  max-width: 100%;
+  margin: 1rem 0;
+  padding: 1rem;
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid #d0d7de;
+  background-color: #f6f8fa !important;
+  text-align: left;
+  white-space: pre;
+}
+
+.yanki pre.shiki code {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.85em;
+}
+
+/* Anki Night Mode colors for the card. */
+.card.nightMode,
+.nightMode .card,
+.night_mode .card {
+  color: #e1e4e8;
+  background-color: #1e1e1e;
+}
+
+.nightMode .yanki,
+.night_mode .yanki {
+  --yanki-link: #79b8ff;
+  --yanki-highlight-bg: #66551c;
+  --yanki-highlight-text: #fff3bf;
+}
+
+/* Activate the dark Shiki palette, which is present in Yanki's generated HTML. */
+.nightMode .yanki .shiki,
+.night_mode .yanki .shiki {
+  color: var(--shiki-dark, #e1e4e8) !important;
+  background-color: var(--shiki-dark-bg, #24292e) !important;
+}
+
+.nightMode .yanki .shiki span,
+.night_mode .yanki .shiki span {
+  color: var(--shiki-dark, #e1e4e8) !important;
+}
+
+/* On narrow screens, wrap code; math keeps its size and scrolls when needed. */
+@media screen and (max-width: 600px) {
+  .yanki pre.shiki {
+    padding: 0.7rem;
+    overflow-x: hidden;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+  }
+
+  .yanki pre.shiki code {
+    font-size: 0.8em;
+  }
+}

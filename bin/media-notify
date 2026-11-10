@@ -1,0 +1,126 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+case "${1:-}" in
+  volume-up|volume-down|volume-mute) channel=volume ;;
+  mic-mute) channel=microphone ;;
+  brightness-up|brightness-down) channel=brightness ;;
+  *) echo 'Usage: media-notify {volume-up|volume-down|volume-mute|mic-mute|brightness-up|brightness-down}' >&2; exit 2 ;;
+esac
+
+action_lock="${XDG_RUNTIME_DIR:?}/media-notify-$channel.action.lock"
+worker_lock="$XDG_RUNTIME_DIR/media-notify-$channel.worker.lock"
+pending="$XDG_RUNTIME_DIR/media-notify-$channel.pending"
+
+notify_replace() {
+  # Mako replaces each channel's popup, including after a daemon restart.
+  timeout --kill-after=0.2s 1s notify-send \
+    -e -h "string:x-canonical-private-synchronous:media-$channel" -t 2000 "$@"
+}
+
+notify_volume() {
+  local status volume icon
+  status="$(wpctl get-volume @DEFAULT_AUDIO_SINK@)" || return
+  volume="$(awk '{ printf "%d", ($2 * 100) + 0.5 }' <<< "$status")"
+  case "$status" in
+    *MUTED*) notify_replace -a volume -i audio-volume-muted -h int:value:0 Volume Muted ;;
+    *)
+      if [ "$volume" -ge 70 ]; then
+        icon=audio-volume-high
+      elif [ "$volume" -ge 30 ]; then
+        icon=audio-volume-medium
+      elif [ "$volume" -gt 0 ]; then
+        icon=audio-volume-low
+      else
+        icon=audio-volume-muted
+      fi
+      notify_replace -a volume -i "$icon" -h "int:value:$volume" Volume "$volume%"
+      ;;
+  esac
+}
+
+notify_microphone() {
+  local status
+  status="$(wpctl get-volume @DEFAULT_AUDIO_SOURCE@)" || return
+  case "$status" in
+    *MUTED*) notify_replace -a volume -i microphone-sensitivity-muted Microphone Muted ;;
+    *) notify_replace -a volume -i audio-input-microphone Microphone On ;;
+  esac
+}
+
+notify_brightness() {
+  local status percent
+  status="$(brightnessctl --class=backlight -m)" || return
+  IFS=, read -r _ _ _ percent _ <<< "$status"
+  notify_replace -a brightness -i display-brightness \
+    -h "int:value:${percent%%%}" Brightness "$percent"
+}
+
+set_brightness() {
+  local maximum minimum
+  maximum="$(brightnessctl --class=backlight max)"
+  [[ "$maximum" =~ ^[1-9][0-9]*$ ]] || return 1
+  # brightnessctl 0.5.1 expects a raw minimum, not a percentage. Round up.
+  minimum=$(( (maximum * 5 + 99) / 100 ))
+  brightnessctl --class=backlight --min-value="$minimum" -q set "$1"
+}
+
+change_volume() {
+  local status level step
+  status="$(wpctl get-volume @DEFAULT_AUDIO_SINK@)"
+  read -r _ level _ <<< "$status"
+  if [ "$1" = up ]; then
+    step=5%+
+    # Restore a manually muted level first; only step up from mute if it was zero.
+    if [[ "$status" == *MUTED* && ! "$level" =~ ^0(\.0+)?$ ]]; then
+      step=0%+
+    fi
+    wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ "$step"
+    if [[ "$status" == *MUTED* ]]; then
+      wpctl set-mute @DEFAULT_AUDIO_SINK@ 0
+    fi
+  else
+    wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%-
+    if [[ "$status" != *MUTED* ]] && awk -v level="$level" 'BEGIN { exit(level > 0.05) }'; then
+      wpctl set-mute @DEFAULT_AUDIO_SINK@ 1
+    fi
+  fi
+}
+
+notify_worker() {
+  # Open a separate lock description: inheriting the setter's would bypass it.
+  exec 9>"$action_lock"
+  while true; do
+    flock 9
+    if [ ! -e "$pending" ]; then
+      # Hand off while holding the action lock so the last update cannot be lost.
+      flock -u 8
+      return
+    fi
+    rm -f -- "$pending"
+    flock -u 9
+
+    # Notification failures must not affect controls or keep this worker alive.
+    "notify_$channel" || true
+    sleep 0.04
+  done
+}
+
+# Serialize each control's state transitions; notification I/O stays outside.
+exec 9>"$action_lock"
+flock 9
+case "$1" in
+  volume-up) change_volume up ;;
+  volume-down) change_volume down ;;
+  volume-mute) wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle ;;
+  mic-mute) wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle ;;
+  brightness-up) set_brightness +10% ;;
+  brightness-down) set_brightness 10%- ;;
+esac
+: > "$pending"
+
+# One short-lived notifier per channel coalesces changes while a popup is in flight.
+exec 8>"$worker_lock"
+if flock -n 8; then
+  notify_worker 9>&- </dev/null >/dev/null 2>&1 &
+fi

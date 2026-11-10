@@ -1,0 +1,629 @@
+{
+  "version": 1,
+  "home": [
+    {
+      "source": "config/x11/Xresources",
+      "target": ".Xresources",
+      "mode": "link"
+    },
+    {
+      "source": "shell/bash_profile",
+      "target": ".bash_profile",
+      "mode": "link"
+    },
+    {
+      "source": "shell/bashrc",
+      "target": ".bashrc",
+      "mode": "link"
+    },
+    {
+      "source": "config/fcitx5/conf/classicui.conf",
+      "target": ".config/fcitx5/conf/classicui.conf",
+      "mode": "seed"
+    },
+    {
+      "source": "config/fcitx5/config",
+      "target": ".config/fcitx5/config",
+      "mode": "seed"
+    },
+    {
+      "source": "config/fcitx5/profile",
+      "target": ".config/fcitx5/profile",
+      "mode": "seed"
+    },
+    {
+      "source": "config/fontconfig/fonts.conf",
+      "target": ".config/fontconfig/fonts.conf",
+      "mode": "link"
+    },
+    {
+      "source": "config/foot/foot.ini",
+      "target": ".config/foot/foot.ini",
+      "mode": "link"
+    },
+    {
+      "source": "config/git/config",
+      "target": ".config/git/config",
+      "mode": "link"
+    },
+    {
+      "source": "config/goldendict/article-style.css",
+      "target": ".config/goldendict/article-style.css",
+      "mode": "link"
+    },
+    {
+      "source": "config/gtk-3.0/settings.ini",
+      "target": ".config/gtk-3.0/settings.ini",
+      "mode": "link"
+    },
+    {
+      "source": "config/gtk-4.0/gtk.css",
+      "target": ".config/gtk-4.0/gtk.css",
+      "mode": "link"
+    },
+    {
+      "source": "config/gtk-4.0/settings.ini",
+      "target": ".config/gtk-4.0/settings.ini",
+      "mode": "link"
+    },
+    {
+      "source": "config/impala/config.toml",
+      "target": ".config/impala/config.toml",
+      "mode": "link"
+    },
+    {
+      "source": "config/mako/config",
+      "target": ".config/mako/config",
+      "mode": "link"
+    },
+    {
+      "source": "config/nvim",
+      "target": ".config/nvim",
+      "mode": "link"
+    },
+    {
+      "source": "config/qt5ct/qt5ct.conf",
+      "target": ".config/qt5ct/qt5ct.conf",
+      "mode": "render"
+    },
+    {
+      "source": "config/qt6ct/qt6ct.conf",
+      "target": ".config/qt6ct/qt6ct.conf",
+      "mode": "render"
+    },
+    {
+      "source": "config/sioyek/keys_user.config",
+      "target": ".config/sioyek/keys_user.config",
+      "mode": "link"
+    },
+    {
+      "source": "config/sioyek/prefs_user.config",
+      "target": ".config/sioyek/prefs_user.config",
+      "mode": "link"
+    },
+    {
+      "source": "config/starship.toml",
+      "target": ".config/starship.toml",
+      "mode": "link"
+    },
+    {
+      "source": "config/sway/config",
+      "target": ".config/sway/config",
+      "mode": "link"
+    },
+    {
+      "source": "config/swaylock/config",
+      "target": ".config/swaylock/config",
+      "mode": "link"
+    },
+    {
+      "source": "config/swaynag/config",
+      "target": ".config/swaynag/config",
+      "mode": "link"
+    },
+    {
+      "source": "systemd/user/countdown-engine.service",
+      "target": ".config/systemd/user/countdown-engine.service",
+      "mode": "link"
+    },
+    {
+      "source": "systemd/user/countdown-idle-inhibit.service",
+      "target": ".config/systemd/user/countdown-idle-inhibit.service",
+      "mode": "link"
+    },
+    {
+      "source": "systemd/user/countdown-lock-pause.service",
+      "target": ".config/systemd/user/countdown-lock-pause.service",
+      "mode": "link"
+    },
+    {
+      "source": "systemd/user/countdown-sleep.service",
+      "target": ".config/systemd/user/countdown-sleep.service",
+      "mode": "link"
+    },
+    {
+      "source": "systemd/user/fcitx5.service",
+      "target": ".config/systemd/user/fcitx5.service",
+      "mode": "link"
+    },
+    {
+      "source": "systemd/user/flatpak-update.service",
+      "target": ".config/systemd/user/flatpak-update.service",
+      "mode": "link"
+    },
+    {
+      "source": "systemd/user/flatpak-update.timer",
+      "target": ".config/systemd/user/flatpak-update.timer",
+      "mode": "link"
+    },
+    {
+      "source": "systemd/user/idle-suspend.service",
+      "target": ".config/systemd/user/idle-suspend.service",
+      "mode": "link"
+    },
+    {
+      "source": "systemd/user/idle-suspend.timer",
+      "target": ".config/systemd/user/idle-suspend.timer",
+      "mode": "link"
+    },
+    {
+      "source": "systemd/user/locked-display.service",
+      "target": ".config/systemd/user/locked-display.service",
+      "mode": "link"
+    },
+    {
+      "source": "systemd/user/mako.service",
+      "target": ".config/systemd/user/mako.service",
+      "mode": "link"
+    },
+    {
+      "source": "systemd/user/polkit-agent.service",
+      "target": ".config/systemd/user/polkit-agent.service",
+      "mode": "link"
+    },
+    {
+      "source": "systemd/user/session-lock.service",
+      "target": ".config/systemd/user/session-lock.service",
+      "mode": "link"
+    },
+    {
+      "source": "systemd/user/session-locked.target",
+      "target": ".config/systemd/user/session-locked.target",
+      "mode": "link"
+    },
+    {
+      "source": "systemd/user/ssh-agent.service",
+      "target": ".config/systemd/user/ssh-agent.service",
+      "mode": "link"
+    },
+    {
+      "source": "systemd/user/sway-focus-urgent.service",
+      "target": ".config/systemd/user/sway-focus-urgent.service",
+      "mode": "link"
+    },
+    {
+      "source": "systemd/user/sway-session.target",
+      "target": ".config/systemd/user/sway-session.target",
+      "mode": "link"
+    },
+    {
+      "source": "systemd/user/swaybg.service",
+      "target": ".config/systemd/user/swaybg.service",
+      "mode": "link"
+    },
+    {
+      "source": "systemd/user/swayidle.service",
+      "target": ".config/systemd/user/swayidle.service",
+      "mode": "link"
+    },
+    {
+      "source": "systemd/user/swaylock.service",
+      "target": ".config/systemd/user/swaylock.service",
+      "mode": "link"
+    },
+    {
+      "source": "systemd/user/trash-clean.service",
+      "target": ".config/systemd/user/trash-clean.service",
+      "mode": "link"
+    },
+    {
+      "source": "systemd/user/trash-clean.timer",
+      "target": ".config/systemd/user/trash-clean.timer",
+      "mode": "link"
+    },
+    {
+      "source": "systemd/user/waybar.service",
+      "target": ".config/systemd/user/waybar.service",
+      "mode": "link"
+    },
+    {
+      "source": "systemd/user/wlsunset@.service",
+      "target": ".config/systemd/user/wlsunset@.service",
+      "mode": "link"
+    },
+    {
+      "source": "config/tmux/tmux.conf",
+      "target": ".config/tmux/tmux.conf",
+      "mode": "link"
+    },
+    {
+      "source": "config/tofi/config",
+      "target": ".config/tofi/config",
+      "mode": "link"
+    },
+    {
+      "source": "config/waybar/config",
+      "target": ".config/waybar/config",
+      "mode": "link"
+    },
+    {
+      "source": "config/waybar/style.css",
+      "target": ".config/waybar/style.css",
+      "mode": "link"
+    },
+    {
+      "source": "config/xdg-desktop-portal/sway-portals.conf",
+      "target": ".config/xdg-desktop-portal/sway-portals.conf",
+      "mode": "link"
+    },
+    {
+      "source": "config/xdg-terminals.list",
+      "target": ".config/xdg-terminals.list",
+      "mode": "link"
+    },
+    {
+      "source": "config/xfce4/helpers.rc",
+      "target": ".config/xfce4/helpers.rc",
+      "mode": "link"
+    },
+    {
+      "source": "config/yazi/flavors/gruvbox-material.yazi",
+      "target": ".config/yazi/flavors/gruvbox-material.yazi",
+      "mode": "link"
+    },
+    {
+      "source": "config/yazi/keymap.toml",
+      "target": ".config/yazi/keymap.toml",
+      "mode": "link"
+    },
+    {
+      "source": "config/yazi/plugins/smart-enter.yazi",
+      "target": ".config/yazi/plugins/smart-enter.yazi",
+      "mode": "link"
+    },
+    {
+      "source": "config/yazi/theme.toml",
+      "target": ".config/yazi/theme.toml",
+      "mode": "link"
+    },
+    {
+      "source": "config/yazi/yazi.toml",
+      "target": ".config/yazi/yazi.toml",
+      "mode": "link"
+    },
+    {
+      "source": "config/gtk-2.0/gtkrc",
+      "target": ".gtkrc-2.0",
+      "mode": "link"
+    },
+    {
+      "source": "bin/anki-longman-setup",
+      "target": ".local/bin/anki-longman-setup",
+      "mode": "link"
+    },
+    {
+      "source": "bin/countdown",
+      "target": ".local/bin/countdown",
+      "mode": "link"
+    },
+    {
+      "source": "bin/countdown-engine",
+      "target": ".local/bin/countdown-engine",
+      "mode": "link"
+    },
+    {
+      "source": "bin/dict-toggle",
+      "target": ".local/bin/dict-toggle",
+      "mode": "link"
+    },
+    {
+      "source": "bin/dotfiles-sway",
+      "target": ".local/bin/dotfiles-sway",
+      "mode": "link"
+    },
+    {
+      "source": "bin/goldendict-anki-config",
+      "target": ".local/bin/goldendict-anki-config",
+      "mode": "link"
+    },
+    {
+      "source": "bin/idle-suspend",
+      "target": ".local/bin/idle-suspend",
+      "mode": "link"
+    },
+    {
+      "source": "bin/lock-screen",
+      "target": ".local/bin/lock-screen",
+      "mode": "link"
+    },
+    {
+      "source": "bin/media-notify",
+      "target": ".local/bin/media-notify",
+      "mode": "link"
+    },
+    {
+      "source": "bin/obsidian-toggle",
+      "target": ".local/bin/obsidian-toggle",
+      "mode": "link"
+    },
+    {
+      "source": "bin/power-profile-menu",
+      "target": ".local/bin/power-profile-menu",
+      "mode": "link"
+    },
+    {
+      "source": "bin/quick-lang",
+      "target": ".local/bin/quick-lang",
+      "mode": "link"
+    },
+    {
+      "source": "bin/refresh-session",
+      "target": ".local/bin/refresh-session",
+      "mode": "link"
+    },
+    {
+      "source": "bin/scratchpad-terminal",
+      "target": ".local/bin/scratchpad-terminal",
+      "mode": "link"
+    },
+    {
+      "source": "bin/screenshot",
+      "target": ".local/bin/screenshot",
+      "mode": "link"
+    },
+    {
+      "source": "bin/screenshot-menu",
+      "target": ".local/bin/screenshot-menu",
+      "mode": "link"
+    },
+    {
+      "source": "bin/session-resume",
+      "target": ".local/bin/session-resume",
+      "mode": "link"
+    },
+    {
+      "source": "bin/session-start",
+      "target": ".local/bin/session-start",
+      "mode": "link"
+    },
+    {
+      "source": "bin/sioyek-open",
+      "target": ".local/bin/sioyek-open",
+      "mode": "link"
+    },
+    {
+      "source": "bin/sway-popup",
+      "target": ".local/bin/sway-popup",
+      "mode": "link"
+    },
+    {
+      "source": "bin/sway-window-focus",
+      "target": ".local/bin/sway-window-focus",
+      "mode": "link"
+    },
+    {
+      "source": "bin/ticktick-toggle",
+      "target": ".local/bin/ticktick-toggle",
+      "mode": "link"
+    },
+    {
+      "source": "bin/toggle-touchpad",
+      "target": ".local/bin/toggle-touchpad",
+      "mode": "link"
+    },
+    {
+      "source": "bin/trash-clean",
+      "target": ".local/bin/trash-clean",
+      "mode": "link"
+    },
+    {
+      "source": "bin/utilities",
+      "target": ".local/bin/utilities",
+      "mode": "link"
+    },
+    {
+      "source": "bin/vm-nixos",
+      "target": ".local/bin/vm-nixos",
+      "mode": "link"
+    },
+    {
+      "source": "bin/wifi-menu",
+      "target": ".local/bin/wifi-menu",
+      "mode": "link"
+    },
+    {
+      "source": "bin/wlsunset-apply",
+      "target": ".local/bin/wlsunset-apply",
+      "mode": "link"
+    },
+    {
+      "source": "bin/wlsunset-menu",
+      "target": ".local/bin/wlsunset-menu",
+      "mode": "link"
+    },
+    {
+      "source": "bin/wlsunset-run",
+      "target": ".local/bin/wlsunset-run",
+      "mode": "link"
+    },
+    {
+      "source": "shell/interactive.sh",
+      "target": ".local/lib/dotfiles/interactive.sh",
+      "mode": "link"
+    },
+    {
+      "source": "lib/tofi-menu.sh",
+      "target": ".local/lib/dotfiles/tofi-menu.sh",
+      "mode": "link"
+    },
+    {
+      "source": "lib/vocabulary",
+      "target": ".local/lib/dotfiles/vocabulary",
+      "mode": "link"
+    },
+    {
+      "source": "lib/window-focus.py",
+      "target": ".local/lib/dotfiles/window-focus.py",
+      "mode": "link"
+    },
+    {
+      "source": "share/applications/mimeapps.list",
+      "target": ".local/share/applications/mimeapps.list",
+      "mode": "link"
+    },
+    {
+      "source": "share/applications/nvim.desktop",
+      "target": ".local/share/applications/nvim.desktop",
+      "mode": "link"
+    },
+    {
+      "source": "share/applications/sioyek.desktop",
+      "target": ".local/share/applications/sioyek.desktop",
+      "mode": "link"
+    },
+    {
+      "source": "share/applications/yazi.desktop",
+      "target": ".local/share/applications/yazi.desktop",
+      "mode": "link"
+    },
+    {
+      "source": "share/fcitx5/themes/gruvbox-material/theme.conf",
+      "target": ".local/share/fcitx5/themes/gruvbox-material/theme.conf",
+      "mode": "link"
+    },
+    {
+      "source": "share/wallpapers/desktop.png",
+      "target": ".local/share/wallpapers/desktop.png",
+      "mode": "link"
+    },
+    {
+      "source": "shell/profile",
+      "target": ".profile",
+      "mode": "link"
+    }
+  ],
+  "system": [
+    {
+      "source": "system/etc/bluetooth/main.conf",
+      "target": "etc/bluetooth/main.conf",
+      "mode": "copy",
+      "permissions": "644"
+    },
+    {
+      "source": "system/etc/default/earlyoom",
+      "target": "etc/default/earlyoom",
+      "mode": "copy",
+      "permissions": "644"
+    },
+    {
+      "source": "system/etc/greetd/config.toml",
+      "target": "etc/greetd/config.toml",
+      "mode": "copy",
+      "permissions": "644"
+    },
+    {
+      "source": "system/etc/iwd/main.conf",
+      "target": "etc/iwd/main.conf",
+      "mode": "copy",
+      "permissions": "644"
+    },
+    {
+      "source": "system/etc/keyd/default.conf",
+      "target": "etc/keyd/default.conf",
+      "mode": "copy",
+      "permissions": "644"
+    },
+    {
+      "source": "system/etc/modules-load.d/uinput.conf",
+      "target": "etc/modules-load.d/uinput.conf",
+      "mode": "copy",
+      "permissions": "644"
+    },
+    {
+      "source": "system/etc/nftables.conf",
+      "target": "etc/nftables.conf",
+      "mode": "copy",
+      "permissions": "644"
+    },
+    {
+      "source": "system/etc/pipewire/pipewire.conf.d/99-disable-x11-bell.conf",
+      "target": "etc/pipewire/pipewire.conf.d/99-disable-x11-bell.conf",
+      "mode": "copy",
+      "permissions": "644"
+    },
+    {
+      "source": "system/etc/systemd/journald.conf.d/10-size.conf",
+      "target": "etc/systemd/journald.conf.d/10-size.conf",
+      "mode": "copy",
+      "permissions": "644"
+    },
+    {
+      "source": "system/etc/systemd/logind.conf.d/10-laptop.conf",
+      "target": "etc/systemd/logind.conf.d/10-laptop.conf",
+      "mode": "copy",
+      "permissions": "644"
+    },
+    {
+      "source": "system/etc/systemd/sleep.conf.d/10-laptop.conf",
+      "target": "etc/systemd/sleep.conf.d/10-laptop.conf",
+      "mode": "copy",
+      "permissions": "644"
+    },
+    {
+      "source": "system/etc/systemd/system/battery-threshold.service",
+      "target": "etc/systemd/system/battery-threshold.service",
+      "mode": "copy",
+      "permissions": "644"
+    },
+    {
+      "source": "system/etc/systemd/zram-generator.conf",
+      "target": "etc/systemd/zram-generator.conf",
+      "mode": "copy",
+      "permissions": "644"
+    },
+    {
+      "source": "system/etc/wireplumber/wireplumber.conf.d/99-bluetooth-software-volume.conf",
+      "target": "etc/wireplumber/wireplumber.conf.d/99-bluetooth-software-volume.conf",
+      "mode": "copy",
+      "permissions": "644"
+    },
+    {
+      "source": "system/bin/dotfiles-sway",
+      "target": "usr/local/bin/dotfiles-sway",
+      "mode": "copy",
+      "permissions": "755"
+    },
+    {
+      "source": "system/bin/set-battery-threshold",
+      "target": "usr/local/bin/set-battery-threshold",
+      "mode": "copy",
+      "permissions": "755"
+    }
+  ],
+  "enable_user_units": [
+    "countdown-engine.service",
+    "countdown-lock-pause.service",
+    "countdown-sleep.service",
+    "fcitx5.service",
+    "flatpak-update.timer",
+    "mako.service",
+    "polkit-agent.service",
+    "session-lock.service",
+    "ssh-agent.service",
+    "sway-focus-urgent.service",
+    "swaybg.service",
+    "swayidle.service",
+    "trash-clean.timer",
+    "waybar.service"
+  ]
+}

@@ -1,0 +1,23 @@
+bs-hl-color=e78a4e
+color=282828
+font=JetBrains Mono
+font-size=20
+indicator-radius=90
+indicator-thickness=6
+inside-clear-color=32302f
+inside-color=282828ee
+inside-ver-color=32302f
+inside-wrong-color=32302f
+key-hl-color=a9b665
+line-uses-inside
+ring-clear-color=d8a657
+ring-color=5a524c
+ring-ver-color=7daea3
+ring-wrong-color=ea6962
+scaling=fill
+separator-color=282828
+show-failed-attempts
+text-clear-color=d8a657
+text-color=d4be98
+text-ver-color=7daea3
+text-wrong-color=ea6962

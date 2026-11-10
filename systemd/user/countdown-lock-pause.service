@@ -1,0 +1,16 @@
+[Install]
+WantedBy=session-locked.target
+
+[Service]
+ExecStart=%h/.local/bin/countdown-engine lock-pause
+RemainAfterExit=true
+Restart=on-failure
+RestartSec=2
+TimeoutStartSec=3
+Type=oneshot
+
+[Unit]
+After=session-locked.target
+BindsTo=session-locked.target
+Description=Pause Countdown when the session locks
+PartOf=session-locked.target

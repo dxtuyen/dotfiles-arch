@@ -1,0 +1,14 @@
+[Unit]
+Description=Mako notification daemon
+PartOf=sway-session.target
+After=sway-session.target
+
+[Service]
+Type=dbus
+BusName=org.freedesktop.Notifications
+ExecStart=/usr/bin/mako
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=sway-session.target

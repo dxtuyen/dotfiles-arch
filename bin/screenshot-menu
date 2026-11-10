@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -u
+# shellcheck source=../lib/tofi-menu.sh
+source "$HOME/.local/lib/dotfiles/tofi-menu.sh"
+
+choice=$(
+  {
+    menu_item 'Selection → Clipboard' ''
+    menu_item 'Screen → Clipboard' ''
+    menu_item 'Selection → File' ''
+    menu_item 'Screen → File' ''
+  } | menu_pick Screenshot 4 0 \
+    $'Print / Alt+Print: clipboard\nShift+Print / Ctrl+Print: file'
+) || exit 0
+
+case "$choice" in
+  0) action=selection-clipboard ;;
+  1) action=fullscreen-clipboard ;;
+  2) action=selection-save ;;
+  3) action=fullscreen-save ;;
+  *) exit 0 ;;
+esac
+exec "$HOME/.local/bin/screenshot" "$action"

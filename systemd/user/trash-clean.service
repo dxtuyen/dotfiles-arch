@@ -1,0 +1,6 @@
+[Service]
+ExecStart=%h/.local/bin/trash-clean 30
+Type=oneshot
+
+[Unit]
+Description=Clean trash older than 30 days

@@ -1,0 +1,2 @@
+# Optional server: building MySQL from source is expensive. See docs/maintenance.md.
+mysql84

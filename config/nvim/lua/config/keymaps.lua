@@ -1,0 +1,2 @@
+-- Keep LazyVim's defaults: Space is the leader; Ctrl+h/j/k/l change windows.
+-- Desktop navigation uses Super; tmux navigation uses the Ctrl+b prefix.

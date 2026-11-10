@@ -1,0 +1,175 @@
+[
+  {
+    "battery": {
+      "format": "<span font_family='Font Awesome 7 Free'>{icon}</span> {capacity}%",
+      "format-charging": "<span font_family='Font Awesome 7 Free'></span> {capacity}%",
+      "format-icons": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "format-plugged": "<span font_family='Font Awesome 7 Free'></span> {capacity}%",
+      "states": {
+        "critical": 15,
+        "warning": 25
+      }
+    },
+    "bluetooth": {
+      "format": "<span font_family='Font Awesome 7 Free'></span>",
+      "format-connected": "<span font_family='Font Awesome 7 Free'></span>",
+      "format-disabled": "<span font_family='Font Awesome 7 Free'></span> Disabled",
+      "format-no-controller": "<span font_family='Font Awesome 7 Free'></span> N/A",
+      "format-off": "<span font_family='Font Awesome 7 Free'></span> Off",
+      "format-on": "<span font_family='Font Awesome 7 Free'></span> On",
+      "on-click": "foot --app-id=bluetui -T Bluetooth bluetui",
+      "tooltip": true,
+      "tooltip-format": "{controller_alias}: {status}",
+      "tooltip-format-connected": "{controller_alias} · {num_connections} connected\n{device_enumerate}",
+      "tooltip-format-enumerate-connected": "{device_alias}"
+    },
+    "clock": {
+      "format": "{:%H:%M}",
+      "locale": "en_US.UTF-8",
+      "tooltip-format": "{:%d %B %Y}"
+    },
+    "custom/countdown": {
+      "escape": true,
+      "exec": "~/.local/bin/countdown-engine status-time",
+      "hide-empty-text": true,
+      "interval": "once",
+      "on-click": "~/.local/bin/countdown-engine control-click",
+      "on-click-right": "~/.local/bin/countdown",
+      "return-type": "json",
+      "signal": 8
+    },
+    "custom/countdown-control": {
+      "escape": true,
+      "exec": "~/.local/bin/countdown-engine status-control",
+      "format": "<span font_family='Font Awesome 7 Free'>{text}</span>",
+      "interval": "once",
+      "on-click": "~/.local/bin/countdown-engine control-click",
+      "on-click-right": "~/.local/bin/countdown",
+      "return-type": "json",
+      "signal": 10
+    },
+    "custom/inhibit": {
+      "escape": true,
+      "exec": "~/.local/bin/countdown-engine inhibit",
+      "format": "<span font_family='Font Awesome 7 Free'>{text}</span>",
+      "interval": "once",
+      "on-click": "~/.local/bin/countdown-engine inhibit-toggle",
+      "return-type": "json",
+      "signal": 7
+    },
+    "custom/power-menu": {
+      "format": "<span font_family='Font Awesome 7 Free'></span>",
+      "on-click": "~/.local/bin/utilities --power",
+      "tooltip": true,
+      "tooltip-format": "Power options"
+    },
+    "custom/status-divider": {
+      "format": " ",
+      "tooltip": false
+    },
+    "custom/swayview": {
+      "format": "<span font_family='Font Awesome 7 Free'></span>",
+      "on-click": "pkill -x swayview || swayview",
+      "tooltip": true,
+      "tooltip-format": "Workspace overview · Super+Tab"
+    },
+    "custom/tray-divider": {
+      "format": " ",
+      "tooltip": false
+    },
+    "group/status": {
+      "modules": [
+        "custom/inhibit",
+        "bluetooth",
+        "network",
+        "pulseaudio",
+        "power-profiles-daemon",
+        "battery"
+      ],
+      "orientation": "horizontal"
+    },
+    "height": 30,
+    "modules-center": [
+      "custom/countdown-control",
+      "custom/countdown"
+    ],
+    "modules-left": [
+      "custom/swayview",
+      "sway/workspaces",
+      "sway/scratchpad",
+      "sway/mode"
+    ],
+    "modules-right": [
+      "group/status",
+      "clock",
+      "custom/status-divider",
+      "tray",
+      "custom/tray-divider",
+      "custom/power-menu"
+    ],
+    "network": {
+      "format-disabled": "<span font_family='Font Awesome 7 Free'></span>",
+      "format-disconnected": "<span font_family='Font Awesome 7 Free'></span>",
+      "format-ethernet": "<span font_family='Font Awesome 7 Free'></span> LAN",
+      "format-wifi": "<span font_family='Font Awesome 7 Free'></span> {signalStrength}%",
+      "interval": 5,
+      "on-click": "~/.local/bin/wifi-menu",
+      "on-click-right": "~/.local/bin/wifi-menu",
+      "tooltip-format-disabled": "Wi-Fi disabled",
+      "tooltip-format-disconnected": "Network disconnected",
+      "tooltip-format-ethernet": "Interface: {ifname}\nIP: {ipaddr}/{cidr}\nGateway: {gwaddr}",
+      "tooltip-format-wifi": "SSID: {essid}\nSignal: {signalStrength}%\nIP: {ipaddr}/{cidr}\nGateway: {gwaddr}"
+    },
+    "position": "bottom",
+    "power-profiles-daemon": {
+      "format": "<span font_family='Font Awesome 7 Free'>{icon}</span>",
+      "format-icons": {
+        "balanced": "",
+        "performance": "",
+        "power-saver": ""
+      },
+      "on-click": "~/.local/bin/power-profile-menu",
+      "tooltip": true,
+      "tooltip-format": "Power profile: {profile}"
+    },
+    "pulseaudio": {
+      "format": "<span font_family='Font Awesome 7 Free'>{icon}</span> {volume}%",
+      "format-icons": {
+        "default": [
+          "",
+          "",
+          ""
+        ]
+      },
+      "format-muted": "muted",
+      "on-click": "foot --app-id=wiremix -T 'Audio' wiremix"
+    },
+    "spacing": 2,
+    "sway/scratchpad": {
+      "format": "<span font_family='Font Awesome 7 Free'></span> {count}",
+      "show-empty": false,
+      "tooltip": true,
+      "tooltip-format": "{app}: {title}"
+    },
+    "sway/workspaces": {
+      "disable-scroll": true,
+      "persistent-workspaces": {
+        "1": [],
+        "2": [],
+        "3": [],
+        "4": [],
+        "5": []
+      }
+    },
+    "tray": {
+      "icon-size": 16,
+      "spacing": 10
+    }
+  }
+]

@@ -1,0 +1,19 @@
+[Install]
+WantedBy=sway-session.target
+
+[Service]
+Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin
+ExecStart=/usr/bin/swayidle -w \
+  before-sleep '%h/.local/bin/lock-screen' \
+  lock '%h/.local/bin/lock-screen' \
+  after-resume '%h/.local/bin/session-resume' \
+  unlock 'swaymsg "output * power on"'
+
+Restart=always
+RestartSec=2
+
+[Unit]
+After=sway-session.target
+Description=Lock the Sway session before sleep and on logind requests
+PartOf=sway-session.target
+StartLimitIntervalSec=60

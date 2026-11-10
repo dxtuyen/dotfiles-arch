@@ -1,0 +1,5 @@
+qemu-desktop
+edk2-ovmf
+libvirt
+virt-manager
+dnsmasq

@@ -1,0 +1,12 @@
+[Install]
+WantedBy=sway-session.target
+
+[Service]
+ExecStart=%h/.local/bin/sway-window-focus --watch
+Restart=on-failure
+RestartSec=1
+
+[Unit]
+After=sway-session.target
+Description=Focus urgent Sway windows
+PartOf=sway-session.target

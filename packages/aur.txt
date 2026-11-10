@@ -1,0 +1,11 @@
+# Built as the login user after inspecting prepared recipes. No AUR helper needed.
+tofi
+fcitx5-lotus
+goldendict-ng
+sioyek-git
+swayview
+bibata-cursor-theme
+gruvbox-plus-icon-theme
+brave-bin
+google-chrome
+visual-studio-code-bin

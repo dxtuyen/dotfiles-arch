@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+set -u
+
+mode=unknown
+label='Not running'
+for candidate in warm white natural; do
+  if systemctl --user is-active --quiet "wlsunset@$candidate.service"; then
+    mode=$candidate
+    break
+  fi
+done
+case "$mode" in
+  warm) label=Warm ;;
+  white) label=Cool ;;
+  natural) label=Natural ;;
+esac
+if [[ "${1:-}" == status ]]; then
+  printf '%s\n' "$label"
+  exit 0
+fi
+
+# shellcheck source=../lib/tofi-menu.sh
+source "$HOME/.local/lib/dotfiles/tofi-menu.sh"
+ids=(warm white natural)
+labels=('Warm · 4000K' 'Cool · 6500K' 'Natural · automatic')
+icons=('' '' '')
+selected=0
+for i in "${!ids[@]}"; do
+  if [[ "${ids[i]}" == "$mode" ]]; then
+    selected=$i
+  fi
+done
+choice=$(
+  for i in "${!ids[@]}"; do
+    text=${labels[i]}
+    [[ "${ids[i]}" != "$mode" ]] || text+=' · current'
+    menu_item "$text" "${icons[i]}"
+  done | menu_pick Display 3 "$selected"
+) || exit 0
+[[ "$choice" =~ ^[0-2]$ ]] || exit 0
+next_mode=${ids[choice]}
+[[ "$mode" != "$next_mode" ]] || exit 0
+case "$next_mode" in
+  warm) icon=weather-clear-night; label=Warm ;;
+  white) icon=weather-clear; label=Cool ;;
+  natural) icon=preferences-system-time; label=Natural ;;
+esac
+if "$HOME/.local/bin/wlsunset-apply" "$next_mode"; then
+  notify-send -a wlsunset -i "$icon" -t 2000 Display "$label"
+else
+  notify-send -a wlsunset -u critical Display 'Could not apply the display mode.'
+  exit 1
+fi

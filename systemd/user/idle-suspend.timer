@@ -1,0 +1,13 @@
+[Timer]
+AccuracySec=1s
+OnActiveSec=1s
+OnUnitInactiveSec=30s
+
+[Unit]
+After=swayidle.service
+Before=shutdown.target
+BindsTo=swayidle.service
+Conflicts=shutdown.target
+DefaultDependencies=false
+Description=Recheck battery power while the Sway session is idle
+PartOf=swayidle.service

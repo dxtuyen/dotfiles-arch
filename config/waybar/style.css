@@ -1,0 +1,126 @@
+/* Use JetBrains Mono for text; icons specify their own font. */
+* {
+  font-family: "JetBrains Mono", "JetBrains Mono Nerd Font Mono", monospace;
+  font-size: 13px;
+  border: none;
+  border-radius: 0;
+}
+
+/* A quiet, continuous Gruvbox bar with a thin edge facing the windows. */
+@define-color txt #d4be98;
+@define-color txt-strong #ddc7a1;
+@define-color muted #928374;
+
+window#waybar {
+  background: #282828;
+  color: @txt;
+  border-top: 1px solid #3c3836;
+}
+
+#workspaces,
+#scratchpad,
+#mode,
+#clock,
+#custom-power-menu {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  margin: 0 4px;
+  padding: 0 4px;
+}
+
+/* A compact overview launcher leading into the numbered workspaces. */
+#custom-swayview {
+  color: @txt;
+  background: transparent;
+  min-width: 18px;
+  margin: 0 2px 0 8px;
+  padding: 0 5px;
+}
+#custom-swayview:hover {
+  color: @txt-strong;
+  background: #32302f;
+}
+#workspaces { margin-left: 0; padding: 0; }
+#scratchpad { margin: 0 5px; padding: 0 2px; color: @txt; }
+#workspaces button {
+  color: @txt;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  box-shadow: none;
+  /* Preserve the previous GTK theme's sizing independently of colors. */
+  min-width: 18px;
+  min-height: 18px;
+  margin: 0;
+  padding: 0 5px;
+  font-size: 15px;
+  transition: none;
+}
+#workspaces button:hover {
+  background: #32302f;
+  box-shadow: none;
+}
+#workspaces button.focused, #workspaces button.active {
+  color: @txt-strong;
+  background: #3c3836;
+  border-bottom-color: #a89984;
+}
+/* Keep empty workspaces subdued while occupied ones use the default text color. */
+#workspaces button.persistent.empty { color: #5a524c; }
+#workspaces button.urgent { color: #e78a4e; border-bottom-color: #e78a4e; }
+/* Keep focused empty workspaces readable. */
+#workspaces button.persistent.empty.focused {
+  color: @txt-strong;
+  background: #3c3836;
+}
+#status {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  margin: 0;
+  padding: 0;
+}
+box#status > widget > * {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  margin: 0 4px;
+  padding: 0 2px;
+}
+#custom-countdown-control { min-width: 18px; margin: 0; padding: 0; }
+#custom-countdown { min-width: 44px; margin: 0; padding: 0; }
+#clock { margin-left: 2px; margin-right: 2px; }
+#tray {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  margin: 0;
+  padding: 0 3px;
+}
+#mode { color: #7daea3; }
+#custom-status-divider, #custom-tray-divider {
+  border-left: 1px solid #45403d;
+  min-height: 14px;
+  margin: 0 1px;
+  padding: 0;
+}
+#custom-power-menu { color: #d4be98; margin: 0 8px 0 2px; padding: 0 3px; }
+#custom-power-menu:hover { color: #ddc7a1; }
+#clock, #custom-countdown { font-weight: bold; }
+#custom-countdown.running { color: #7daea3; }
+#custom-countdown.paused { color: #e78a4e; }
+#custom-countdown.idle { color: @muted; }
+#custom-countdown-control.running { color: #7daea3; }
+#custom-countdown-control.paused { color: #e78a4e; }
+#custom-countdown-control.idle { color: @muted; }
+#custom-inhibit.idle { color: @muted; }
+#bluetooth.off, #bluetooth.disabled, #bluetooth.no-controller { color: @muted; }
+#bluetooth.connected { color: #a9b665; }
+#network.disconnected, #network.disabled { color: @muted; }
+#battery.warning { color: #d8a657; }
+#battery.critical { color: #ea6962; }
+#battery.charging { color: #a9b665; font-weight: bold; }
+#battery.plugged { color: #a9b665; }
+#pulseaudio.muted { color: @muted; }

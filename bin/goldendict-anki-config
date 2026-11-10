@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+exec python3 "$HOME/.local/lib/dotfiles/vocabulary/scripts/configure-goldendict.py" \
+  --config "${XDG_CONFIG_HOME:-$HOME/.config}/goldendict/config" \
+  --dictionary "$HOME/Dictionary/Longman" "$@"

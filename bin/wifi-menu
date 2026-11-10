@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+set -euo pipefail
+exec foot --app-id=impala -T Wi-Fi impala --mode station

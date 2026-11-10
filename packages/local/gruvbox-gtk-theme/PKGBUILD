@@ -1,0 +1,21 @@
+# Preserve the Gruvbox-Dark-Medium variant used by the existing desktop.
+pkgname=dotfiles-gruvbox-gtk-theme
+pkgver=2025.10.23
+pkgrel=1
+pkgdesc='Gruvbox Dark Medium GTK theme for this desktop'
+arch=('any')
+url='https://github.com/Fausto-Korpsvart/Gruvbox-GTK-Theme'
+license=('GPL-3.0-or-later')
+depends=('gtk3')
+makedepends=('sassc')
+conflicts=('gruvbox-gtk-theme-git')
+_commit=578cd220b5ff6e86b078a6111d26bb20ec8c733f
+source=("gruvbox-$_commit.tar.gz::https://github.com/Fausto-Korpsvart/Gruvbox-GTK-Theme/archive/$_commit.tar.gz")
+sha256sums=('f45da23a6c4123148cf8f78983e391a86c2e2ee1b7a80aa66790f148cb9619bd')
+
+package() {
+  cd "$srcdir/Gruvbox-GTK-Theme-$_commit/themes"
+  # Only the dark, standard, medium variant; avoid the full variant matrix.
+  ./install.sh -n Gruvbox -c dark -s standard -t default --tweaks medium \
+    -d "$pkgdir/usr/share/themes"
+}

@@ -1,0 +1,36 @@
+# Minimal Yazi configuration; unspecified options use the defaults.
+
+[opener]
+# Keep the editor open after Yazi exits.
+edit = [
+  { run = 'foot --title=nvim nvim %s', for = "unix", orphan = true, desc = "Neovim (Foot)" },
+]
+
+# Keep applications launched by `open` and `reveal` running after Yazi exits.
+open = [
+  { run = "xdg-open %s1", desc = "System default", for = "linux", orphan = true },
+]
+reveal = [
+  { run = "xdg-open %d1", desc = "Reveal", for = "linux", orphan = true },
+]
+
+# Explicit choices open files once; they never change the system default.
+browser = [
+  { run = 'brave %s', desc = "Brave", for = "linux", orphan = true },
+  { run = 'google-chrome-stable %s', desc = "Chrome", for = "linux", orphan = true },
+]
+sioyek = [
+  { run = 'sioyek %s', desc = "Sioyek", for = "linux", orphan = true },
+]
+calc = [
+  { run = 'libreoffice --calc %s', desc = "LibreOffice Calc", for = "linux", orphan = true },
+]
+
+[open]
+# Enter uses the first opener. Shift+O lists all choices for that file type.
+# Keep the built-in directory, archive, and fallback rules.
+prepend_rules = [
+  { url = "*.{html,htm,xhtml}", use = [ "open", "browser", "edit" ] },
+  { url = "*.csv", use = [ "open", "calc", "edit" ] },
+  { url = "*.pdf", use = [ "open", "sioyek", "browser" ] },
+]

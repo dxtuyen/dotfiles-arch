@@ -1,0 +1,9 @@
+[Unit]
+Description=Update installed per-user Flatpak applications
+ConditionPathExists=%h/.local/share/flatpak/repo
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/flatpak update --user --noninteractive
+TimeoutStartSec=30min
+Nice=10
