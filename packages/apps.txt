@@ -1,6 +1,5 @@
 neovim
 tmux
-starship
 yazi
 fzf
 zoxide

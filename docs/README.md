@@ -7,3 +7,5 @@
 - [Bảo trì và khôi phục](maintenance.md).
 - [Khôi phục GoldenDict → Anki](vocabulary.md).
 - [Nguồn tham khảo](sources.md).
+- [Audit và verification](audit.md).
+- [Package workflow và Paru](packages.md).

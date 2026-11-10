@@ -8,6 +8,7 @@ waybar
 mako
 greetd
 greetd-tuigreet
+plymouth
 polkit-gnome
 xdg-desktop-portal
 xdg-desktop-portal-wlr
@@ -21,6 +22,7 @@ mesa
 vulkan-intel
 intel-media-driver
 pipewire
+sof-firmware
 rtkit
 pipewire-alsa
 pipewire-pulse

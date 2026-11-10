@@ -110,7 +110,7 @@ bindsym --no-repeat $mod+i exec ~/.local/bin/ticktick-toggle
 bindsym --no-repeat $mod+d exec $menu
 # Return to the workspace just left; repeat to toggle between the two.
 bindsym --no-repeat Mod1+Tab workspace back_and_forth
-# Mod+u opens utilities; Mod+p and the Waybar power button open power actions.
+# Mod+u opens utilities; Mod+p opens power actions.
 # Mod+c opens Countdown.
 # Toggle Sway's native scratchpad; Shift+Mod+- sends the focused window there.
 bindsym $mod+minus scratchpad show
@@ -142,7 +142,7 @@ bindsym $mod+Shift+Down move down
 bindsym $mod+Shift+Up move up
 bindsym $mod+Shift+Right move right
 
-# Ten numbered workspaces; Waybar pins 1–5 and the 0 key selects workspace 10.
+# Ten numbered workspaces; the 0 key selects workspace 10.
 bindsym $mod+1 workspace number 1
 bindsym $mod+Shift+1 move container to workspace number 1
 bindsym $mod+2 workspace number 2
@@ -199,7 +199,7 @@ mode "resize" {
 # Custom Utilities & Screenshot
 # Toggle Waybar visibility (SIGUSR1 toggles it by default).
 bindsym $mod+Shift+b exec systemctl --user kill --signal=SIGUSR1 --kill-whom=main waybar.service
-# Mod+u opens daily utilities; Mod+p and the Waybar power button open session and power actions.
+# Mod+u opens daily utilities; Mod+p opens session and power actions.
 bindsym $mod+u exec ~/.local/bin/utilities
 bindsym $mod+p exec ~/.local/bin/utilities --power
 bindsym $mod+Escape exec ~/.local/bin/lock-screen

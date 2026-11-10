@@ -1,5 +1,5 @@
 [Service]
-ExecStart=/usr/bin/swaylock -f -e
+ExecStart=/usr/bin/swaylock -f -e --image %h/.local/share/wallpapers/lock.png
 ExitType=cgroup
 GuessMainPID=false
 Type=forking

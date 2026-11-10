@@ -15,6 +15,32 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+OFFICIAL_GROUPS = ("base", "desktop", "apps", "development", "virtualisation")
+
+
+def write_journal(path, data):
+    """Publish complete recovery metadata before changing the corresponding file."""
+    temporary = path.with_suffix(".new")
+    with temporary.open("w") as output:
+        json.dump(data, output, indent=2)
+        output.write("\n")
+        output.flush()
+        os.fsync(output.fileno())
+    temporary.replace(path)
+    sync_directory(path.parent)
+
+
+def sync_directory(path):
+    fd = os.open(path, os.O_RDONLY | os.O_DIRECTORY)
+    try:
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
+def identity(path):
+    status = path.lstat()
+    return [status.st_dev, status.st_ino]
 
 
 def run(*args, **kwargs):
@@ -140,6 +166,7 @@ def install_files(items, base, *, backup=False, dry_run=False):
     transaction = state / "backups" / (datetime.now(UTC).strftime("%Y%m%dT%H%M%S.%fZ"))
     safe_parent(transaction, base)
     transaction.mkdir(parents=True, mode=0o700)
+    print(f"Recovery transaction: {transaction}", flush=True)
     records = []
     for item, dest in changes:
         dest.parent.mkdir(parents=True, exist_ok=True)
@@ -161,19 +188,26 @@ def install_files(items, base, *, backup=False, dry_run=False):
         if exists(dest):
             saved = transaction / "files" / item["target"]
             saved.parent.mkdir(parents=True, exist_ok=True)
-            dest.rename(saved)
             record["backup"] = str(saved.relative_to(transaction))
+            record["original_identity"] = identity(dest)
         records.append(record)
-        # Journal before creating the replacement, so an interrupted install can be restored.
-        (transaction / "journal.json").write_text(
-            json.dumps({"base": str(base), "files": records}, indent=2) + "\n"
-        )
+        journal = transaction / "journal.json"
+        data = {"base": str(base), "files": records}
+        # Write intent BEFORE moving the original, including its inode for recovery.
+        write_journal(journal, data)
+        if record["backup"]:
+            dest.rename(saved)
+            sync_directory(saved.parent)
+            sync_directory(dest.parent)
         if mode == "link":
             temporary.symlink_to(ROOT / item["source"])
         else:
             temporary.write_bytes(payload)
             temporary.chmod(int(item.get("permissions", "644"), 8))
+            with temporary.open("rb") as output:
+                os.fsync(output.fileno())
         temporary.replace(dest)
+        sync_directory(dest.parent)
     print(f"Transaction backup: {transaction}")
     return transaction
 
@@ -255,6 +289,38 @@ def system_install(args):
     account = pwd.getpwnam(args.user)
     if account.pw_uid < 1000 or not Path(account.pw_dir).is_dir():
         raise RuntimeError("Choose an existing, regular login account.")
+    conflicts = []
+    for unit in (
+        "NetworkManager.service",
+        "NetworkManager-wait-online.service",
+        "wpa_supplicant.service",
+    ):
+        enabled = (
+            subprocess.run(
+                ["systemctl", "is-enabled", "--quiet", unit],
+                check=False,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            ).returncode
+            == 0
+        )
+        active = (
+            subprocess.run(
+                ["systemctl", "is-active", "--quiet", unit],
+                check=False,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            ).returncode
+            == 0
+        )
+        if enabled or active:
+            conflicts.append(unit)
+    if conflicts:
+        raise RuntimeError(
+            "Network ownership conflict: "
+            + ", ".join(conflicts)
+            + ". Plan a deliberate handoff to iwd first; no services were disabled."
+        )
     items = manifest()["system"]
     install_files(items, Path("/"), backup=args.backup, dry_run=args.dry_run)
     if args.dry_run:
@@ -268,20 +334,6 @@ def system_install(args):
         groups.append(group)
     run("usermod", "-aG", ",".join(groups), args.user)
     run("systemctl", "daemon-reload")
-    # Switch ownership at the next boot without interrupting the current link.
-    for unit in (
-        "NetworkManager.service",
-        "NetworkManager-wait-online.service",
-        "wpa_supplicant.service",
-    ):
-        result = subprocess.run(
-            ["systemctl", "is-enabled", "--quiet", unit],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            check=False,
-        )
-        if result.returncode == 0:
-            run("systemctl", "disable", unit)
     run(
         "systemctl",
         "enable",
@@ -304,95 +356,105 @@ def system_install(args):
     )
 
 
+def installed(name):
+    result = subprocess.run(
+        ["pacman", "-Q", "--", name],
+        check=False,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    if result.returncode not in (0, 1):
+        raise RuntimeError(f"Cannot query installed package: {name}")
+    return result.returncode == 0
+
+
 def official_packages(args):
     require_arch()
+    if any(group not in OFFICIAL_GROUPS for group in args.groups):
+        raise RuntimeError("Use official groups only: " + ", ".join(OFFICIAL_GROUPS))
     names = list(
         dict.fromkeys(name for group in args.groups for name in packages(group))
     )
-    # An Arch full upgrade avoids partial upgrades. Pacman retains its normal review prompts.
-    run("sudo", "pacman", "-Syu", "--needed", *names)
+    command = ("sudo", "pacman", "-Syu", "--needed", "--", *names)
+    if args.dry_run:
+        print("Would run:", " ".join(command))
+        return
+    # Full upgrade avoids partial upgrades; pacman keeps its normal prompts.
+    run(*command)
+
+
+def package_status(args):
+    """Read only: compare inventory with installed packages and local sync databases."""
+    require_arch()
+    repo = set(subprocess.check_output(["pacman", "-Slq"], text=True).splitlines())
+    missing = []
+    for group in (*OFFICIAL_GROUPS, "aur", "aur-database"):
+        for name in packages(group):
+            present = installed(name)
+            print(
+                f"{group:15} {name:32} {'installed' if present else 'missing':10} "
+                f"{'sync repository' if name in repo else 'not in sync databases'}"
+            )
+            if group in OFFICIAL_GROUPS and name not in repo:
+                missing.append(name)
+    print(
+        "Sync databases may be stale. Refresh only as part of a full pacman -Syu upgrade."
+    )
+    if missing:
+        raise RuntimeError(
+            "Official targets unavailable in sync databases: " + ", ".join(missing)
+        )
+
+
+def package_jobs(
+    names, action, *, keep_going=False, dry_run=False, skip_installed=True
+):
+    failures = []
+    for name in names:
+        if skip_installed and installed(name):
+            print("SKIP installed:", name)
+            continue
+        if dry_run:
+            print("Would process:", name)
+            continue
+        try:
+            action(name)
+        except (OSError, RuntimeError, subprocess.CalledProcessError) as error:
+            print(f"FAIL {name}: {error}", file=sys.stderr)
+            failures.append(name)
+            if not keep_going:
+                break
+    if failures:
+        raise RuntimeError(
+            "Package failures: "
+            + ", ".join(failures)
+            + ". Fix the reported cause and rerun; installed targets are skipped."
+        )
 
 
 def aur(args):
     require_arch()
     if os.geteuid() == 0:
         raise RuntimeError("AUR/makepkg must run as your normal user, without sudo.")
-    cache = (
-        Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache"))
-        / "dotfiles/build"
-    )
-    cache.mkdir(parents=True, exist_ok=True)
-    for name in packages(args.group):
-        path = cache / name
-        if args.prepare:
-            if not path.exists():
-                run(
-                    "git",
-                    "clone",
-                    "--depth=1",
-                    f"https://aur.archlinux.org/{name}.git",
-                    path,
-                )
-            else:
-                dirty = subprocess.check_output(
-                    [
-                        "git",
-                        "-C",
-                        str(path),
-                        "status",
-                        "--porcelain",
-                        "--untracked-files=no",
-                    ],
-                    text=True,
-                )
-                if dirty:
-                    raise RuntimeError(
-                        f"{path} has edited recipes; inspect or move it before preparing again."
-                    )
-                run("git", "-C", path, "pull", "--ff-only")
-            revision = subprocess.check_output(
-                ["git", "-C", str(path), "rev-parse", "HEAD"], text=True
-            ).strip()
-            (path / ".git/dotfiles-prepared").write_text(revision + "\n")
-            print(f"Review {path}/PKGBUILD, .install files and patches ({revision}).")
-        else:
-            marker = path / ".git/dotfiles-prepared"
-            if not marker.is_file():
-                raise RuntimeError(
-                    f"Prepare and review {name} first: ./install aur --prepare"
-                )
-            revision = subprocess.check_output(
-                ["git", "-C", str(path), "rev-parse", "HEAD"], text=True
-            ).strip()
-            dirty = subprocess.check_output(
-                [
-                    "git",
-                    "-C",
-                    str(path),
-                    "status",
-                    "--porcelain",
-                    "--untracked-files=no",
-                ],
-                text=True,
-            )
-            if revision != marker.read_text().strip() or dirty:
-                raise RuntimeError(
-                    f"{name} changed after preparation. Prepare and review the recipe again."
-                )
-            run(
-                "makepkg",
-                "--syncdeps",
-                "--install",
-                "--needed",
-                "--cleanbuild",
-                "--pkg",
-                name,
-                cwd=path,
-            )
+    if not args.dry_run and not shutil.which("paru"):
+        raise RuntimeError(
+            "Paru is required for AUR dependencies. Review and bootstrap it using docs/packages.md."
+        )
     if args.prepare:
         print(
-            "After reviewing every recipe, run ./install aur --build. This builds these exact checkouts."
+            "Paru will print target PKGBUILDs; all recipe files and dependencies must be reviewed during --build."
         )
+
+    def action(name):
+        if args.prepare:
+            run("paru", "-Gp", "--", name)
+        else:
+            # Never bypass review, dependency checks, checksums or installation prompts.
+            run("paru", "-S", "--needed", "--review", "--noremovemake", "--", name)
+
+    package_jobs(
+        packages(args.group), action, keep_going=args.keep_going, dry_run=args.dry_run
+    )
 
 
 def local_packages(args):
@@ -403,19 +465,54 @@ def local_packages(args):
         Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache"))
         / "dotfiles/local"
     )
-    for recipe in sorted((ROOT / "packages/local").glob("*/PKGBUILD")):
-        path = cache / recipe.parent.name
+    recipes = {p.parent.name: p for p in (ROOT / "packages/local").glob("*/PKGBUILD")}
+
+    def action(name):
+        recipe = recipes[name]
+        path = cache / name
         path.mkdir(parents=True, exist_ok=True)
         for source in recipe.parent.iterdir():
             if source.is_file():
                 shutil.copy2(source, path / source.name)
-        run("makepkg", "--syncdeps", "--install", "--needed", "--cleanbuild", cwd=path)
+        print(recipe.read_text())
+        if input(f"Build reviewed local recipe {name}? [y/N] ").strip().lower() != "y":
+            raise RuntimeError("Recipe not approved")
+        run("makepkg", "--syncdeps", "--install", "--needed", cwd=path)
+
+    # Local package names are explicit in our committed recipes.
+    names = {
+        name: re.search(
+            r"^pkgname=([a-z0-9@+_.-]+)$", recipe.read_text(), re.MULTILINE
+        ).group(1)
+        for name, recipe in recipes.items()
+    }
+    pending = [name for name in sorted(recipes) if not installed(names[name])]
+    package_jobs(
+        pending,
+        action,
+        keep_going=args.keep_going,
+        dry_run=args.dry_run,
+        skip_installed=False,
+    )
 
 
 def flatpak_install(args):
     require_arch()
     if os.geteuid() == 0:
         raise RuntimeError("Flatpaks belong to your login user; run without sudo.")
+    present = set(
+        subprocess.check_output(
+            ["flatpak", "list", "--user", "--app", "--columns=application"],
+            text=True,
+        ).splitlines()
+    )
+    pending = [name for name in packages("flatpak") if name not in present]
+    if args.dry_run:
+        print("Missing user Flatpaks:", ", ".join(pending) or "none")
+        return
+    if not pending:
+        print("User Flatpaks already installed.")
+        return
     run(
         "flatpak",
         "remote-add",
@@ -424,12 +521,20 @@ def flatpak_install(args):
         "flathub",
         "https://dl.flathub.org/repo/flathub.flatpakrepo",
     )
-    run("flatpak", "install", "--user", "flathub", *packages("flatpak"))
+    run("flatpak", "install", "--user", "flathub", *pending)
 
 
 def doctor(args):
     require_arch()
     failures = []
+
+    def check(*command):
+        try:
+            run(*command)
+        except (OSError, subprocess.CalledProcessError) as error:
+            print("FAIL", error)
+            failures.append(" ".join(command))
+
     commands = (
         "sway",
         "swaylock",
@@ -487,7 +592,7 @@ def doctor(args):
         print("OK  " if ok else "FAIL", path)
         if not ok:
             failures.append(path)
-    run(
+    check(
         "systemd-analyze",
         "--user",
         "verify",
@@ -498,7 +603,7 @@ def doctor(args):
         ],
     )
     for scope in (["--user"], []):
-        result = subprocess.check_output(
+        result = subprocess.run(
             [
                 "systemctl",
                 *scope,
@@ -509,15 +614,16 @@ def doctor(args):
                 "--no-pager",
             ],
             text=True,
+            capture_output=True,
+            check=False,
         )
-        if result.strip():
-            print(result)
+        if result.returncode or result.stdout.strip():
+            print(result.stdout, result.stderr)
             failures.append("failed user units" if scope else "failed system units")
-    run("findmnt", "/boot")
-    run("swapon", "--show")
-    run(
-        "systemctl", "is-enabled", "--quiet", "iwd.service", "systemd-resolved.service"
-    )
+    check("findmnt", "/boot")
+    check("swapon", "--show")
+    for unit in ("iwd.service", "systemd-resolved.service"):
+        check("systemctl", "is-enabled", "--quiet", unit)
     print(
         "Check resume=UUID= and disk swap, then test lock, suspend and hibernate on the laptop: docs/installation.md."
     )
@@ -527,47 +633,86 @@ def doctor(args):
         )
 
 
+def replacement_matches(record, dest):
+    if not exists(dest):
+        return False
+    if record["mode"] == "link":
+        return dest.is_symlink() and str(dest.readlink()) == record["source"]
+    return (
+        dest.is_file()
+        and not dest.is_symlink()
+        and hashlib.sha256(dest.read_bytes()).hexdigest() == record.get("sha256")
+    )
+
+
 def restore(args):
     transaction = Path(args.transaction).expanduser().resolve()
-    data = json.loads((transaction / "journal.json").read_text())
+    journal = transaction / "journal.json"
+    data = json.loads(journal.read_text())
     base = Path(data["base"])
+    if not base.is_absolute() or base != base.resolve():
+        raise RuntimeError("Unsafe journal base")
     records = list(reversed(data["files"]))
-    # Preflight the whole restore before mutating anything.
+    seen = set()
+    # Validate all paths and current files before mutating anything.
     for record in records:
-        dest = base / record["target"]
-        safe_parent(dest, base)
-        if ".." in Path(record["target"]).parts or Path(record["target"]).is_absolute():
+        target = Path(record["target"])
+        if target.is_absolute() or ".." in target.parts or str(target) in ("", "."):
             raise RuntimeError("Unsafe journal target")
-        if exists(dest):
-            expected_link = (
-                record["mode"] == "link"
-                and dest.is_symlink()
-                and str(dest.readlink()) == record["source"]
-            )
-            expected_file = (
-                record["mode"] != "link"
-                and dest.is_file()
-                and not dest.is_symlink()
-                and hashlib.sha256(dest.read_bytes()).hexdigest()
-                == record.get("sha256")
-            )
-            if not (expected_link or expected_file):
-                raise RuntimeError(
-                    f"Inspect and move the current file before restoring it: {dest}"
-                )
+        if target in seen or any(
+            target in other.parents or other in target.parents for other in seen
+        ):
+            raise RuntimeError("Duplicate or overlapping journal target")
+        seen.add(target)
+        dest = base / target
+        safe_parent(dest, base)
+        if record.get("restored"):
+            continue
+        saved = None
         if record["backup"]:
-            saved = transaction / record["backup"]
-            if not saved.parent.resolve().is_relative_to(transaction):
+            backup = Path(record["backup"])
+            if backup != Path("files") / target:
                 raise RuntimeError("Unsafe journal backup")
-            if not exists(saved):
+            saved = transaction / backup
+            if not saved.parent.resolve().is_relative_to(transaction):
+                raise RuntimeError("Unsafe journal backup parent")
+        original_here = exists(dest) and record.get("original_identity") == identity(
+            dest
+        )
+        # Covers interruption before backup rename and after restoring the original.
+        if saved is not None and not exists(saved):
+            if not original_here:
                 raise RuntimeError(f"Missing transaction backup: {saved}")
+            continue
+        if exists(dest) and not replacement_matches(record, dest):
+            raise RuntimeError(
+                f"Inspect and move the current file before restoring it: {dest}"
+            )
+        temporary = dest.with_name(dest.name + ".dotfiles-new")
+        if exists(temporary) and not replacement_matches(record, temporary):
+            raise RuntimeError(f"Inspect interrupted temporary file: {temporary}")
+    if args.dry_run:
+        for record in records:
+            if not record.get("restored"):
+                print("Would restore", base / record["target"])
+        return
     for record in records:
+        if record.get("restored"):
+            continue
         dest = base / record["target"]
-        if exists(dest):
-            dest.unlink()
-        if record["backup"]:
-            saved = transaction / record["backup"]
-            saved.rename(dest)
+        saved = transaction / record["backup"] if record["backup"] else None
+        if saved is None or exists(saved):
+            if exists(dest):
+                dest.unlink()
+            if saved is not None:
+                saved.rename(dest)
+                sync_directory(saved.parent)
+            temporary = dest.with_name(dest.name + ".dotfiles-new")
+            if exists(temporary):
+                temporary.unlink()
+            sync_directory(dest.parent)
+        record["restored"] = True
+        write_journal(journal, data)
         print("Restored", dest)
 
 
@@ -600,27 +745,45 @@ def main():
         nargs="*",
         default=["base", "desktop", "apps", "development", "virtualisation"],
     )
+    p.add_argument("--dry-run", action="store_true")
     p.set_defaults(func=official_packages)
     p = sub.add_parser(
-        "aur", help="prepare recipes for review, then build the reviewed checkouts"
+        "package-status", help="read-only installed and repository package inventory"
+    )
+    p.set_defaults(func=package_status)
+    p = sub.add_parser(
+        "aur", help="install missing AUR targets using Paru with recipe review"
     )
     p.add_argument("--group", choices=["aur", "aur-database"], default="aur")
     mode = p.add_mutually_exclusive_group(required=True)
     mode.add_argument("--prepare", action="store_true")
     mode.add_argument("--build", action="store_true")
+    p.add_argument("--dry-run", action="store_true")
+    p.add_argument(
+        "--keep-going",
+        action="store_true",
+        help="try independent targets; report all failures",
+    )
     p.set_defaults(func=aur)
     p = sub.add_parser(
         "local-packages", help="build versioned recipes committed in packages/local"
     )
+    p.add_argument("--dry-run", action="store_true")
+    p.add_argument("--keep-going", action="store_true")
     p.set_defaults(func=local_packages)
     p = sub.add_parser("flatpak", help="install per-user TickTick")
+    p.add_argument("--dry-run", action="store_true")
     p.set_defaults(func=flatpak_install)
     p = sub.add_parser("doctor", help="verify packages, files and service definitions")
     p.set_defaults(func=doctor)
     p = sub.add_parser("restore", help="restore one file-install transaction")
     p.add_argument("transaction")
+    p.add_argument("--dry-run", action="store_true")
     p.set_defaults(func=restore)
     args = parser.parse_args()
+    if args.command in ("plan", "doctor", "package-status"):
+        args.func(args)
+        return
     # Serialize installers without storing a lock in the checkout or requiring root.
     lock_root = Path("/tmp")
     lock_path = lock_root / f"dotfiles-install-{os.getuid()}.lock"
@@ -633,6 +796,10 @@ def main():
 if __name__ == "__main__":
     try:
         main()
+    except KeyboardInterrupt:
+        sys.exit(
+            "dotfiles: interrupted; rerun the package stage or inspect the printed file recovery transaction."
+        )
     except (
         OSError,
         RuntimeError,

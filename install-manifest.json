@@ -507,8 +507,18 @@
       "mode": "link"
     },
     {
+      "source": "share/wallpapers/lock.png",
+      "target": ".local/share/wallpapers/lock.png",
+      "mode": "link"
+    },
+    {
       "source": "shell/profile",
       "target": ".profile",
+      "mode": "link"
+    },
+    {
+      "source": "share/color-schemes/gruvbox-material.conf",
+      "target": ".local/share/color-schemes/gruvbox-material.conf",
       "mode": "link"
     }
   ],
@@ -608,6 +618,30 @@
       "target": "usr/local/bin/set-battery-threshold",
       "mode": "copy",
       "permissions": "755"
+    },
+    {
+      "source": "system/etc/greetd/vtrgb",
+      "target": "etc/greetd/vtrgb",
+      "mode": "copy",
+      "permissions": "644"
+    },
+    {
+      "source": "system/etc/systemd/system/greetd.service.d/10-console.conf",
+      "target": "etc/systemd/system/greetd.service.d/10-console.conf",
+      "mode": "copy",
+      "permissions": "644"
+    },
+    {
+      "source": "system/etc/plymouth/plymouthd.conf",
+      "target": "etc/plymouth/plymouthd.conf",
+      "mode": "copy",
+      "permissions": "644"
+    },
+    {
+      "source": "share/plymouth/gruvbox-material/gruvbox-material.plymouth",
+      "target": "usr/share/plymouth/themes/gruvbox-material/gruvbox-material.plymouth",
+      "mode": "copy",
+      "permissions": "644"
     }
   ],
   "enable_user_units": [

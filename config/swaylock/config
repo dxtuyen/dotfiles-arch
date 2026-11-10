@@ -1,21 +1,22 @@
 bs-hl-color=e78a4e
-color=282828
+color=1d2021
 font=JetBrains Mono
-font-size=20
-indicator-radius=90
-indicator-thickness=6
-inside-clear-color=32302f
-inside-color=282828ee
-inside-ver-color=32302f
-inside-wrong-color=32302f
-key-hl-color=a9b665
+font-size=14
+indicator-radius=38
+indicator-thickness=4
+inside-clear-color=1d2021
+inside-color=282828
+inside-ver-color=1d2021
+inside-wrong-color=1d2021
+# Show a clear ring only during input, with a brighter segment for each key.
+key-hl-color=fbf1c7
 line-uses-inside
 ring-clear-color=d8a657
-ring-color=5a524c
+ring-color=a89984
 ring-ver-color=7daea3
 ring-wrong-color=ea6962
 scaling=fill
-separator-color=282828
+separator-color=1d2021
 show-failed-attempts
 text-clear-color=d8a657
 text-color=d4be98

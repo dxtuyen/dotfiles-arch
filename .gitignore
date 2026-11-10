@@ -13,6 +13,3 @@ __pycache__/
 /src/
 /pkg/
 /dist/
-
-# Local verification only; not distributed with the Arch dotfiles.
-/tests/

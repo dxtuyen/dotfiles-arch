@@ -63,12 +63,6 @@
       "return-type": "json",
       "signal": 7
     },
-    "custom/power-menu": {
-      "format": "<span font_family='Font Awesome 7 Free'></span>",
-      "on-click": "~/.local/bin/utilities --power",
-      "tooltip": true,
-      "tooltip-format": "Power options"
-    },
     "custom/status-divider": {
       "format": " ",
       "tooltip": false
@@ -78,10 +72,6 @@
       "on-click": "pkill -x swayview || swayview",
       "tooltip": true,
       "tooltip-format": "Workspace overview · Super+Tab"
-    },
-    "custom/tray-divider": {
-      "format": " ",
-      "tooltip": false
     },
     "group/status": {
       "modules": [
@@ -109,9 +99,7 @@
       "group/status",
       "clock",
       "custom/status-divider",
-      "tray",
-      "custom/tray-divider",
-      "custom/power-menu"
+      "tray"
     ],
     "network": {
       "format-disabled": "<span font_family='Font Awesome 7 Free'></span>",
@@ -158,14 +146,7 @@
       "tooltip-format": "{app}: {title}"
     },
     "sway/workspaces": {
-      "disable-scroll": true,
-      "persistent-workspaces": {
-        "1": [],
-        "2": [],
-        "3": [],
-        "4": [],
-        "5": []
-      }
+      "disable-scroll": true
     },
     "tray": {
       "icon-size": 16,

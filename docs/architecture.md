@@ -1,8 +1,8 @@
 # Kiến trúc
 
 Repo là nguồn cấu hình của laptop Arch: quản lý file, dependency và service.
-Dữ liệu và trạng thái ứng dụng nằm ngoài repo. Không có bước build cấu hình,
-Nix store, generation hoặc framework theme chạy nền.
+Dữ liệu và trạng thái ứng dụng nằm ngoài repo. Ứng dụng đọc cấu hình gốc;
+không có framework sinh cấu hình hoặc theme chạy nền.
 
 ## Tổ chức theo đường dẫn sử dụng
 
@@ -61,14 +61,14 @@ NetworkManager cùng quản lý interface đó. Profile/mật khẩu ở `/var/l
 không ở trong repo.
 
 Giữ nguyên đường dẫn checkout sau khi link. Nếu move repo, chạy lại stage
-`user --backup` từ chỗ mới. Bộ cài tự tìm checkout, không ghim username hay
-đường dẫn repo NixOS.
+`user --backup` từ chỗ mới. Bộ cài tự tìm checkout và home của người dùng.
 
 ## Stage và quyền
 
 - `packages`: full upgrade và gói chính thức qua pacman.
-- `aur --prepare/--build`: đọc recipe trước, build đúng checkout đã xem;
+- `aur --build`: Paru giải quyết dependency và review recipe trước khi build;
   makepkg chạy bằng user, pacman nâng quyền khi cài gói/dependency.
+  `--prepare` chỉ xem trước PKGBUILD chính, không ghim revision.
 - `local-packages`: build PKGBUILD ghim commit/checksum trong repo.
 - `flatpak`: TickTick ở phạm vi user.
 - `user`: file home, enable user unit; không đụng bootloader/phân vùng.
@@ -76,8 +76,12 @@ Giữ nguyên đường dẫn checkout sau khi link. Nếu move repo, chạy l�
   sau; không restart mạng/login manager lúc cài.
 - `doctor`: kiểm tra trên Arch; không tự sửa hoặc sleep máy.
 
-Boot, partition, UUID swap, tài khoản và restore dữ liệu có bước riêng trong
-hướng dẫn. MySQL server tùy chọn vì build nguồn tốn thời gian.
+Boot, partition, UUID swap và tài khoản có bước riêng trong hướng dẫn.
+MySQL server tùy chọn vì build nguồn tốn thời gian. Stage `system` vẫn gồm policy
+zram/lid/sleep; chưa tách thành stage phần cứng riêng. Đọc plan trước khi chạy lại.
+
+Shell dùng prompt Bash thuần, giữ Fzf/zoxide/direnv. Starship không còn được
+khởi tạo hoặc yêu cầu trong package list; file theme cũ được giữ để tham khảo.
 
 ## Cài lại và khôi phục
 
@@ -118,6 +122,7 @@ các yêu cầu file root, mutable file và pacman; không cần cài hai công 
 
 `python tools/check.py` kiểm tra inventory, TOML/JSON/XML, ShellCheck, desktop
 entry, unit graph gồm `.wants`, kiểm tra headless bằng Sway/Foot.
-Thư mục test hành vi chỉ dùng cục bộ, đã ignore và không đưa vào repo/bundle.
+Test hành vi ở `tests/`, được quản lý trong Git và đưa vào bundle.
+Chạy riêng bằng `python -m unittest discover -s tests -v`.
 Không có CI bắt buộc. Input, âm thanh, portal,
 bộ gõ, suspend/hibernate thật vẫn phải kiểm tra trên laptop.

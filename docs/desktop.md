@@ -3,6 +3,17 @@
 `Super` là phím Windows/logo. Toàn bộ keybinding/rule nằm ở
 `config/sway/config`.
 
+Màn boot dùng Plymouth với nền Gruvbox `#282828` và spinner có sẵn của gói
+`plymouth`. Theme ở `share/plymouth/gruvbox-material/`; thay theme xong cần
+chép file hệ thống tương ứng và chạy `sudo mkinitcpio -P`.
+
+Tuigreet trên VT1 dùng 16 màu từ `system/etc/greetd/vtrgb`, khớp bảng ANSI của
+Foot. Drop-in `greetd.service.d/10-console.conf` nạp bảng này bằng `setvtrgb`
+trước khi greetd khởi động. Chỉnh vai trò màu ở `system/etc/greetd/config.toml`.
+`--remember` lưu username đăng nhập thành công trong `/var/cache/tuigreet/lastuser`;
+thư mục và file phải thuộc `greeter:greeter`. Người dùng vẫn nhập mật khẩu.
+File `share/color-schemes/gruvbox-material.conf` là palette dành riêng cho Qt.
+
 | Phím | Hành vi |
 | --- | --- |
 | Super+Enter / Super+D | Foot / Tofi launcher |
@@ -37,7 +48,20 @@ rule để rule gắn mark mới. Obsidian 70%×85%, TickTick 60%×75% ở lần
 
 Tofi dùng phím mũi tên hoặc Ctrl+J/K, Enter chọn, Esc hủy. Launcher lưu history;
 menu tiện ích không lưu. Tofi không có icon ảnh hoặc chọn chuột; các biểu tượng
-menu là font glyph. Helper giữ đúng action gốc ngay cả khi lọc/reorder menu.
+menu là font glyph. Độ rộng mặc định 480 px. Helper giữ đúng action gốc khi lọc/reorder menu.
+Waybar đã bỏ nút nguồn; mở menu nguồn bằng `Super+P`.
+Workspace không ghim sẵn số; Waybar chỉ hiện các workspace đang tồn tại.
+
+## Giao diện
+
+Foot dùng JetBrainsMono Nerd Font cỡ 11. Prompt Bash hai dòng: đường dẫn xanh
+Gruvbox, dấu `❯` xanh lá và một dòng trống ngăn với kết quả lệnh; không gọi
+Starship hoặc quét Git mỗi prompt. Mở Foot mới sau khi sửa font hoặc shell.
+Foot mở trong thư mục được truyền từ nơi gọi; `nt` giữ thư mục đang làm việc.
+
+Desktop dùng `desktop.png`; màn hình khóa dùng `lock.png`, logo Arch nhỏ phía
+trên. Vòng khóa nhỏ, không hiện thường trực; sáng rõ khi nhập mật khẩu.
+Sửa giao diện khóa có hiệu lực ở lần khóa mới, không cần restart swaylock.
 
 ## Session và Countdown
 
@@ -49,7 +73,8 @@ menu là font glyph. Helper giữ đúng action gốc ngay cả khi lọc/reorde
   menu Suspend và lid vẫn hoạt động.
 - Khóa thành công hoặc chuẩn bị sleep: Countdown pause, giữ thời gian còn lại,
   xóa keep-awake thủ công. Mở khóa/wake không tự resume timer.
-- Lid undocked ngủ cả khi cắm sạc; docked thì bỏ qua. Sau một giờ suspend,
+- Khi áp dụng policy system của repo: lid undocked ngủ cả khi cắm sạc; docked
+  thì bỏ qua. Sau một giờ suspend,
   systemd chuyển sang hibernate theo khả năng phần cứng.
 
 Deadline ở `systemd/user/swayidle.service`; timeout locked ở
@@ -73,11 +98,12 @@ do systemd-resolved xử lý. Đóng Impala không làm mất kết nối.
 Lần đầu chọn Wi-Fi và nhập mật khẩu. Trong danh sách mạng đã biết, kiểm tra
 Autoconnect đã bật; phím `t` đổi trạng thái này. `r` đổi giữa các danh sách,
 `s` bật/tắt quét, `o` bật/tắt thiết bị, Esc thoát. Mật khẩu/profile được lưu
-riêng ở `/var/lib/iwd`, không cần mở Impala mỗi lần boot. Xem [quản lý Wi-Fi](wifi.md).
+riêng ở `/var/lib/iwd`, không cần mở Impala mỗi lần boot. Dòng chọn dùng nền
+`#45403d` để phân biệt với nền Foot. Xem [quản lý Wi-Fi](wifi.md).
 
 Night light dùng `wlsunset@MODE.service`, chỉ lưu lựa chọn sau khi service đã
 khởi động thành công. Menu đọc trạng thái service; preference ở
-`~/.local/state/wlsunset-mode`. Tọa độ mặc định Hà Nội trong `wlsunset-run.sh`.
+`~/.local/state/wlsunset-mode`. Tọa độ mặc định Hà Nội trong `bin/wlsunset-run`.
 
 ## Ứng dụng và dữ liệu
 
@@ -87,6 +113,7 @@ chọn ở `~/.config/mimeapps.list` không bị bộ cài ghi đè.
 
 Trong Bash, `y` mở Yazi rồi chuyển shell đến thư mục cuối; `nt` mở Foot hoặc
 tmux window ở thư mục hiện tại. Keyd: Caps tap → Esc, hold → Ctrl; hai Shift → CapsLock.
+Fzf, zoxide và direnv vẫn hoạt động cùng prompt Bash thuần.
 
 Quick Lang đọc selection/clipboard, gửi văn bản đến Gemini và copy kết quả.
 Key ở `~/.config/quick-lang/api.key`, mode 600, không lưu trong Git.

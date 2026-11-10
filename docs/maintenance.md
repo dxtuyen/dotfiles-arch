@@ -9,23 +9,22 @@ sudo pacman -Syu
 ```
 
 Đọc [Arch news](https://archlinux.org/news/) trước đợt nâng cấp lớn. Không dùng
-`pacman -Sy TEN_GOI` vì tạo partial upgrade. Giữ kernel LTS. Kiểm tra ESP được
+`pacman -Sy TEN_GOI` vì tạo partial upgrade. Máy dùng một kernel `linux`. Kiểm tra ESP được
 mount khi update kernel; chạy `sudo bootctl update` khi cần cập nhật bootloader.
 Reboot sau update kernel/systemd rồi kiểm tra service lỗi.
 
-AUR không tự update. Xem lại recipe khi cập nhật:
+AUR không tự update. Installer chỉ hoàn tất gói còn thiếu, không nâng cấp gói
+đã cài. Sau full upgrade chính thức, cập nhật AUR và review recipe/dependency:
 
 ```bash
-./install aur --prepare
-# Xem checkout/recipe và các thay đổi từ lần trước.
-./install aur --build
+paru -Sua --review --noremovemake
 ```
 
-Prepare update checkout bằng fast-forward và ghi commit đã chuẩn bị. Build
-không tự update source recipe. Các source `-git` bên trong PKGBUILD vẫn theo
-quy tắc upstream của recipe; Arch/AUR không cung cấp khóa toàn hệ thống như Nix.
-Hai gói local có commit/checksum cụ thể. Update chúng bằng cách sửa PKGBUILD,
-checksum, build và kiểm tra rồi review thay đổi.
+Xem [package workflow](packages.md). Paru cache recipe/build; không ép cleanbuild.
+Các source `-git` vẫn có thể thay đổi theo upstream. Arch/AUR không cung cấp khóa
+toàn hệ thống như Nix. Một gói local GTK ghim commit/checksum; khi đổi recipe,
+review rồi build thủ công từ thư mục cache hoặc checkout với `makepkg -si` bằng
+user thường. Installer bỏ qua gói local đã cài, kể cả khi recipe repo đã đổi.
 
 Flatpak tự cập nhật daily qua timer user, độc lập gói pacman. Chạy thủ công:
 
@@ -85,9 +84,13 @@ full upgrade và dependency đúng. TickTick dùng Flatpak vì phù hợp nguồ
 Sửa file gốc trong repo, chạy `python tools/check.py`, reload ứng dụng tương ứng.
 Với symlink, không cần chạy bộ cài để thay nội dung. Thêm file/đổi manifest thì
 chạy `./install user --backup --dry-run`, xem kết quả rồi `./install user --backup`.
-Sửa file system thì chạy lại stage `system --backup`, reboot để áp dụng cùng lúc.
+Sửa file system: xem dry-run trước khi chạy lại stage `system --backup`;
+stage này chép cả zram/logind/sleep, kể cả policy đang được giữ khác repo.
+Chỉ áp dụng sau khi đã review các file đó.
 Chạy `systemctl --user daemon-reload` khi đổi unit; logout/login để test vòng đời
-session, tránh restart riêng lock service khi đang thao tác.
+session, tránh restart riêng lock service khi đang thao tác. Waybar reload bằng
+`systemctl --user reload waybar.service`; Foot/Tofi/Impala đọc cấu hình khi mở mới.
+Swaylock đọc giao diện ở lần khóa tiếp theo.
 
 Giữ plugin lock của Neovim trong Git sau khi review. Seed Fcitx không tự ghi đè
 setting qua GUI. Muốn reset một seed, backup file đó rồi xóa riêng nó trước khi
@@ -99,6 +102,7 @@ User backup: `~/.local/state/dotfiles/backups/TIMESTAMP/`.
 System backup: `/var/lib/dotfiles/backups/TIMESTAMP/`.
 
 ```bash
+./install restore "$HOME/.local/state/dotfiles/backups/TIMESTAMP" --dry-run
 ./install restore "$HOME/.local/state/dotfiles/backups/TIMESTAMP"
 sudo ./install restore /var/lib/dotfiles/backups/TIMESTAMP
 ```
@@ -115,7 +119,7 @@ MySQL Workbench đã có trong package list. Nếu cần server MySQL đúng dò
 
 ```bash
 ./install aur --group aur-database --prepare
-# Review ~/.cache/dotfiles/build/mysql84/
+# Review lại tất cả recipe/dependency trong Paru khi build.
 ./install aur --group aur-database --build
 ```
 
@@ -169,8 +173,7 @@ sudo systemctl stop libvirtd.service libvirtd.socket libvirtd-ro.socket \
   libvirtd-admin.socket virtlogd.socket virtlockd.socket virtlogd.service virtlockd.service
 ```
 
-Disk guest và XML phải được backup riêng. `vm-nixos [disk|iso]` chạy QEMU/KVM
-trực tiếp, không cần libvirt hay Nix trên host. Disk ở `~/VMs/disk/training.qcow2`,
+Disk guest và XML phải được backup riêng. `vm-nixos [disk|iso]` chạy QEMU/KVM trực tiếp. Disk ở `~/VMs/disk/training.qcow2`,
 ISO ở `~/VMs/iso/`; firmware do `edk2-ovmf` cung cấp. Tạo disk mới nếu cần:
 
 ```bash
@@ -208,3 +211,7 @@ Journal giới hạn 256 MiB/14 ngày. SSD TRIM weekly; trash timer xóa phần 
 thùng rác cũ hơn 30 ngày. Xem `systemctl --user list-timers` trước khi thay policy.
 Không có reset-generations, nix garbage collection hoặc script tự xóa cache
 package. Giữ vài gói kernel trước để có đường khôi phục; chỉ dọn khi cần dung lượng.
+
+Chỉ dọn `src/` và `pkg/` của build đã hoàn tất; giữ recipe có sửa tay, package
+archive để cài lại và transaction backup. Không xóa cả `~/.cache` hoặc tự gỡ
+package theo danh sách orphan.

@@ -17,6 +17,8 @@ __foot_escape_uri_path() {
 }
 
 __set_window_title() {
+  [[ "$PWD" != "${__foot_last_pwd:-}" ]] || return 0
+  __foot_last_pwd=$PWD
   local dir="$PWD"
   case "$dir" in
     "$HOME"|"$HOME"/*) dir="~${dir#"$HOME"}" ;;
@@ -26,6 +28,8 @@ __set_window_title() {
   printf '\033]7;file://%s%s\033\x5c' "${HOSTNAME:-localhost}" "$__foot_osc7_path"
 }
 PROMPT_COMMAND="__set_window_title${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
+# Show the directory before loading completion and prompt integrations.
+__set_window_title
 
 # Open a new tmux window or Foot terminal in the current directory.
 nt() {

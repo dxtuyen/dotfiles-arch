@@ -1,0 +1,29 @@
+[Plymouth Theme]
+Name=Gruvbox Material
+Description=Gruvbox background with the packaged Plymouth spinner.
+ModuleName=two-step
+
+[two-step]
+Font=Adwaita Sans 12
+MonospaceFont=Adwaita Mono 12
+ImageDir=/usr/share/plymouth/themes/spinner
+HorizontalAlignment=.5
+VerticalAlignment=.7
+DialogHorizontalAlignment=.5
+DialogVerticalAlignment=.382
+BackgroundStartColor=0x282828
+BackgroundEndColor=0x282828
+ProgressBarBackgroundColor=0x45403d
+ProgressBarForegroundColor=0x7daea3
+Transition=none
+TransitionDuration=0.0
+MessageBelowAnimation=true
+
+[boot-up]
+UseEndAnimation=false
+
+[shutdown]
+UseEndAnimation=false
+
+[reboot]
+UseEndAnimation=false

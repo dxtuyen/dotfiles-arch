@@ -79,6 +79,17 @@ def static_checks():
     for name in data["enable_user_units"]:
         if name not in units or "[Install]" not in units[name].read_text():
             raise RuntimeError(f"Cannot enable user unit: {name}")
+    # Qt configurations refer to a shared palette; validate that it is shipped.
+    targets = {item["target"] for item in data["home"]}
+    for toolkit in ("qt5ct", "qt6ct"):
+        parser = configparser.ConfigParser(interpolation=None)
+        parser.read(ROOT / f"config/{toolkit}/{toolkit}.conf")
+        palette = parser.get("Appearance", "color_scheme_path")
+        if (
+            not palette.startswith("@@HOME@@/")
+            or palette.removeprefix("@@HOME@@/") not in targets
+        ):
+            raise RuntimeError(f"Unmanaged Qt palette: {palette}")
     for path in units.values():
         parser = configparser.ConfigParser(strict=False, interpolation=None)
         parser.read(path)

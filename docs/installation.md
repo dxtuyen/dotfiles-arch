@@ -1,70 +1,8 @@
 # Cài Arch từ A đến Z
 
-Dành cho laptop Intel hiện tại: UEFI, SSD thay thế NixOS, ext4, swap riêng,
-không mã hóa. Giữ trải nghiệm Sway/Gruvbox và các workflow cũ. USB dùng để boot
-bộ cài; Arch được cài vào SSD. Nếu model/thiết bị khác mô tả, xác định lại tên
-phân vùng trước khi chạy lệnh. Không có script tự chia ổ trong repo này.
-
-## 0. Sao lưu khi NixOS vẫn đang chạy
-
-**Làm xong mục này trước khi format SSD.** Bản Arch ở `~/dotfiles-arch`, độc lập
-với `~/dotfiles` của NixOS. Nếu chưa tự push repo mới lên GitHub, hãy backup trực tiếp checkout này. `/tmp`, một thư
-mục khác trên cùng SSD, hoặc chỉ lịch sử Git cũ không phải bản sao an toàn.
-
-Chuẩn bị ổ backup có đủ dung lượng, tốt nhất ext4 để giữ permission và symlink.
-Đóng Brave, Chrome, Obsidian, Anki, GoldenDict, TickTick và VM trước khi copy.
-Ghi lại mật khẩu, tài khoản sync và vị trí dữ liệu chưa sync.
-
-```bash
-lsblk -o NAME,SIZE,MODEL,FSTYPE,LABEL,MOUNTPOINTS
-findmnt
-# Thay đường dẫn bằng điểm mount thật của ổ backup, nằm ngoài SSD sẽ xóa.
-ARCH_BACKUP=/run/media/doxuantuyen/Backup
-mountpoint -q "$ARCH_BACKUP"
-df -h "$ARCH_BACKUP"
-mkdir -p "$ARCH_BACKUP/arch-migration"
-rsync -aH --info=progress2 --exclude='.cache/' \
-  "$HOME/" "$ARCH_BACKUP/arch-migration/home/"
-rsync -aH --checksum --dry-run --exclude='.cache/' \
-  "$HOME/" "$ARCH_BACKUP/arch-migration/home/"
-```
-
-Lệnh dry-run cuối không được báo file quan trọng còn khác. Nếu thiếu quyền đọc,
-giải quyết và copy lại; đừng bỏ qua lỗi rsync. Dữ liệu ngoài home như MySQL,
-libvirt storage, ổ dữ liệu riêng phải backup riêng. Với ổ exFAT, dùng tar để
-giữ quyền Unix thay cho việc copy cây home trực tiếp:
-
-```bash
-tar --exclude='./.cache' -cpf "$ARCH_BACKUP/arch-migration/home.tar" -C "$HOME" .
-tar -tf "$ARCH_BACKUP/arch-migration/home.tar" | head
-```
-
-Kiểm tra có đủ:
-
-- Repo Arch **hiện tại**, repo NixOS và project chưa push.
-- `Documents`, `Downloads`, `Pictures`, Obsidian vault, `Dictionary`, `VMs`.
-- `.ssh`, `.gnupg`, API key `~/.config/quick-lang/api.key`, thông tin đăng nhập.
-- `~/.var/app` của Brave/TickTick; Chrome `~/.config/google-chrome`.
-- Anki `~/.local/share/Anki2` gồm collection, media, addon; sync AnkiWeb trước.
-- VM libvirt: XML từ `virsh dumpxml TEN_VM`, disk có thể ở `/var/lib/libvirt`.
-- MySQL: **SQL dump**, không chỉ copy `/var/lib/mysql` khi server đang chạy.
-
-Ví dụ dump database ứng dụng khi MySQL cũ đang chạy; thay tên database:
-
-```bash
-sudo mysqldump --single-transaction --routines --events --triggers \
-  --hex-blob --databases TEN_DATABASE \
-  > "$ARCH_BACKUP/arch-migration/application-databases.sql"
-test -s "$ARCH_BACKUP/arch-migration/application-databases.sql"
-```
-
-Ghi lại user/grant của DB cần dùng (`SHOW CREATE USER`, `SHOW GRANTS`); sẽ tạo
-lại trên server mới. Giữ bản backup đầy đủ đến khi kiểm tra xong Arch.
-Các symlink Home Manager trỏ `/nix/store` không tự mang theo nội dung; bản Arch
-đã chứa cấu hình gốc, không restore nguyên `.config` của NixOS lên Arch.
-
-Lưu tài liệu này trên điện thoại/ổ backup để đọc khi SSD đã bị xóa.
-Rút ổ backup ra trước khi chia SSD để tránh chọn nhầm ổ.
+Dành cho laptop Intel: UEFI, một kernel `linux`, systemd-boot, ext4, swap riêng,
+không mã hóa. USB dùng để boot bộ cài; Arch được cài vào SSD. Nếu thiết bị khác
+mô tả, xác định lại tên phân vùng trước khi chạy lệnh. Không có script tự chia ổ trong repo này.
 
 ## 1. Boot USB và kết nối mạng
 
@@ -104,8 +42,8 @@ free -h
 ```
 
 Phần dưới dùng **ví dụ** `/dev/nvme0n1`. Đối chiếu model, serial, dung lượng;
-không chọn `/dev/sdX` chỉ vì đoán đó là SSD. Xóa phân vùng hiện tại sẽ xóa
-NixOS/dữ liệu trên phân vùng đó. Chỉ làm sau khi đã kiểm tra bản backup ngoài SSD.
+không chọn `/dev/sdX` chỉ vì đoán đó là SSD. Chia lại hoặc format sẽ xóa dữ liệu
+trên các phân vùng được chọn.
 
 Bố cục GPT mới:
 
@@ -116,8 +54,8 @@ Bố cục GPT mới:
 | `nvme0n1p3` | Phần còn lại | Linux filesystem | `/`, ext4; home nằm trong đó |
 
 Ví dụ RAM 16 GiB chọn swap 24 GiB; RAM 32 GiB chọn 40 GiB. Cần còn đủ swap
-trống cho ảnh hibernate; zram không thay được phân vùng này. Hai kernel dùng
-chung ESP 2 GiB. Không cần phân vùng home riêng để quản lý dotfiles.
+trống cho ảnh hibernate; zram không thay được phân vùng này. Một kernel `linux`
+dùng ESP 2 GiB. Không cần phân vùng home riêng để quản lý dotfiles.
 
 ```bash
 ARCH_DISK=/dev/nvme0n1
@@ -150,8 +88,8 @@ findmnt /mnt/boot
 ## 3. Cài hệ thống nền
 
 ```bash
-pacstrap -K /mnt base linux linux-lts linux-firmware intel-ucode \
-  mkinitcpio sudo iwd impala git python nano man-db man-pages
+pacstrap -K /mnt base linux linux-firmware intel-ucode \
+  mkinitcpio plymouth sudo iwd impala git python nano man-db man-pages
 genfstab -U /mnt >> /mnt/etc/fstab
 cat /mnt/etc/fstab
 arch-chroot /mnt
@@ -189,8 +127,8 @@ passwd doxuantuyen
 EDITOR=nano visudo
 ```
 
-Trong visudo bỏ `#` ở `%wheel ALL=(ALL:ALL) ALL`. Dùng cùng username cũ giúp
-restore dữ liệu dễ hơn. Mật khẩu root/user không lưu vào repo.
+Trong visudo bỏ `#` ở `%wheel ALL=(ALL:ALL) ALL`. Thay `doxuantuyen` bằng login
+của bạn nếu cần. Mật khẩu root/user không lưu vào repo.
 
 ## 5. Initramfs, systemd-boot và resume
 
@@ -198,7 +136,7 @@ Mở `/etc/mkinitcpio.conf`, giữ các thiết lập khác cần thiết và đ
 
 ```bash
 MODULES=(i915)
-HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block filesystems fsck)
+HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole plymouth block filesystems fsck)
 ```
 
 Dùng hook `systemd`; nó cung cấp cơ chế resume, không thêm hook `resume` kiểu
@@ -217,7 +155,7 @@ editor no
 EOF
 ```
 
-Lấy UUID thật, không dùng UUID từ NixOS:
+Lấy UUID của root và swap vừa cài:
 
 ```bash
 ARCH_ROOT_UUID=$(findmnt -n -o UUID /)
@@ -229,13 +167,7 @@ cat > /boot/loader/entries/arch.conf <<EOF
 title Arch Linux
 linux /vmlinuz-linux
 initrd /initramfs-linux.img
-options root=UUID=$ARCH_ROOT_UUID rw resume=UUID=$ARCH_SWAP_UUID mem_sleep_default=deep
-EOF
-cat > /boot/loader/entries/arch-lts.conf <<EOF
-title Arch Linux LTS
-linux /vmlinuz-linux-lts
-initrd /initramfs-linux-lts.img
-options root=UUID=$ARCH_ROOT_UUID rw resume=UUID=$ARCH_SWAP_UUID mem_sleep_default=deep
+options root=UUID=$ARCH_ROOT_UUID rw resume=UUID=$ARCH_SWAP_UUID mem_sleep_default=deep quiet splash
 EOF
 cat /boot/loader/entries/arch.conf
 bootctl status
@@ -243,8 +175,8 @@ bootctl status
 
 `microcode` hook đã ghép microcode vào initramfs. `mem_sleep_default=deep` giữ
 chế độ ngủ của máy hiện tại; nếu firmware không hỗ trợ hoặc wake có lỗi, bỏ
-tham số này ở cả hai entry và kiểm tra lại. LTS là đường boot dự phòng; không
-cần một bộ tinh chỉnh kernel thứ ba.
+tham số này ở entry `arch.conf` và kiểm tra lại. Máy dùng một kernel `linux`;
+USB Arch và các gói kernel cũ trong cache là đường khôi phục. Không tự thêm kernel.
 
 ## 6. Boot Arch lần đầu
 
@@ -284,41 +216,18 @@ Nếu cần CLI dự phòng, dùng `iwctl device list`, sau đó
 `iwctl station wlan0 connect "TEN_WIFI"` (thay `wlan0` bằng interface thật).
 Không chạy NetworkManager/wpa_supplicant để quản lý Wi-Fi này đồng thời.
 
-## 7. Lấy đúng repo Arch
+## 7. Lấy repo
 
-Cắm ổ backup, xác định partition và mount bằng root (ví dụ `/dev/sdb1`, phải
-đối chiếu `lsblk` trước):
-
-```bash
-lsblk -f
-sudo mkdir -p /mnt/backup
-sudo mount -o ro /dev/sdb1 /mnt/backup
-```
-
-Nếu đã backup bằng rsync ở mục 0:
-
-```bash
-cp -a /mnt/backup/arch-migration/home/dotfiles-arch "$HOME/dotfiles-arch"
-cd "$HOME/dotfiles-arch"
-test -f install-manifest.json
-./install --help
-```
-
-Nếu dùng tar, giải nén bản backup ra thư mục riêng rồi lấy repo; không giải nén
-nguyên home cũ đè lên home mới. Có thể dùng bundle `dotfiles-arch.tar.gz` tạo
-bởi `python tools/bundle.py /DUONG_DAN_O_BACKUP/dotfiles-arch.tar.gz` trước đó.
-Sau khi bạn đã tạo và push repo **public** `dxtuyen/dotfiles-arch`, có thể dùng
-Git thay cho copy từ ổ backup:
+Chạy bằng tài khoản thường. Nếu thư mục đã tồn tại, dùng checkout đó thay vì
+clone đè:
 
 ```bash
 git clone https://github.com/dxtuyen/dotfiles-arch.git ~/dotfiles-arch
 cd ~/dotfiles-arch
+./install --help
 ```
 
-Chỉ chọn một cách lấy repo; không clone chồng lên thư mục vừa copy. Repo
-`dxtuyen/dotfiles` cũ vẫn là NixOS.
-
-## 8. Gói chính thức, AUR và hai gói riêng
+## 8. Cài gói phần mềm
 
 ```bash
 cd ~/dotfiles-arch
@@ -329,23 +238,23 @@ Lệnh dùng `pacman -Syu --needed`, luôn full upgrade. Các nhóm là `base`,
 `desktop`, `apps`, `development`, `virtualisation`; có thể chọn riêng, nhưng
 đường cài đầy đủ trong hướng dẫn dùng cả năm. Danh sách nằm trong `packages/`.
 
-AUR:
+AUR: đọc [quy trình package](packages.md) để bootstrap Paru sau khi review.
+Không chạy makepkg/Paru bằng sudo. Sau đó:
 
 ```bash
-./install aur --prepare
+./install aur --build --dry-run
+./install aur --build --keep-going
 ```
 
-Đọc `PKGBUILD`, `.install`, patch ở `~/.cache/dotfiles/build/`. Sau khi xem:
-
-```bash
-./install aur --build
-```
-
-Không chạy makepkg bằng sudo. `sudo` chỉ được makepkg dùng cho pacman.
-Bộ cài build đúng checkout đã chuẩn bị; không tự pull trong bước build.
-Nếu một recipe lỗi, sửa nguyên nhân rồi chạy lại; desktop chưa bị kích hoạt.
-Sioyek dùng `sioyek-git` do gói tên `sioyek` không có trong kho đã kiểm tra.
-MySQL server là bước tùy chọn ở tài liệu bảo trì, không phải dependency desktop.
+Paru giải quyết cả dependency AUR-to-AUR. Review tất cả PKGBUILD, `.install`
+và patch trong giao diện review trước khi chấp nhận; không dùng `--noconfirm`.
+`--prepare` chỉ in PKGBUILD chính để xem trước, không ghim checkout hay thay
+thế bước review lúc build. Gói đã cài được bỏ qua; cập nhật bằng Paru riêng.
+Nếu recipe lỗi, các target độc lập tiếp tục với `--keep-going`, nhưng command
+vẫn trả lỗi và liệt kê target thất bại. Chạy lại sau khi sửa nguyên nhân.
+Sioyek dùng `sioyek-git`: tên `sioyek` không có trong sync DB/AUR đã kiểm tra.
+Bibata dùng archive binary upstream qua `bibata-cursor-theme-bin` có checksum.
+MySQL server tùy chọn, không phải dependency desktop.
 
 PKGBUILD local chỉ dùng cho biến thể theme Dark Medium:
 
@@ -363,55 +272,33 @@ Brave native (`brave-bin`), Google Chrome và VS Code bản Microsoft cài qua A
 TickTick cài per-user từ Flathub. Font, Qt binding cho Lotus, portal, PipeWire, các công cụ workflow
 đã nằm trong danh sách chính thức.
 
-## 9. Khôi phục dữ liệu trước lần mở ứng dụng đầu tiên
+## 9. Áp dụng cấu hình
 
-Khôi phục Documents, Pictures, vault, Dictionary, VMs, project, `.ssh`, `.gnupg`,
-API key và các thư mục dữ liệu ứng dụng cần thiết từ backup. Không copy nguyên
-`.config`, `.local/bin`, `.bashrc` hoặc symlink NixOS đè lên cấu hình mới.
-
-Nếu backup dùng cùng username/UID, copy bằng user thường giữ ownership phù hợp.
-Sửa mode của SSH/API key:
-
-```bash
-chmod 700 ~/.ssh
-chmod 600 ~/.ssh/id_* ~/.config/quick-lang/api.key
-```
-
-Chỉ chạy glob `id_*` khi đúng key của bạn; file `.pub` có thể để 644. Không
-đưa secret vào repo. Restore nguyên profile trong khi ứng dụng đã đóng:
-
-- Brave native: `~/.config/BraveSoftware/`. Nếu nguồn là Flatpak, copy thư mục
-  `~/.var/app/com.brave.Browser/config/BraveSoftware/` từ backup sang vị trí native
-  trước lần mở đầu. Giữ bản gốc; không mở cùng một profile bằng hai bản Brave.
-- TickTick: `~/.var/app/com.ticktick.TickTick/`.
-- Chrome: `~/.config/google-chrome/`. Cookie/password có thể phụ thuộc keyring
-  của phiên cũ; giữ backup và thông tin tài khoản sync.
-- Obsidian: vault và `~/.config/obsidian/`.
-- Anki: `~/.local/share/Anki2/`, hoặc sync AnkiWeb trước khi áp dụng template.
-- GoldenDict: copy dictionary vào `~/Dictionary/Longman/`; cấu hình cần chỉnh
-  được helper quản lý, stylesheet có sẵn trong repo.
-
-Làm tiếp [quy trình GoldenDict → Anki](vocabulary.md) sau khi áp dụng cấu hình:
-sync collection, cài addon và áp dụng template là các bước riêng với cài package.
-
-## 10. Áp dụng cấu hình
+Bước này dành cho cài mới. Trước stage `system`, đọc các file trong `system/etc/`,
+đặc biệt `systemd/zram-generator.conf`, `systemd/logind.conf.d/10-laptop.conf`,
+`systemd/sleep.conf.d/10-laptop.conf` và `nftables.conf`. Stage này chép cả policy
+swap/ngủ/firewall; `--backup` chỉ giữ bản cũ, không bỏ qua các policy đó.
+Máy đang chạy chỉ đổi giao diện thì không cần chạy lại stage `system`.
 
 ```bash
 ./install user --backup --dry-run
 ./install user --backup
 sudo ./install system --user "$USER" --backup --dry-run
 sudo ./install system --user "$USER" --backup
+sudo mkinitcpio -P
 ```
 
 User stage enable các unit; chỉ timer dọn rác/update Flatpak chạy ngay. Session
 lock/idle không bị gọi ở TTY. System stage chỉ enable dịch vụ cho boot sau,
 không restart mạng hay bật greetd giữa lúc cài.
+Lệnh `mkinitcpio -P` sau stage `system` đưa theme Plymouth Gruvbox vừa cài vào
+initramfs; theme chỉ có hiệu lực ở lần boot sau.
 
 Hoàn tất DNS symlink sau khi resolved đã chạy:
 
 ```bash
 sudo systemctl enable --now systemd-resolved.service
-sudo cp -a /etc/resolv.conf /etc/resolv.conf.before-dotfiles
+sudo cp --archive --no-clobber /etc/resolv.conf /etc/resolv.conf.before-dotfiles
 sudo ln -sfn /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 resolvectl query archlinux.org
 ```
@@ -420,11 +307,15 @@ iwd dùng DHCP tích hợp và gửi DNS cho resolved theo `/etc/iwd/main.conf`.
 Cho các user service âm thanh hoạt động theo socket/vendor preset:
 
 ```bash
-systemctl --user enable pipewire.socket pipewire-pulse.socket wireplumber.service
+systemctl --user enable --now pipewire.socket pipewire-pulse.socket wireplumber.service
 ./install doctor
 ```
 
-Doctor cần tất cả gói mặc định đã được cài; không sleep máy. Kiểm tra thêm:
+Doctor kiểm tra gói, file và service; không tự sửa hay sleep máy. Nếu cố ý giữ
+policy swap/ngủ khác repo, ba file tương ứng sẽ được báo khác cấu hình; không
+chạy lại stage `system` chỉ để xóa cảnh báo.
+
+Kiểm tra thêm:
 
 ```bash
 cat /proc/cmdline
@@ -436,7 +327,7 @@ sudo systemctl is-enabled greetd iwd systemd-resolved keyd nftables
 sudo reboot
 ```
 
-## 11. Đăng nhập Sway và kiểm tra thực tế
+## 10. Đăng nhập Sway và kiểm tra thực tế
 
 Tuigreet hiện trên VT1. Nhập user/mật khẩu; `Super+Enter` mở Foot,
 `Super+D` mở Tofi. Ảnh nền Arch xanh dịu/Gruvbox đã có trong repo, không tải mạng.
@@ -446,26 +337,31 @@ Thực hiện lần lượt:
 2. `Super+Enter`, `Super+D`, Waybar, thông báo `notify-send test` hoạt động.
 3. Lotus: thử tiếng Việt trong Foot, Chrome, ứng dụng GTK/Qt; `fcitx5-configtool`
    kiểm tra Lotus trong profile. Kiểm tra `sudo systemctl status fcitx5-lotus-server@$USER`.
-4. `wpctl status`, phím volume/mic/brightness; thử headset Bluetooth và ngắt nối lại.
+4. `wpctl status` phải thấy loa và microphone. Máy Intel dùng SOF cần
+   `sof-firmware` (đã có trong package list); nếu không có soundcard, xem
+   `journalctl -k -b` để tìm lỗi firmware. Thử volume/mic/brightness và Bluetooth.
 5. Network menu, Wi-Fi reconnect; thử file picker và chia sẻ màn hình qua portal.
 6. `Super+O/I/G` và popup terminal; `Alt+Tab` đổi hai workspace vừa dùng.
 7. `Super+C`: chạy Countdown; khóa bằng `Super+Esc`, mở khóa và xác nhận timer
    vẫn pause. Resume timer thủ công; thử screenshot/clipboard và dịch thuật.
 8. `nvim`, `:Lazy restore`, `:LazyHealth`; kiểm tra language tools khi mở project.
+   Xem `git diff -- config/nvim/lazy-lock.json` sau bootstrap, giữ nguyên lockfile
+   nếu chỉ muốn khôi phục các phiên bản plugin đã chốt.
 9. Đóng công việc đang làm, thử `systemctl suspend`, wake, nhập mật khẩu mở khóa.
 10. Thử `systemctl hibernate`; bật máy, xác nhận quay lại phiên trước đó.
 11. Thử `systemctl suspend-then-hibernate`; kiểm tra lid trên pin/AC và khi dock.
 
-Lid/manual sleep hoạt động trên AC; tự sleep do idle chỉ xảy ra trên pin.
+Khi áp dụng đầy đủ policy của repo, lid/manual sleep hoạt động trên AC; tự sleep
+do idle chỉ xảy ra trên pin.
 Mặc định màn hình tắt sau 5 phút, khóa sau 10 phút, ngủ sau 15 phút. Khóa thủ
 công: màn hình tắt sau 10 giây. Suspend-then-hibernate dùng delay 1 giờ.
 Nếu hibernate chưa hoạt động, sửa resume/swap trước khi dựa vào tự ngủ/lid.
 Trong lúc sửa có thể đổi `HandleLidSwitch*` và lệnh sleep về `suspend` rồi reboot.
 
 Kiểm tra phần cứng là bắt buộc: container không kiểm chứng được firmware,
-resume, mức pin hoặc driver âm thanh thực. Giữ backup đến khi đã dùng ổn định.
+resume, mức pin hoặc driver âm thanh thực.
 
-## 12. Nếu không vào được desktop
+## 11. Nếu không vào được desktop
 
 `Ctrl+Alt+F2` vào TTY, đăng nhập và đọc log:
 
@@ -476,7 +372,8 @@ journalctl --user -b -u swayidle -u session-lock -u swaylock -u countdown-engine
 ```
 
 Thử `~/.local/bin/dotfiles-sway` từ TTY để thấy lỗi. Nếu đã có Sway chạy,
-logout phiên đó trước. Nếu kernel mới lỗi, chọn Arch Linux LTS trong boot menu.
+logout phiên đó trước. Nếu kernel mới lỗi, dùng USB Arch và hướng dẫn recovery
+bên dưới; máy không có entry LTS mặc định.
 
 Nếu không boot được: boot lại USB UEFI, kết nối mạng, mount root/ESP đúng như
 mục 2, `arch-chroot /mnt`, kiểm tra fstab/entry/UUID, chạy `mkinitcpio -P` và

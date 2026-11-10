@@ -1,10 +1,11 @@
-# Built as the login user after inspecting prepared recipes. No AUR helper needed.
+# Paru resolves AUR dependencies; review every recipe before approving installation.
 tofi
 fcitx5-lotus
 goldendict-ng
 sioyek-git
 swayview
-bibata-cursor-theme
+# Upstream release assets, checksummed by the AUR recipe; avoids python-clickgen.
+bibata-cursor-theme-bin
 gruvbox-plus-icon-theme
 brave-bin
 google-chrome

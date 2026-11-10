@@ -63,12 +63,11 @@ Các bước này kiểm chứng phần cứng thật, không thể thay bằng 
 
 ## Chuyển từ bản dotfiles Arch cũ
 
-Chạy các stage `packages`, `user --backup`, `system --user "$USER" --backup`
-theo hướng dẫn rồi reboot. System stage enable iwd và disable các service
-NetworkManager/wpa_supplicant đang enabled cho lần boot tiếp theo. Nó không
-dừng kết nối đang hoạt động trong lúc cài. Đừng bắt đầu thao tác này qua SSH.
-Sau boot, mở Impala/iwctl để lưu lại mạng; profile NetworkManager cũ được giữ
-nguyên và không được script chuyển đổi hay xóa.
+System stage từ chối nếu NetworkManager/wpa_supplicant đang active hoặc enabled;
+nó không tự disable service. Lập kế hoạch chuyển quyền quản lý từ console tại máy,
+chuẩn bị profile iwd và cách kết nối dự phòng trước khi tự dừng/disable manager cũ.
+Không chuyển mạng qua SSH. Sau khi bàn giao xong, chạy lại system stage theo
+hướng dẫn. Profile manager cũ được giữ nguyên, không tự chuyển đổi hay xóa.
 
 ## Backup mạng đã lưu
 

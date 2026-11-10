@@ -15,7 +15,9 @@ sha256sums=('f45da23a6c4123148cf8f78983e391a86c2e2ee1b7a80aa66790f148cb9619bd')
 
 package() {
   cd "$srcdir/Gruvbox-GTK-Theme-$_commit/themes"
+  # Upstream also checks desktop settings in HOME; packaging must not edit them.
+  mkdir -p "$srcdir/build-home"
   # Only the dark, standard, medium variant; avoid the full variant matrix.
-  ./install.sh -n Gruvbox -c dark -s standard -t default --tweaks medium \
+  HOME="$srcdir/build-home" ./install.sh -n Gruvbox -c dark -s standard -t default --tweaks medium \
     -d "$pkgdir/usr/share/themes"
 }

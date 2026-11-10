@@ -2,5 +2,5 @@
 vt = 1
 
 [default_session]
-command = "tuigreet --time --remember --cmd /usr/local/bin/dotfiles-sway --theme 'border=bright-black;time=bright-blue;input=bright-cyan'"
+command = "tuigreet --time --remember --width 70 --cmd /usr/local/bin/dotfiles-sway --theme 'border=bright-black;text=white;prompt=green;time=blue;action=yellow;button=red;container=black;input=white'"
 user = "greeter"

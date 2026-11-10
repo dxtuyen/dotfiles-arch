@@ -5,6 +5,5 @@ dbus-update-activation-environment --systemd \
   DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP XDG_SESSION_TYPE \
   XDG_SESSION_DESKTOP XCURSOR_THEME XCURSOR_SIZE QT_QPA_PLATFORMTHEME \
   QT_STYLE_OVERRIDE QT_IM_MODULE XMODIFIERS GTK_USE_PORTAL PATH EDITOR VISUAL SSH_AUTH_SOCK
-systemctl --user reset-failed
 systemctl --user start sway-session.target
 "$HOME/.local/bin/wlsunset-apply"

@@ -13,4 +13,11 @@ rsvg-convert share/wallpapers/desktop.svg -o share/wallpapers/desktop.png
 systemctl --user restart swaybg.service
 ```
 
-Màn hình khóa giữ nền đặc cùng màu để chỉ báo/chữ rõ ràng.
+`lock.svg`/`lock.png` dùng nền tối `#1d2021`, logo Arch nhỏ phía trên và chữ
+`archlinux`. Vòng khóa nhỏ nằm dưới cụm logo, ở tâm màn hình theo swaylock;
+không ghim tọa độ pixel vào một độ phân giải cụ thể. Vòng không hiện thường
+trực; viền sáng hơn khi nhập. Desktop giữ ảnh riêng.
+
+```bash
+rsvg-convert share/wallpapers/lock.svg -o share/wallpapers/lock.png
+```

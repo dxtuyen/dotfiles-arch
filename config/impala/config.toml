@@ -3,7 +3,8 @@ mode = "station"
 esc_quit = true
 
 [theme]
-background = "#282828"
+# This is the selected-row background, not the terminal background.
+background = "#45403d"
 border = "#7daea3"
 text_color = "#d4be98"
 hidden_color = "#928374"
