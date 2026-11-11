@@ -1,210 +1,248 @@
-*{word-wrap:break-word!important}
-.entry{line-height:150%;color:black;display:block;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;color:#000}
-a{color:#36f;text-decoration:none}
-a:hover{text-decoration:underline}
-.abbr{font-weight:bold}
-.ac,.ac{padding-left:2px;padding-right:2px;border-radius:2px 2px 2px 2px;border-style:solid;border-width:1px;font-variant:small-caps;font-size:80%;font-weight:bold;color:blue}
-.amequiv{font-weight:bold}
-.brequiv{font-weight:bold}
-.collo{font-weight:bold}
-.colloexa{display:block}
-.colloinexa{font-style:italic;font-weight:bold}
-.comp{font-weight:bold}
-.deriv{font-weight:bold;color:blue}
-.errorbox{display:block}
-.etymsense{display:block}
-.etymrefhwd{font-style:italic}
-.etymrefhom{font-size:80%;vertical-align:super;font-style:normal}
-.etymorigin{font-style:italic}
-.etymtran{font-weight:bold}
-.etymbox{margin-top:1em;display:block}
-.example{font-style:italic;display:block;color:blue}
-.freq,.freq{padding-left:2px;padding-right:2px;border-radius:2px 2px 2px 2px;border-style:solid;border-width:1px;font-variant:small-caps;font-size:80%;font-weight:bold;color:red}
-.level{color:red;font-size:160%}
-.fullform{font-weight:bold}
-.geo,span.geo{font-weight:normal;font-style:italic;color:purple}
-.gloss,.collgloss{font-weight:normal;font-style:normal;color:black}
-.gram{color:green}
-.hintbold{font-weight:bold}
-.hintitalic{font-style:italic}
-.homnum{vertical-align:super;font-size:8pt;color:blue;font-weight:bold}
-.hwd{display:none}
-.hyphenation{font-weight:bold;font-size:120%;color:blue}
-.frequent{color:red}
-.lexunit{font-weight:bold}
-.lexvar{font-weight:bold}
-.linkword{font-style:italic}
-object{font-weight:normal}
-.opp{font-weight:bold}
-.orthvar{font-weight:bold}
-.pastpart{font-weight:bold}
-.pasttense{font-weight:bold}
-.phrvbentry{display:block;margin-top:10px;margin-left:10px}
-.phrvbhwd{font-weight:bold;color:blue}
-.pluralform{font-weight:bold}
-.pos{font-style:italic;color:green;font-weight:normal}
-.prespart{font-weight:bold}
-.propform{font-weight:bold;display:block}
-.propformprep{font-weight:bold;display:block}
-.ptandpp{font-weight:bold}
-.refhomnum{vertical-align:super;font-size:60%}
-.refhwd,.refsensenum{font-style:normal;font-variant:small-caps;text-transform:lowercase}
-.refsensenum{font-size:80%}
-.reflex{font-weight:bold}
-.registerlab{font-style:italic;color:purple}
-.relatedwd{font-weight:bold}
-.runon{display:block;margin-top:8px}
-.sense{display:block}
-.signpost{color:white;background-color:#35a3ff;margin-left:.5em;font-weight:bold;font-variant:small-caps;text-transform:uppercase;font-size:80%;padding:1px 2px 1px 1px}
-.spokensect{border-top:solid;border-bottom:solid;border-width:2px;display:block;margin-bottom:1ex;clear:both;margin-top:1ex;border-color:#00a2e8;padding:3px}
-.spokensecthead{display:block;color:#00a2e8;font-weight:bold}
-.pronstrong{font-style:italic}
-.subsense{display:block}
-.superl{font-weight:bold}
-.syn{font-weight:bold}
-.t3perssing{font-weight:bold}
-span.neutral{font-style:normal;font-weight:normal;font-variant:normal;color:black;text-decoration:none}
-.cross{color:red;font-weight:bold}
-span.italic{color:black;font-style:italic;font-weight:normal}
-.badexa{text-decoration:line-through;font-style:italic}
-.hint .expl{display:inline}
-span.infllab{font-style:italic;font-weight:normal}
-span.warning{font-style:normal;font-weight:bold;color:red}
-span.sensenum{font-style:normal;font-weight:bold;margin-right:3px;color:blue}
-span.synopp{padding-left:3px;padding-right:3px;border-radius:2px 2px 2px 2px;border-style:solid;border-width:1px;font-variant:small-caps;font-size:80%;font-weight:bold;color:blue}
-.subheading,.secheading{display:block;font-weight:bold;font-weight:bold;color:white;background-color:#8187bf;margin-left:-3px;margin-right:-3px;font-variant:small-caps;padding-left:3px}
-.collocate,.exponent{display:block;margin-top:5px}
-.collocate.inline{display:inline}
-.expl{display:block;padding:0 3px}
-.colloc{font-weight:bold}
-.exp{font-weight:bold}
-.expr{font-weight:bold}
-.colloc.key{color:blue}
-span.keycollo{font-weight:bold;color:blue}
-.thespropform{font-weight:bold}
-.goodcollo{font-weight:bold}
-.badcollo{text-decoration:line-through}
-.defbold{font-weight:bold}
-.thesref.newline{display:block}
-.heading.newline{display:block}
-.thesref span.thesaurus{color:blue;font-variant:small-caps}
-.thesref .refhwd,.thesref .refhomnum{color:blue;font-weight:bold}
-i{font-style:italic}
-.imgholder{cursor:pointer;display:block;margin-bottom:1ex;padding:2px;clear:both}
-.imgholder img{max-height:4em}
-.buttons{display:block}
-.popup-button{background-color:#f0f2fc;border-radius:2px;border:1px solid #7e92c7;color:#7e92c7;text-transform:uppercase;font-size:66%;padding:2px 3px;text-decoration:none}
-.popup-button-hover{background-color:#dfe3f8;cursor:pointer}
-.popverbs{display:block;color:white;font-weight:bold;background-color:#ec008d;padding-left:3px;margin-bottom:5px}
-.verbtable .lemma{color:blue;font-size:120%;font-weight:bold}
-.verbtable table{border-collapse:separate;border-spacing:1px;margin-top:10px}
-.verbtable td{padding:0 5px 0 2px;border-style:solid;border-width:1px;border-color:#d2d2d2}
-.header{font-weight:bold;font-variant:small-caps}
-.verbtable td.col1{font-weight:bold}
-.verbtable td.col2{font-style:italic}
-.verbtable .geo{font-style:italic;color:#000;font-size:100%;font-weight:normal}
-.verbtable .aux{font-weight:bold}
-.verbtable .verb_form{color:blue;font-weight:bold}
-.collocations .last{margin-bottom:20px}
-.collocations .colloc{display:inline-block;font-weight:bold;margin-left:-2px}
-.collobox,.thesbox,.usagebox,.grambox,.f2nbox{border-radius:9px 9px 9px 9px;border-style:solid;border-width:2px;display:block;margin-bottom:1ex;clear:both;margin-top:1ex}
-.f2nbox{border-color:#00a2e8}
-.f2nbox .heading{color:#00a2e8}
-.heading{color:white;font-weight:bold;line-height:100%;padding:3px}
-.section{display:block;padding:0 3px}
-.last{border-bottom-left-radius:9px;border-bottom-right-radius:9px}
-.thesbox{background-color:#652d91;border-color:#652d91}
-.thesbox .section{background-color:#e8e2f0}
-.collobox{background-color:#1d3e99;border-color:#1d3e99}
-.collobox .section{background-color:#e2f4fd}
-.usagebox{background-color:#00a2e8;border-color:#00a2e8}
-.usagebox .expl{background-color:#e2f4fd}
-.grambox{background-color:#00adee;border-color:#00adee}
-.grambox .expl,.grambox .compareword{background-color:#e2f4fd;display:block;padding-left:3px}
-.compareword{padding-top:5px;padding-bottom:5px}
-.gramrefcont{display:block;text-transform:lowercase;font-variant:small-caps;padding-left:3px;padding-bottom:1px}
-.thesaurus .sense{padding-left:3px;padding-right:3px;margin-top:0}
-.thesaurus .section,.collocations .section{margin-bottom:10px}
-.thesaurus .secheading,.thesbox .secheading{background-color:#a186bd}
-.add_exa{font-style:italic;display:block}
-.nodeword{color:blue;font-weight:bold}
-.phrase{display:block}
-.phrasetext{font-weight:bold}
-.expandable{cursor:pointer}
-.entry div.content{display:none;margin-bottom:10px}
-.group,.w{display:block}
-.group .pos{font-weight:bold;display:block}
-.item{display:block}
-.w{font-weight:bold}
-.popheader{display:block;color:white;font-weight:bold;padding-left:3px}
-.popheader.popexa{background-color:red}
-.popheader.popphrase{background-color:purple}
-.popheader.popcollo{background-color:#1d3e99}
-.popheader.popthes{background-color:#652d91}
-.popheader.popetym{background-color:green}
-.popheader.popwf{background-color:#ffd448}
-.popheader.pope_menu{background-color:#57c0e0}
-.ws-head{font-weight:bold;color:blue;font-size:larger}
-.ws-head.ref{display:block;margin-top:10px}
-.wswd{font-weight:bold;display:block}
-.cyan{color:#00a2e8;font-size:larger}
-.menuitem{display:block}
-ul.exas{margin-top:.5em;margin-bottom:.5em;padding-left:2em;padding-right:1em}
-ul.exas li{font-style:italic;color:blue}
-.grammar{display:block}
-.str{font-size:large;font-weight:bold}
-.etymology{margin-top:10px}
-.group{margin-top:10px}
-.menuitem .signpost{background-color:transparent;color:black;margin-left:0;font-size:90%}
-.phrvbs{display:block;margin-top:10px;margin-left:5px}
-.phrvbs .heading{display:block;color:blue;font-weight:bold}
-.phrv{font-weight:bold}
-.secheading,.subheading{font-variant:normal;text-transform:uppercase}
-.secheading.no_convert{text-transform:none}
-.grambox .heading.newline{background-color:#6cd0f6}
-img[src*="spkr_"]{max-height:1em;margin-bottom:-3px;margin-right:2px}
-img[src*="spkr_g"]{max-height:.7em;margin-bottom:0}
-.chwd{margin-top:10px}
-.chwd a{display:inline-block;background-color:green;color:white;padding-top:2px;padding-bottom:3px;padding-left:5px;padding-right:5px;margin-bottom:3px;text-decoration:none;font-size:80%;border-radius:2px}
-.chwd .hw{color:white}
-.entry,.entry.lozenge,.verbtable{margin-top:.5em}
-.no-sound img{border:1px solid gray;border-radius:3px;max-height:.9em}
-.at-link{border:1px solid #e4e4e4;border-radius:9px;padding:.1em .5em;margin:.5em 0;background-color:rgba(199,110,6,0.1)}
-.at-link{display:none}
-.popup-button:hover{cursor:pointer}
-.popup-button{-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
-span[onclick*="toggle"]{-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
-.hs0:before{content:"‧"}
-.arrow{color:#333;border:1px solid #666;border-radius:2px;font-size:smaller}
-.dict-faq img[src*="cover"]{max-height:8em}
+/* GoldenDict page chrome and built-in pages. Dark Reader stays disabled:
+ * Longman already has a dark palette, so automatic inversion is unnecessary. */
+html, body {
+  color-scheme: dark;
+  background: #282828;
+  color: #d4be98;
+}
+body {
+  --text-color: #d4be98;
+  --secondary-text-color: #a89984;
+  --link-color: #7daea3;
+  --container-bg: #32302f;
+  --border-color: #45403d;
+  --accent-color: #7daea3;
+  --selection-bg: #45403d;
+  --selection-text: #ddc7a1;
+}
+a { color: #7daea3; }
+a:hover { color: #89b482; }
+.menu-path > span {
+  --menu-path-text-color: #89b482;
+  --menu-path-arrow-color: #a89984;
+}
+.gdarticle {
+  background: #282828;
+  color: #d4be98;
+  border-color: #45403d;
+}
+.gdactivearticle { border-color: #7daea3; }
+.gddictname, .gdactivearticle .gddictname {
+  color: #7daea3;
+  background: #32302f;
+  border-color: #45403d;
+}
+.gdactivearticle .gddictname { border-color: #7daea3; }
+.gdarticleseparator + script + .gdactivearticle .gddictname {
+  border-top-color: #7daea3;
+}
+.gdcollapsedarticle { background-image: none; }
+::selection { background: #45403d; color: #ddc7a1; }
+
+/* Longman layout and colors, scoped to MDict articles containing .entry. */
+:where(.mdict:has(.entry)) * {word-wrap:break-word!important}
+:where(.mdict:has(.entry)) .entry {line-height:150%;color:black;display:block;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;color:#000}
+:where(.mdict:has(.entry)) a {color:#36f;text-decoration:none}
+:where(.mdict:has(.entry)) a:hover {text-decoration:underline}
+:where(.mdict:has(.entry)) .abbr {font-weight:bold}
+:where(.mdict:has(.entry)) .ac {padding-left:2px;padding-right:2px;border-radius:2px 2px 2px 2px;border-style:solid;border-width:1px;font-variant:small-caps;font-size:80%;font-weight:bold;color:blue}
+:where(.mdict:has(.entry)) .amequiv {font-weight:bold}
+:where(.mdict:has(.entry)) .brequiv {font-weight:bold}
+:where(.mdict:has(.entry)) .collo {font-weight:bold}
+:where(.mdict:has(.entry)) .colloexa {display:block}
+:where(.mdict:has(.entry)) .colloinexa {font-style:italic;font-weight:bold}
+:where(.mdict:has(.entry)) .comp {font-weight:bold}
+:where(.mdict:has(.entry)) .deriv {font-weight:bold;color:blue}
+:where(.mdict:has(.entry)) .errorbox {display:block}
+:where(.mdict:has(.entry)) .etymsense {display:block}
+:where(.mdict:has(.entry)) .etymrefhwd {font-style:italic}
+:where(.mdict:has(.entry)) .etymrefhom {font-size:80%;vertical-align:super;font-style:normal}
+:where(.mdict:has(.entry)) .etymorigin {font-style:italic}
+:where(.mdict:has(.entry)) .etymtran {font-weight:bold}
+:where(.mdict:has(.entry)) .etymbox {margin-top:1em;display:block}
+:where(.mdict:has(.entry)) .example {font-style:italic;display:block;color:blue}
+:where(.mdict:has(.entry)) .freq {padding-left:2px;padding-right:2px;border-radius:2px 2px 2px 2px;border-style:solid;border-width:1px;font-variant:small-caps;font-size:80%;font-weight:bold;color:red}
+:where(.mdict:has(.entry)) .level {color:red;font-size:160%}
+:where(.mdict:has(.entry)) .fullform {font-weight:bold}
+:where(.mdict:has(.entry)) .geo,:where(.mdict:has(.entry)) span.geo {font-weight:normal;font-style:italic;color:purple}
+:where(.mdict:has(.entry)) .gloss,:where(.mdict:has(.entry)) .collgloss {font-weight:normal;font-style:normal;color:black}
+:where(.mdict:has(.entry)) .gram {color:green}
+:where(.mdict:has(.entry)) .hintbold {font-weight:bold}
+:where(.mdict:has(.entry)) .hintitalic {font-style:italic}
+:where(.mdict:has(.entry)) .homnum {vertical-align:super;font-size:8pt;color:blue;font-weight:bold}
+:where(.mdict:has(.entry)) .hwd {display:none}
+:where(.mdict:has(.entry)) .hyphenation {font-weight:bold;font-size:120%;color:blue}
+:where(.mdict:has(.entry)) .frequent {color:red}
+:where(.mdict:has(.entry)) .lexunit {font-weight:bold}
+:where(.mdict:has(.entry)) .lexvar {font-weight:bold}
+:where(.mdict:has(.entry)) .linkword {font-style:italic}
+:where(.mdict:has(.entry)) object {font-weight:normal}
+:where(.mdict:has(.entry)) .opp {font-weight:bold}
+:where(.mdict:has(.entry)) .orthvar {font-weight:bold}
+:where(.mdict:has(.entry)) .pastpart {font-weight:bold}
+:where(.mdict:has(.entry)) .pasttense {font-weight:bold}
+:where(.mdict:has(.entry)) .phrvbentry {display:block;margin-top:10px;margin-left:10px}
+:where(.mdict:has(.entry)) .phrvbhwd {font-weight:bold;color:blue}
+:where(.mdict:has(.entry)) .pluralform {font-weight:bold}
+:where(.mdict:has(.entry)) .pos {font-style:italic;color:green;font-weight:normal}
+:where(.mdict:has(.entry)) .prespart {font-weight:bold}
+:where(.mdict:has(.entry)) .propform {font-weight:bold;display:block}
+:where(.mdict:has(.entry)) .propformprep {font-weight:bold;display:block}
+:where(.mdict:has(.entry)) .ptandpp {font-weight:bold}
+:where(.mdict:has(.entry)) .refhomnum {vertical-align:super;font-size:60%}
+:where(.mdict:has(.entry)) .refhwd,:where(.mdict:has(.entry)) .refsensenum {font-style:normal;font-variant:small-caps;text-transform:lowercase}
+:where(.mdict:has(.entry)) .refsensenum {font-size:80%}
+:where(.mdict:has(.entry)) .reflex {font-weight:bold}
+:where(.mdict:has(.entry)) .registerlab {font-style:italic;color:purple}
+:where(.mdict:has(.entry)) .relatedwd {font-weight:bold}
+:where(.mdict:has(.entry)) .runon {display:block;margin-top:8px}
+:where(.mdict:has(.entry)) .sense {display:block}
+:where(.mdict:has(.entry)) .signpost {color:white;background-color:#35a3ff;margin-left:.5em;font-weight:bold;font-variant:small-caps;text-transform:uppercase;font-size:80%;padding:1px 2px 1px 1px}
+:where(.mdict:has(.entry)) .spokensect {border-top:solid;border-bottom:solid;border-width:2px;display:block;margin-bottom:1ex;clear:both;margin-top:1ex;border-color:#00a2e8;padding:3px}
+:where(.mdict:has(.entry)) .spokensecthead {display:block;color:#00a2e8;font-weight:bold}
+:where(.mdict:has(.entry)) .pronstrong {font-style:italic}
+:where(.mdict:has(.entry)) .subsense {display:block}
+:where(.mdict:has(.entry)) .superl {font-weight:bold}
+:where(.mdict:has(.entry)) .syn {font-weight:bold}
+:where(.mdict:has(.entry)) .t3perssing {font-weight:bold}
+:where(.mdict:has(.entry)) span.neutral {font-style:normal;font-weight:normal;font-variant:normal;color:black;text-decoration:none}
+:where(.mdict:has(.entry)) .cross {color:red;font-weight:bold}
+:where(.mdict:has(.entry)) span.italic {color:black;font-style:italic;font-weight:normal}
+:where(.mdict:has(.entry)) .badexa {text-decoration:line-through;font-style:italic}
+:where(.mdict:has(.entry)) .hint .expl {display:inline}
+:where(.mdict:has(.entry)) span.infllab {font-style:italic;font-weight:normal}
+:where(.mdict:has(.entry)) span.warning {font-style:normal;font-weight:bold;color:red}
+:where(.mdict:has(.entry)) span.sensenum {font-style:normal;font-weight:bold;margin-right:3px;color:blue}
+:where(.mdict:has(.entry)) span.synopp {padding-left:3px;padding-right:3px;border-radius:2px 2px 2px 2px;border-style:solid;border-width:1px;font-variant:small-caps;font-size:80%;font-weight:bold;color:blue}
+:where(.mdict:has(.entry)) .subheading,:where(.mdict:has(.entry)) .secheading {display:block;font-weight:bold;font-weight:bold;color:white;background-color:#8187bf;margin-left:-3px;margin-right:-3px;font-variant:small-caps;padding-left:3px}
+:where(.mdict:has(.entry)) .collocate,:where(.mdict:has(.entry)) .exponent {display:block;margin-top:5px}
+:where(.mdict:has(.entry)) .collocate.inline {display:inline}
+:where(.mdict:has(.entry)) .expl {display:block;padding:0 3px}
+:where(.mdict:has(.entry)) .colloc {font-weight:bold}
+:where(.mdict:has(.entry)) .exp {font-weight:bold}
+:where(.mdict:has(.entry)) .expr {font-weight:bold}
+:where(.mdict:has(.entry)) .colloc.key {color:blue}
+:where(.mdict:has(.entry)) span.keycollo {font-weight:bold;color:blue}
+:where(.mdict:has(.entry)) .thespropform {font-weight:bold}
+:where(.mdict:has(.entry)) .goodcollo {font-weight:bold}
+:where(.mdict:has(.entry)) .badcollo {text-decoration:line-through}
+:where(.mdict:has(.entry)) .defbold {font-weight:bold}
+:where(.mdict:has(.entry)) .thesref.newline {display:block}
+:where(.mdict:has(.entry)) .heading.newline {display:block}
+:where(.mdict:has(.entry)) .thesref span.thesaurus {color:blue;font-variant:small-caps}
+:where(.mdict:has(.entry)) .thesref .refhwd,:where(.mdict:has(.entry)) .thesref .refhomnum {color:blue;font-weight:bold}
+:where(.mdict:has(.entry)) i {font-style:italic}
+:where(.mdict:has(.entry)) .imgholder {cursor:pointer;display:block;margin-bottom:1ex;padding:2px;clear:both}
+:where(.mdict:has(.entry)) .imgholder img {max-height:4em}
+:where(.mdict:has(.entry)) .buttons {display:block}
+:where(.mdict:has(.entry)) .popup-button {background-color:#f0f2fc;border-radius:2px;border:1px solid #7e92c7;color:#7e92c7;text-transform:uppercase;font-size:66%;padding:2px 3px;text-decoration:none}
+:where(.mdict:has(.entry)) .popup-button-hover {background-color:#dfe3f8;cursor:pointer}
+:where(.mdict:has(.entry)) .popverbs {display:block;color:white;font-weight:bold;background-color:#ec008d;padding-left:3px;margin-bottom:5px}
+:where(.mdict:has(.entry)) .verbtable .lemma {color:blue;font-size:120%;font-weight:bold}
+:where(.mdict:has(.entry)) .verbtable table {border-collapse:separate;border-spacing:1px;margin-top:10px}
+:where(.mdict:has(.entry)) .verbtable td {padding:0 5px 0 2px;border-style:solid;border-width:1px;border-color:#d2d2d2}
+:where(.mdict:has(.entry)) .header {font-weight:bold;font-variant:small-caps}
+:where(.mdict:has(.entry)) .verbtable td.col1 {font-weight:bold}
+:where(.mdict:has(.entry)) .verbtable td.col2 {font-style:italic}
+:where(.mdict:has(.entry)) .verbtable .geo {font-style:italic;color:#000;font-size:100%;font-weight:normal}
+:where(.mdict:has(.entry)) .verbtable .aux {font-weight:bold}
+:where(.mdict:has(.entry)) .verbtable .verb_form {color:blue;font-weight:bold}
+:where(.mdict:has(.entry)) .collocations .last {margin-bottom:20px}
+:where(.mdict:has(.entry)) .collocations .colloc {display:inline-block;font-weight:bold;margin-left:-2px}
+:where(.mdict:has(.entry)) .collobox,:where(.mdict:has(.entry)) .thesbox,:where(.mdict:has(.entry)) .usagebox,:where(.mdict:has(.entry)) .grambox,:where(.mdict:has(.entry)) .f2nbox {border-radius:9px 9px 9px 9px;border-style:solid;border-width:2px;display:block;margin-bottom:1ex;clear:both;margin-top:1ex}
+:where(.mdict:has(.entry)) .f2nbox {border-color:#00a2e8}
+:where(.mdict:has(.entry)) .f2nbox .heading {color:#00a2e8}
+:where(.mdict:has(.entry)) .heading {color:white;font-weight:bold;line-height:100%;padding:3px}
+:where(.mdict:has(.entry)) .section {display:block;padding:0 3px}
+:where(.mdict:has(.entry)) .last {border-bottom-left-radius:9px;border-bottom-right-radius:9px}
+:where(.mdict:has(.entry)) .thesbox {background-color:#652d91;border-color:#652d91}
+:where(.mdict:has(.entry)) .thesbox .section {background-color:#e8e2f0}
+:where(.mdict:has(.entry)) .collobox {background-color:#1d3e99;border-color:#1d3e99}
+:where(.mdict:has(.entry)) .collobox .section {background-color:#e2f4fd}
+:where(.mdict:has(.entry)) .usagebox {background-color:#00a2e8;border-color:#00a2e8}
+:where(.mdict:has(.entry)) .usagebox .expl {background-color:#e2f4fd}
+:where(.mdict:has(.entry)) .grambox {background-color:#00adee;border-color:#00adee}
+:where(.mdict:has(.entry)) .grambox .expl,:where(.mdict:has(.entry)) .grambox .compareword {background-color:#e2f4fd;display:block;padding-left:3px}
+:where(.mdict:has(.entry)) .compareword {padding-top:5px;padding-bottom:5px}
+:where(.mdict:has(.entry)) .gramrefcont {display:block;text-transform:lowercase;font-variant:small-caps;padding-left:3px;padding-bottom:1px}
+:where(.mdict:has(.entry)) .thesaurus .sense {padding-left:3px;padding-right:3px;margin-top:0}
+:where(.mdict:has(.entry)) .thesaurus .section,:where(.mdict:has(.entry)) .collocations .section {margin-bottom:10px}
+:where(.mdict:has(.entry)) .thesaurus .secheading,:where(.mdict:has(.entry)) .thesbox .secheading {background-color:#a186bd}
+:where(.mdict:has(.entry)) .add_exa {font-style:italic;display:block}
+:where(.mdict:has(.entry)) .nodeword {color:blue;font-weight:bold}
+:where(.mdict:has(.entry)) .phrase {display:block}
+:where(.mdict:has(.entry)) .phrasetext {font-weight:bold}
+:where(.mdict:has(.entry)) .expandable {cursor:pointer}
+:where(.mdict:has(.entry)) .entry div.content {display:none;margin-bottom:10px}
+:where(.mdict:has(.entry)) .group,:where(.mdict:has(.entry)) .w {display:block}
+:where(.mdict:has(.entry)) .group .pos {font-weight:bold;display:block}
+:where(.mdict:has(.entry)) .item {display:block}
+:where(.mdict:has(.entry)) .w {font-weight:bold}
+:where(.mdict:has(.entry)) .popheader {display:block;color:white;font-weight:bold;padding-left:3px}
+:where(.mdict:has(.entry)) .popheader.popexa {background-color:red}
+:where(.mdict:has(.entry)) .popheader.popphrase {background-color:purple}
+:where(.mdict:has(.entry)) .popheader.popcollo {background-color:#1d3e99}
+:where(.mdict:has(.entry)) .popheader.popthes {background-color:#652d91}
+:where(.mdict:has(.entry)) .popheader.popetym {background-color:green}
+:where(.mdict:has(.entry)) .popheader.popwf {background-color:#ffd448}
+:where(.mdict:has(.entry)) .popheader.pope_menu {background-color:#57c0e0}
+:where(.mdict:has(.entry)) .ws-head {font-weight:bold;color:blue;font-size:larger}
+:where(.mdict:has(.entry)) .ws-head.ref {display:block;margin-top:10px}
+:where(.mdict:has(.entry)) .wswd {font-weight:bold;display:block}
+:where(.mdict:has(.entry)) .cyan {color:#00a2e8;font-size:larger}
+:where(.mdict:has(.entry)) .menuitem {display:block}
+:where(.mdict:has(.entry)) ul.exas {margin-top:.5em;margin-bottom:.5em;padding-left:2em;padding-right:1em}
+:where(.mdict:has(.entry)) ul.exas li {font-style:italic;color:blue}
+:where(.mdict:has(.entry)) .grammar {display:block}
+:where(.mdict:has(.entry)) .str {font-size:large;font-weight:bold}
+:where(.mdict:has(.entry)) .etymology {margin-top:10px}
+:where(.mdict:has(.entry)) .group {margin-top:10px}
+:where(.mdict:has(.entry)) .menuitem .signpost {background-color:transparent;color:black;margin-left:0;font-size:90%}
+:where(.mdict:has(.entry)) .phrvbs {display:block;margin-top:10px;margin-left:5px}
+:where(.mdict:has(.entry)) .phrvbs .heading {display:block;color:blue;font-weight:bold}
+:where(.mdict:has(.entry)) .phrv {font-weight:bold}
+:where(.mdict:has(.entry)) .secheading,:where(.mdict:has(.entry)) .subheading {font-variant:normal;text-transform:uppercase}
+:where(.mdict:has(.entry)) .secheading.no_convert {text-transform:none}
+:where(.mdict:has(.entry)) .grambox .heading.newline {background-color:#6cd0f6}
+:where(.mdict:has(.entry)) img[src*="spkr_"] {max-height:1em;margin-bottom:-3px;margin-right:2px}
+:where(.mdict:has(.entry)) img[src*="spkr_g"] {max-height:.7em;margin-bottom:0}
+:where(.mdict:has(.entry)) .chwd {margin-top:10px}
+:where(.mdict:has(.entry)) .chwd a {display:inline-block;background-color:green;color:white;padding-top:2px;padding-bottom:3px;padding-left:5px;padding-right:5px;margin-bottom:3px;text-decoration:none;font-size:80%;border-radius:2px}
+:where(.mdict:has(.entry)) .chwd .hw {color:white}
+:where(.mdict:has(.entry)) .entry,:where(.mdict:has(.entry)) .entry.lozenge,:where(.mdict:has(.entry)) .verbtable {margin-top:.5em}
+:where(.mdict:has(.entry)) .no-sound img {border:1px solid gray;border-radius:3px;max-height:.9em}
+:where(.mdict:has(.entry)) .at-link {border:1px solid #e4e4e4;border-radius:9px;padding:.1em .5em;margin:.5em 0;background-color:rgba(199,110,6,0.1)}
+:where(.mdict:has(.entry)) .at-link {display:none}
+:where(.mdict:has(.entry)) .popup-button:hover {cursor:pointer}
+:where(.mdict:has(.entry)) .popup-button {-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
+:where(.mdict:has(.entry)) span[onclick*="toggle"] {-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
+:where(.mdict:has(.entry)) .hs0:before {content:"‧"}
+:where(.mdict:has(.entry)) .arrow {color:#333;border:1px solid #666;border-radius:2px;font-size:smaller}
+:where(.mdict:has(.entry)) .dict-faq img[src*="cover"] {max-height:8em}
+
 /* Gruvbox Material color layer: preserve Longman's layout and semantic markup. */
-html,body,.entry{background-color:#282828!important;color:#d4be98!important}
-.entry,.entry.lozenge,.verbtable{color:#d4be98!important}
-a,.deriv,.homnum,.hyphenation,.phrvbhwd,.sensenum,.synopp,.colloc.key,
-span.keycollo,.thesref span.thesaurus,.thesref .refhwd,.thesref .refhomnum,
-.nodeword,.ws-head,.phrvbs .heading{color:#7daea3!important}
-.example,.gloss,.collgloss,span.neutral,span.italic,
-.verbtable .geo,.add_exa,ul.exas li{color:#d4be98!important}
-.pos,.gram{color:#89b482!important}
-.geo,.registerlab{color:#d3869b!important}
-.level,.frequent,.cross,span.warning{color:#ea6962!important}
-.ac,.freq,.signpost,.sensenum,.synopp{border-color:#45403d!important}
-.ac,.freq,.synopp{background-color:#32302f!important;color:#7daea3!important}
-.signpost{background-color:#374141!important;color:#ddc7a1!important}
-.subheading,.secheading,.heading,.popheader{background-color:#32302f!important;color:#7daea3!important}
-.spokensect{border-color:#45403d!important}
-.spokensecthead,.f2nbox .heading,.cyan{color:#7daea3!important}
-.collobox,.thesbox,.usagebox,.grambox,.f2nbox{background-color:#32302f!important;border-color:#3c3836!important}
-.collobox .section,.thesbox .section,.usagebox .expl,
-.grambox .expl,.grambox .compareword,.f2nbox .section{background-color:#32302f!important;color:#d4be98!important}
-.thesaurus .secheading,.thesbox .secheading,.grambox .heading.newline{background-color:#3c3836!important}
-.popup-button{background-color:#32302f!important;border-color:#5a524c!important;color:#d4be98!important}
-.popup-button-hover,.popup-button:hover{background-color:#3c3836!important}
-.popverbs,.popheader.popexa,.popheader.popphrase,.popheader.popcollo,
-.popheader.popthes,.popheader.popetym,.popheader.popwf,.popheader.pope_menu{
+:where(.mdict:has(.entry)),:where(.mdict:has(.entry)) .entry {background-color:#282828!important;color:#d4be98!important}
+:where(.mdict:has(.entry)) .entry,:where(.mdict:has(.entry)) .entry.lozenge,:where(.mdict:has(.entry)) .verbtable {color:#d4be98!important}
+:where(.mdict:has(.entry)) a,:where(.mdict:has(.entry)) .deriv,:where(.mdict:has(.entry)) .homnum,:where(.mdict:has(.entry)) .hyphenation,:where(.mdict:has(.entry)) .phrvbhwd,:where(.mdict:has(.entry)) .sensenum,:where(.mdict:has(.entry)) .synopp,:where(.mdict:has(.entry)) .colloc.key,:where(.mdict:has(.entry)) span.keycollo,:where(.mdict:has(.entry)) .thesref span.thesaurus,:where(.mdict:has(.entry)) .thesref .refhwd,:where(.mdict:has(.entry)) .thesref .refhomnum,:where(.mdict:has(.entry)) .nodeword,:where(.mdict:has(.entry)) .ws-head,:where(.mdict:has(.entry)) .phrvbs .heading {color:#7daea3!important}
+:where(.mdict:has(.entry)) .example,:where(.mdict:has(.entry)) .gloss,:where(.mdict:has(.entry)) .collgloss,:where(.mdict:has(.entry)) span.neutral,:where(.mdict:has(.entry)) span.italic,:where(.mdict:has(.entry)) .verbtable .geo,:where(.mdict:has(.entry)) .add_exa,:where(.mdict:has(.entry)) ul.exas li {color:#d4be98!important}
+:where(.mdict:has(.entry)) .pos,:where(.mdict:has(.entry)) .gram {color:#89b482!important}
+:where(.mdict:has(.entry)) .geo,:where(.mdict:has(.entry)) .registerlab {color:#d3869b!important}
+:where(.mdict:has(.entry)) .level,:where(.mdict:has(.entry)) .frequent,:where(.mdict:has(.entry)) .cross,:where(.mdict:has(.entry)) span.warning {color:#ea6962!important}
+:where(.mdict:has(.entry)) .ac,:where(.mdict:has(.entry)) .freq,:where(.mdict:has(.entry)) .signpost,:where(.mdict:has(.entry)) .sensenum,:where(.mdict:has(.entry)) .synopp {border-color:#45403d!important}
+:where(.mdict:has(.entry)) .ac,:where(.mdict:has(.entry)) .freq,:where(.mdict:has(.entry)) .synopp {background-color:#32302f!important;color:#7daea3!important}
+:where(.mdict:has(.entry)) .signpost {background-color:#374141!important;color:#ddc7a1!important}
+:where(.mdict:has(.entry)) .subheading,:where(.mdict:has(.entry)) .secheading,:where(.mdict:has(.entry)) .heading,:where(.mdict:has(.entry)) .popheader {background-color:#32302f!important;color:#7daea3!important}
+:where(.mdict:has(.entry)) .spokensect {border-color:#45403d!important}
+:where(.mdict:has(.entry)) .spokensecthead,:where(.mdict:has(.entry)) .f2nbox .heading,:where(.mdict:has(.entry)) .cyan {color:#7daea3!important}
+:where(.mdict:has(.entry)) .collobox,:where(.mdict:has(.entry)) .thesbox,:where(.mdict:has(.entry)) .usagebox,:where(.mdict:has(.entry)) .grambox,:where(.mdict:has(.entry)) .f2nbox {background-color:#32302f!important;border-color:#3c3836!important}
+:where(.mdict:has(.entry)) .collobox .section,:where(.mdict:has(.entry)) .thesbox .section,:where(.mdict:has(.entry)) .usagebox .expl,:where(.mdict:has(.entry)) .grambox .expl,:where(.mdict:has(.entry)) .grambox .compareword,:where(.mdict:has(.entry)) .f2nbox .section {background-color:#32302f!important;color:#d4be98!important}
+:where(.mdict:has(.entry)) .thesaurus .secheading,:where(.mdict:has(.entry)) .thesbox .secheading,:where(.mdict:has(.entry)) .grambox .heading.newline {background-color:#3c3836!important}
+:where(.mdict:has(.entry)) .popup-button {background-color:#32302f!important;border-color:#5a524c!important;color:#d4be98!important}
+:where(.mdict:has(.entry)) .popup-button-hover,:where(.mdict:has(.entry)) .popup-button:hover {background-color:#3c3836!important}
+:where(.mdict:has(.entry)) .popverbs,:where(.mdict:has(.entry)) .popheader.popexa,:where(.mdict:has(.entry)) .popheader.popphrase,:where(.mdict:has(.entry)) .popheader.popcollo,:where(.mdict:has(.entry)) .popheader.popthes,:where(.mdict:has(.entry)) .popheader.popetym,:where(.mdict:has(.entry)) .popheader.popwf,:where(.mdict:has(.entry)) .popheader.pope_menu {
   background-color:#32302f!important;color:#7daea3!important
 }
-.verbtable td{border-color:#45403d!important}
-.chwd a{background-color:#32302f!important;color:#89b482!important}
-.chwd .hw{color:#89b482!important}
-.arrow{color:#d4be98!important;border-color:#5a524c!important}
+:where(.mdict:has(.entry)) .verbtable td {border-color:#45403d!important}
+:where(.mdict:has(.entry)) .chwd a {background-color:#32302f!important;color:#89b482!important}
+:where(.mdict:has(.entry)) .chwd .hw {color:#89b482!important}
+:where(.mdict:has(.entry)) .arrow {color:#d4be98!important;border-color:#5a524c!important}

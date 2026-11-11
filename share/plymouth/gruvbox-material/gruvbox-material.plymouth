@@ -9,6 +9,9 @@ MonospaceFont=Adwaita Mono 12
 ImageDir=/usr/share/plymouth/themes/spinner
 HorizontalAlignment=.5
 VerticalAlignment=.7
+# The logo is a watermark; animation alignment does not position it.
+WatermarkHorizontalAlignment=.5
+WatermarkVerticalAlignment=.45
 DialogHorizontalAlignment=.5
 DialogVerticalAlignment=.382
 BackgroundStartColor=0x282828

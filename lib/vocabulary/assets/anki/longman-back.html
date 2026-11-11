@@ -80,6 +80,7 @@
         var metadata = heading(line.text);
         if (metadata) headings.push({ index: index, metadata: metadata });
       });
+      // A single GoldenDict click exports the entire article as plain text.
       // Prefer the ordinary entry over a preceding proper-name/trademark entry.
       var selected = headings.filter(function (item) {
         return item.metadata.pos !== "trademark";
@@ -171,7 +172,7 @@
         var original = document.createElement("details");
         original.className = "lm-original";
         var summary = document.createElement("summary");
-        summary.textContent = "Full selection";
+        summary.textContent = "More details";
         original.appendChild(summary);
         var fullText = document.createElement("div");
         fullText.className = "lm-original-text";

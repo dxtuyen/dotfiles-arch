@@ -17,10 +17,13 @@ AUR không tự update. Installer chỉ hoàn tất gói còn thiếu, không n�
 đã cài. Sau full upgrade chính thức, cập nhật AUR và review recipe/dependency:
 
 ```bash
-paru -Sua --review --noremovemake
+paru -Sua --review --noremovemake --sudoloop
 ```
 
 Xem [package workflow](packages.md). Paru cache recipe/build; không ép cleanbuild.
+`--sudoloop` dùng cơ chế sẵn có của Paru để gia hạn xác thực sudo trong lúc build
+lâu. Nó giảm việc hỏi lại do timeout; lần đầu hoặc policy riêng vẫn có thể hỏi.
+Các câu hỏi review recipe, thay gói và xác nhận cài là bước khác, vẫn giữ nguyên.
 Các source `-git` vẫn có thể thay đổi theo upstream. Arch/AUR không cung cấp khóa
 toàn hệ thống như Nix. Một gói local GTK ghim commit/checksum; khi đổi recipe,
 review rồi build thủ công từ thư mục cache hoặc checkout với `makepkg -si` bằng
@@ -54,7 +57,7 @@ checkrebuild
 
 `checkrebuild` từ `rebuild-detector` giúp phát hiện gói cần rebuild sau khi thư
 viện đổi SONAME. Đây là công cụ phát hiện, không thay thế việc đọc lỗi/log.
-Các gói AUR biên dịch như Sioyek/Tofi/Lotus có thể cần rebuild sau update Qt,
+Các gói AUR biên dịch như Tofi/GoldenDict-ng/Sioyek có thể cần rebuild sau update Qt,
 Python hoặc thư viện tương ứng. Không ghim phiên bản thư viện nền bằng
 `IgnorePkg` để giữ một ứng dụng cũ; update/rebuild app hoặc chạy môi trường cũ
 trong container. `pacman -Qdt` liệt kê orphan để **xem xét**, không tự xóa cả
@@ -78,6 +81,16 @@ Brave dùng **một bản** `brave-bin` native. Không cài thêm bản Flatpak 
 quản lý profile. AUR binary vẫn là gói pacman; kiểm tra recipe khi cập nhật.
 Native không cung cấp isolation thư viện ngang Flatpak/container, nên vẫn cần
 full upgrade và dependency đúng. TickTick dùng Flatpak vì phù hợp nguồn phân phối.
+
+Lotus và Swayview dùng `fcitx5-lotus-bin`/`swayview-bin`. Cập nhật bằng Paru
+như các gói AUR khác, không cần biên dịch hai ứng dụng này.
+Nếu binary native lỗi sau khi thư viện đổi ABI,
+kiểm tra bản binary upstream mới thay vì ép rebuild recipe chỉ đóng gói binary.
+Tofi, GoldenDict-ng và Sioyek còn build từ nguồn: Tofi chưa có binary tương ứng,
+recipe AppImage của GoldenDict-ng đang cũ, còn Sioyek AppImage stable 2.0.0
+cũ hơn bản `sioyek-git` hiện dùng. Bộ cài bỏ qua các gói đã cài.
+Theme GTK local chỉ tạo CSS cho biến thể Dark Medium;
+Gruvbox icons chỉ chép asset. Không đổi sang build toàn bộ ứng dụng để cài theme.
 
 ## Đổi cấu hình
 

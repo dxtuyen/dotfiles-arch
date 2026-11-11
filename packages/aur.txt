@@ -1,12 +1,14 @@
 # Paru resolves AUR dependencies; review every recipe before approving installation.
+# Prefer upstream binaries; keep source builds only when no suitable binary exists.
 tofi
-fcitx5-lotus
+# The AUR AppImage recipe is outdated; keep the current native GoldenDict package.
 goldendict-ng
+fcitx5-lotus-bin
+# The stable AppImage is older than the current development package.
 sioyek-git
-swayview
+swayview-bin
 # Upstream release assets, checksummed by the AUR recipe; avoids python-clickgen.
 bibata-cursor-theme-bin
 gruvbox-plus-icon-theme
 brave-bin
-google-chrome
 visual-studio-code-bin

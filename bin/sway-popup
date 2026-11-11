@@ -4,26 +4,53 @@ set -euo pipefail
 
 mark=$1
 shift
+matches=()
+while [ "${1:-}" = --match ]; do
+  matches+=("${2:?missing Sway criteria after --match}")
+  shift 2
+done
 [ "${1:-}" != -- ] || shift
 
-# Let Sway match the current workspace, including floating windows that have
-# left the scratchpad. Read command responses only, never the window tree.
-for action in \
-  "[con_mark=\"^${mark}$\" workspace=__focused__ con_id=__focused__] fullscreen disable, move scratchpad" \
-  "[con_mark=\"^${mark}$\" workspace=__focused__] focus" \
-  "[con_mark=\"^${mark}$\"] move container to workspace current, move scratchpad, scratchpad show"; do
-  if response=$(swaymsg -r "$action"); then
-    exit 0
+run_action() {
+  local response status
+  if response=$(swaymsg -r "$1"); then
+    return 0
   else
     status=$?
   fi
   case "$response" in
-    *'"error": "No matching node."'*) continue ;;
+    *'"error": "No matching node."'*) return 1 ;;
     *)
       printf '%s\n' "$response" >&2
       exit "$status"
       ;;
   esac
+}
+
+toggle_mark() {
+  local action
+  # Let Sway match visible and scratchpad windows; no tree or PID tracking.
+  for action in \
+    "[con_mark=\"^${mark}$\" workspace=__focused__ con_id=__focused__] fullscreen disable, move scratchpad" \
+    "[con_mark=\"^${mark}$\" workspace=__focused__] focus" \
+    "[con_mark=\"^${mark}$\"] move container to workspace current, move scratchpad, scratchpad show"; do
+    if run_action "$action"; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+if toggle_mark; then
+  exit 0
+fi
+
+# Marks are unique: a second window can take one, then close with it.
+# Reclaim an existing application window before deciding to launch another.
+for match in "${matches[@]}"; do
+  if run_action "[$match] mark --add $mark" && toggle_mark; then
+    exit 0
+  fi
 done
 
 # Sway launches the app asynchronously, preserving argument boundaries.

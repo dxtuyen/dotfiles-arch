@@ -222,6 +222,51 @@ class Files(unittest.TestCase):
         self.assertEqual(dest.read_text(), "original")
 
 
+class SystemInstall(unittest.TestCase):
+    def setUp(self):
+        stack = contextlib.ExitStack()
+        self.addCleanup(stack.close)
+        stack.enter_context(contextlib.redirect_stdout(io.StringIO()))
+        stack.enter_context(patch.object(i, "require_arch"))
+        stack.enter_context(patch.object(i.os, "geteuid", return_value=0))
+        stack.enter_context(
+            patch.object(
+                i.pwd,
+                "getpwnam",
+                return_value=SimpleNamespace(pw_uid=1000, pw_dir="/tmp"),
+            )
+        )
+        stack.enter_context(
+            patch.object(
+                i.subprocess, "run", return_value=SimpleNamespace(returncode=1)
+            )
+        )
+        self.files = stack.enter_context(patch.object(i, "install_files"))
+        self.run = stack.enter_context(patch.object(i, "run"))
+        self.args = SimpleNamespace(user="test", backup=True, dry_run=False)
+
+    def test_rebuild_after_install_even_when_files_already_match(self):
+        # A retry must rebuild an image even if the previous run copied the theme.
+        self.files.return_value = None
+        events = []
+        self.files.side_effect = lambda *a, **kw: events.append("files")
+        self.run.side_effect = lambda *command: events.append(command)
+        i.system_install(self.args)
+        self.assertEqual(events[:2], ["files", ("mkinitcpio", "-P")])
+
+    def test_dry_run_never_rebuilds_or_enables_services(self):
+        self.args.dry_run = True
+        i.system_install(self.args)
+        self.assertTrue(self.files.call_args.kwargs["dry_run"])
+        self.run.assert_not_called()
+
+    def test_failed_rebuild_stops_before_service_setup(self):
+        self.run.side_effect = subprocess.CalledProcessError(1, "mkinitcpio")
+        with self.assertRaises(subprocess.CalledProcessError):
+            i.system_install(self.args)
+        self.run.assert_called_once_with("mkinitcpio", "-P")
+
+
 class Packages(unittest.TestCase):
     def setUp(self):
         self.output = contextlib.redirect_stdout(io.StringIO())
@@ -308,9 +353,24 @@ class Packages(unittest.TestCase):
             "--needed",
             "--review",
             "--noremovemake",
+            "--sudoloop",
             "--",
             "goldendict-ng",
         )
+
+    def test_aur_prepare_only_reads_recipe_without_sudo_loop(self):
+        with (
+            patch.object(i, "require_arch"),
+            patch.object(i.os, "geteuid", return_value=1000),
+            patch.object(i.shutil, "which", return_value="/usr/bin/paru"),
+            patch.object(i, "installed", return_value=False),
+            patch.object(i, "packages", return_value=["goldendict-ng"]),
+            patch.object(i, "run") as run,
+        ):
+            args = SimpleNamespace(**vars(self.args))
+            args.prepare = True
+            i.aur(args)
+        run.assert_called_once_with("paru", "-Gp", "--", "goldendict-ng")
 
     def test_repeat_after_partial_install_skips_success(self):
         present = set()

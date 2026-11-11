@@ -9,7 +9,7 @@ The answer shows lookup context only when it contains more than the headword.
 The back template automatically presents one English meaning, one example, and
 one phrase from the selected Longman text, with IPA and part of speech when
 available. It omits navigation labels and additional senses from the short view;
-**Full selection** expands the complete imported text. Audio remains visible once.
+**More details** expands the complete imported text. Audio remains visible once.
 This runs inside the template, so new imports automatically use the same layout
 without an additional service, port, API, or manual editing. The template and its
 script travel with Anki Sync.
@@ -20,7 +20,8 @@ Hand-formatted paragraph/list/table content retains its layout; unrecognized
 selections remain visible in full.
 
 The installer links `anki-longman-setup` and configures GoldenDict's connection,
-field mapping, audio setting, and `~/Dictionary/Longman` dictionary path. It defers
+field mapping, audio setting, and disabled online/demo sources. Dictionary paths
+start empty on a new machine; add your own later in GoldenDict. It defers
 GoldenDict edits if the app is running. AnkiConnect still needs to be installed
 once in Anki; dictionary files and AnkiWeb login are personal data, kept outside
 the repository.
@@ -32,6 +33,7 @@ editor, and run:
 
 ```bash
 anki-longman-setup
+anki-longman-setup --check
 ```
 
 The command finishes GoldenDict setup and verifies/applies the repository's
@@ -59,10 +61,12 @@ To edit the design, update [`longman-front.html`](longman-front.html),
 the command again. You can also paste these files into Anki's Front Template,
 Back Template, and Styling tabs under **Tools → Manage Note Types → Longman → Cards**.
 
-For new vocabulary, select a relevant definition and example in GoldenDict-ng and
-use **Send to Anki** as usual. If you select the whole entry, the short view uses
+For new vocabulary, look up a word in GoldenDict-ng and click **Send Current
+Article to Anki** (or press **Ctrl+Shift+N**) without selecting text. The short view uses
 the first ordinary entry and its first meaning/example; it cannot infer which
-sense you encountered in your reading. To learn a later sense, select that part.
+sense you encountered in your reading. Selecting a later sense is optional.
+`--check` reads configuration/API only, returns nonzero on mismatch, and works
+while GoldenDict is running; it never creates notes or updates templates.
 IPA and part of speech can only be shown when present in the selection. The
 built-in `Sentence` mapping still sends the lookup string; the example in the
 short view is extracted from `selected_text`, not from that lookup field.

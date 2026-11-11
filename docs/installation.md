@@ -1,5 +1,10 @@
 # Cài Arch từ A đến Z
 
+Sau khi có Arch nền và đã bootstrap Paru, có thể gom phần **gói ứng dụng** bằng
+`./install apps --unattended --keep-going`; xem trước với `--dry-run` và đọc
+[package workflow](packages.md). Đây là lựa chọn thay cho việc chạy từng stage
+gói bên dưới, không thay các bước partition/boot/tài khoản hay áp cấu hình.
+
 Dành cho laptop Intel: UEFI, một kernel `linux`, systemd-boot, ext4, swap riêng,
 không mã hóa. USB dùng để boot bộ cài; Arch được cài vào SSD. Nếu thiết bị khác
 mô tả, xác định lại tên phân vùng trước khi chạy lệnh. Không có script tự chia ổ trong repo này.
@@ -167,7 +172,7 @@ cat > /boot/loader/entries/arch.conf <<EOF
 title Arch Linux
 linux /vmlinuz-linux
 initrd /initramfs-linux.img
-options root=UUID=$ARCH_ROOT_UUID rw resume=UUID=$ARCH_SWAP_UUID mem_sleep_default=deep quiet splash
+options root=UUID=$ARCH_ROOT_UUID rw resume=UUID=$ARCH_SWAP_UUID mem_sleep_default=deep quiet splash fbcon=nodefer
 EOF
 cat /boot/loader/entries/arch.conf
 bootctl status
@@ -177,6 +182,8 @@ bootctl status
 chế độ ngủ của máy hiện tại; nếu firmware không hỗ trợ hoặc wake có lỗi, bỏ
 tham số này ở entry `arch.conf` và kiểm tra lại. Máy dùng một kernel `linux`;
 USB Arch và các gói kernel cũ trong cache là đường khôi phục. Không tự thêm kernel.
+`fbcon=nodefer` cho console nhận framebuffer sớm để tránh đổi kích thước lúc
+tuigreet bắt đầu vẽ; kiểm tra kết quả khi boot trên phần cứng thực.
 
 ## 6. Boot Arch lần đầu
 
@@ -252,7 +259,11 @@ và patch trong giao diện review trước khi chấp nhận; không dùng `--n
 thế bước review lúc build. Gói đã cài được bỏ qua; cập nhật bằng Paru riêng.
 Nếu recipe lỗi, các target độc lập tiếp tục với `--keep-going`, nhưng command
 vẫn trả lỗi và liệt kê target thất bại. Chạy lại sau khi sửa nguyên nhân.
-Sioyek dùng `sioyek-git`: tên `sioyek` không có trong sync DB/AUR đã kiểm tra.
+Ưu tiên binary có sẵn: Lotus dùng `fcitx5-lotus-bin`, overview dùng `swayview-bin`;
+Sioyek giữ `sioyek-git` native để tránh hạ xuống AppImage stable 2.0.0 cũ hơn.
+Tofi vẫn build vì chưa có binary tương ứng; GoldenDict-ng giữ bản nguồn mới
+vì recipe AppImage trên AUR đã cũ. Các gói nguồn đã cài sẽ được bỏ qua, không
+build lại mỗi lần chạy bộ cài. Xem [quyết định chọn gói](packages.md#sources).
 Bibata dùng archive binary upstream qua `bibata-cursor-theme-bin` có checksum.
 MySQL server tùy chọn, không phải dependency desktop.
 
@@ -268,7 +279,8 @@ Impala/iwd có binary trong kho chính thức; không có bước build ứng d�
 Sau khi vào Sway, menu mở Impala trong Foot với theme Gruvbox. Việc lưu mạng và
 tự kết nối thuộc iwd, không phụ thuộc cửa sổ Impala đang mở.
 
-Brave native (`brave-bin`), Google Chrome và VS Code bản Microsoft cài qua AUR.
+Brave native (`brave-bin`) là trình duyệt duy nhất trong danh sách cài đặt; Brave
+và VS Code bản Microsoft cài qua AUR.
 TickTick cài per-user từ Flathub. Font, Qt binding cho Lotus, portal, PipeWire, các công cụ workflow
 đã nằm trong danh sách chính thức.
 
@@ -285,14 +297,14 @@ Máy đang chạy chỉ đổi giao diện thì không cần chạy lại stage 
 ./install user --backup
 sudo ./install system --user "$USER" --backup --dry-run
 sudo ./install system --user "$USER" --backup
-sudo mkinitcpio -P
 ```
 
 User stage enable các unit; chỉ timer dọn rác/update Flatpak chạy ngay. Session
-lock/idle không bị gọi ở TTY. System stage chỉ enable dịch vụ cho boot sau,
-không restart mạng hay bật greetd giữa lúc cài.
-Lệnh `mkinitcpio -P` sau stage `system` đưa theme Plymouth Gruvbox vừa cài vào
-initramfs; theme chỉ có hiệu lực ở lần boot sau.
+lock/idle không bị gọi ở TTY. System stage chép sẵn theme Plymouth đã căn logo,
+cấu hình tuigreet, tự chạy `mkinitcpio -P` rồi enable dịch vụ cho boot sau;
+không restart mạng hay bật greetd giữa lúc cài. Máy mới không cần chạy script
+sửa giao diện riêng. Theme có hiệu lực ở lần boot sau; boot entry và driver
+được thiết lập theo phần cứng ở mục 5.
 
 Hoàn tất DNS symlink sau khi resolved đã chạy:
 
@@ -335,7 +347,7 @@ Thực hiện lần lượt:
 
 1. `systemctl --user --failed`, `systemctl --failed`: xử lý mọi service lỗi.
 2. `Super+Enter`, `Super+D`, Waybar, thông báo `notify-send test` hoạt động.
-3. Lotus: thử tiếng Việt trong Foot, Chrome, ứng dụng GTK/Qt; `fcitx5-configtool`
+3. Lotus: thử tiếng Việt trong Foot, Brave, ứng dụng GTK/Qt; `fcitx5-configtool`
    kiểm tra Lotus trong profile. Kiểm tra `sudo systemctl status fcitx5-lotus-server@$USER`.
 4. `wpctl status` phải thấy loa và microphone. Máy Intel dùng SOF cần
    `sof-firmware` (đã có trong package list); nếu không có soundcard, xem

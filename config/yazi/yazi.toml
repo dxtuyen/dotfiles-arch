@@ -17,7 +17,6 @@ reveal = [
 # Explicit choices open files once; they never change the system default.
 browser = [
   { run = 'brave %s', desc = "Brave", for = "linux", orphan = true },
-  { run = 'google-chrome-stable %s', desc = "Chrome", for = "linux", orphan = true },
 ]
 sioyek = [
   { run = 'sioyek %s', desc = "Sioyek", for = "linux", orphan = true },

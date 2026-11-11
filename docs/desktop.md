@@ -4,14 +4,25 @@
 `config/sway/config`.
 
 Màn boot dùng Plymouth với nền Gruvbox `#282828` và spinner có sẵn của gói
-`plymouth`. Theme ở `share/plymouth/gruvbox-material/`; thay theme xong cần
-chép file hệ thống tương ứng và chạy `sudo mkinitcpio -P`.
+`plymouth`. Theme ở `share/plymouth/gruvbox-material/`; logo Arch được căn riêng
+bằng `WatermarkHorizontalAlignment`/`WatermarkVerticalAlignment`. Khi cài mới,
+stage `system` chép theme và tự tạo lại initramfs; làm theo
+[hướng dẫn cài đặt](installation.md#9-áp-dụng-cấu-hình), không cần script sửa riêng.
+Nếu máy đang dùng chỉ đổi theme, chép file theme tương ứng rồi chạy
+`sudo mkinitcpio -P`, không cần áp dụng lại toàn bộ policy hệ thống.
+
+Hướng dẫn boot dùng `fbcon=nodefer` để console nhận framebuffer sớm, tránh đổi
+kích thước lúc tuigreet bắt đầu vẽ. Hiệu quả cần kiểm tra trên máy thực sau
+reboot; xem [tài liệu fbcon](https://docs.kernel.org/fb/fbcon.html).
 
 Tuigreet trên VT1 dùng 16 màu từ `system/etc/greetd/vtrgb`, khớp bảng ANSI của
 Foot. Drop-in `greetd.service.d/10-console.conf` nạp bảng này bằng `setvtrgb`
 trước khi greetd khởi động. Chỉnh vai trò màu ở `system/etc/greetd/config.toml`.
 `--remember` lưu username đăng nhập thành công trong `/var/cache/tuigreet/lastuser`;
-thư mục và file phải thuộc `greeter:greeter`. Người dùng vẫn nhập mật khẩu.
+gói `greetd-tuigreet` cung cấp tmpfiles để tạo thư mục cache thuộc
+`greeter:greeter`. Trên máy mới nhập username lần đầu, sau lần đăng nhập thành
+công tuigreet tự nhớ; không cần tạo hoặc chép `lastuser` từ máy cũ. Người dùng
+vẫn nhập mật khẩu.
 File `share/color-schemes/gruvbox-material.conf` là palette dành riêng cho Qt.
 
 | Phím | Hành vi |
@@ -45,6 +56,12 @@ Sway sở hữu geometry, focus và scratchpad; helper chỉ quyết định lau
 không tự dựng lại window manager bằng Python. Popup đang hiện nhưng chưa focus
 sẽ được focus trước; nhấn tiếp mới ẩn. Đóng/mở lại cửa sổ sau khi đổi window
 rule để rule gắn mark mới. Obsidian 70%×85%, TickTick 60%×75% ở lần mở đầu.
+
+Mark của Sway là duy nhất cho một cửa sổ. Cửa sổ chọn vault Obsidian mới có
+thể lấy mark rồi mang nó mất khi đóng. Nếu mark không còn, `obsidian-toggle`
+nhờ Sway tìm lại cửa sổ theo app_id/class, gắn lại mark rồi toggle; chỉ launch
+khi không còn cửa sổ phù hợp. Helper dùng command IPC, không giữ PID hoặc đọc
+cây cửa sổ. Lỗi IPC ngoài trường hợp không có cửa sổ vẫn được báo và dừng.
 
 Tofi dùng phím mũi tên hoặc Ctrl+J/K, Enter chọn, Esc hủy. Launcher lưu history;
 menu tiện ích không lưu. Tofi không có icon ảnh hoặc chọn chuột; các biểu tượng
@@ -117,7 +134,8 @@ Fzf, zoxide và direnv vẫn hoạt động cùng prompt Bash thuần.
 
 Quick Lang đọc selection/clipboard, gửi văn bản đến Gemini và copy kết quả.
 Key ở `~/.config/quick-lang/api.key`, mode 600, không lưu trong Git.
-GoldenDict dùng `~/Dictionary/Longman`; helper `goldendict-anki-config` giữ
-cấu hình kết nối Anki. Sync collection trước khi chạy `anki-longman-setup`.
-AnkiConnect cần được cài và cho phép kết nối local như tài liệu trong
-`lib/vocabulary/assets/anki/README.md`.
+GoldenDict trên máy mới không có đường dẫn từ điển và tắt các nguồn online/demo;
+bạn tự thêm dictionary sau. Helper `goldendict-anki-config` giữ giao diện và kết
+nối Anki; `anki-longman-setup --check` kiểm tra mà không ghi dữ liệu. Quy trình
+restore/sync, cài AnkiConnect và thêm thẻ bằng một lần bấm ở
+[GoldenDict → Anki](vocabulary.md).

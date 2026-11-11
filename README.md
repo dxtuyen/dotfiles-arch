@@ -10,6 +10,11 @@ Máy hiện tại dùng một kernel `linux`, systemd-boot, ext4 và swap riêng
 - **Bảo trì:** [cập nhật và khôi phục cấu hình](docs/maintenance.md).
 - **Tổ chức repo:** [kiến trúc](docs/architecture.md).
 
+Cài app theo một lượt sau khi đã bootstrap Paru:
+`./install apps --unattended --keep-going` (xem trước bằng `--dry-run`).
+Lệnh gom kho chính thức + AUR qua Paru, rồi theme local/Flatpak; cấu hình
+`user`/`system` vẫn áp dụng riêng. Xem [hành vi tự động](docs/packages.md).
+
 Kiểm tra trên máy đã cài:
 
 ```bash
@@ -24,4 +29,5 @@ python tools/check.py
 `install-manifest.json`: mapping nguồn → đích; `tools/`: bộ cài và kiểm tra.
 
 File người dùng link về checkout, nên giữ nguyên vị trí repo. Stage `system`
-chép cả policy swap/ngủ/firewall; đọc hướng dẫn trước khi chạy trên máy đang dùng.
+chép cả policy swap/ngủ/firewall và tạo lại initramfs với theme Plymouth;
+đọc hướng dẫn trước khi chạy trên máy đang dùng.

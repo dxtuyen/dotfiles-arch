@@ -1,4 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
+case "$*" in
+  --check)
+    result=0
+    python3 "$HOME/.local/lib/dotfiles/vocabulary/scripts/apply-longman.py" --check || result=$?
+    "$HOME/.local/bin/goldendict-anki-config" --check || result=$?
+    exit "$result"
+    ;;
+  ""|--initialize) ;;
+  *) exec python3 "$HOME/.local/lib/dotfiles/vocabulary/scripts/apply-longman.py" "$@" ;;
+esac
 "$HOME/.local/bin/goldendict-anki-config"
 exec python3 "$HOME/.local/lib/dotfiles/vocabulary/scripts/apply-longman.py" "$@"

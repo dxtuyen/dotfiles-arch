@@ -14,21 +14,36 @@ def anki(action, **params):
     request = Request(
         "http://127.0.0.1:8765", payload, {"Content-Type": "application/json"}
     )
-    with urlopen(request, timeout=15) as response:
-        result = json.load(response)
+    try:
+        with urlopen(request, timeout=15) as response:
+            result = json.load(response)
+    except URLError as error:
+        raise RuntimeError(
+            "Cannot reach AnkiConnect at 127.0.0.1:8765. Open Anki with the "
+            "AnkiConnect add-on enabled; restart Anki after installing the add-on."
+        ) from error
     if result.get("error") is not None:
+        if "lifecycle" in str(result["error"]).lower():
+            raise RuntimeError(
+                "Anki is busy changing its collection. Finish import/sync/profile switching, "
+                "close import dialogs, then retry."
+            )
         raise RuntimeError(f"{action}: {result['error']}")
     return result["result"]
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--check", action="store_true", help="Check Anki setup without changing the collection.")
+    mode.add_argument(
         "--initialize",
         action="store_true",
         help="Create the Longman note type/deck for a fresh collection; sync existing data first.",
     )
     args = parser.parse_args()
+    if anki("version") < 6:
+        raise RuntimeError("AnkiConnect API version 6 or later is required.")
     name = "Longman"
     assets = Path(__file__).resolve().parents[1] / "assets/anki"
     front = (assets / "longman-front.html").read_text(encoding="utf-8")
@@ -67,6 +82,11 @@ def main():
             "Back": back,
         }
     }
+    if args.check:
+        if previous != templates or previous_css != css:
+            raise RuntimeError("Longman fields/deck are valid, but templates or CSS differ. Run anki-longman-setup to apply them.")
+        print("AnkiConnect, LongMan deck, Longman fields, templates and CSS match; no collection changes.")
+        return
     if previous == templates and previous_css == css:
         print("Longman templates and styling are already up to date.")
         return

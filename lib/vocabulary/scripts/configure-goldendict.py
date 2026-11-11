@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Set the managed GoldenDict appearance and Longman/Anki preferences."""
+"""Set GoldenDict appearance, offline defaults, and Longman/Anki preferences."""
 
 import argparse
 import os
@@ -22,7 +22,7 @@ def goldendict_running():
     return result.returncode == 0
 
 
-def configure(config_file, dictionary_dir):
+def configure(config_file, dictionary_dir=None, *, check=False):
     if config_file.is_symlink():
         raise RuntimeError(f"Expected an app-managed file, not a symlink: {config_file}")
     parser = ET.XMLParser(target=ET.TreeBuilder(insert_comments=True))
@@ -65,12 +65,23 @@ def configure(config_file, dictionary_dir):
     }.items():
         value(anki, tag, text)
 
+    # Explicit empty sections prevent GoldenDict from restoring demo sources
+    # (notably the enabled dict.org server) when it first reads this file.
+    for section in ("mediawikis", "websites", "dictservers", "programs", "voiceEngines"):
+        for source in ensure(root, section):
+            if source.get("enabled") != "0":
+                source.set("enabled", "0")
+                changed = True
+    value(ensure(root, "forvo"), "enable", "0")
+
     paths = ensure(root, "paths")
-    if not any(node.text == str(dictionary_dir) for node in paths.findall("path")):
+    if dictionary_dir is not None and not any(
+        node.text == str(dictionary_dir) for node in paths.findall("path")
+    ):
         ET.SubElement(paths, "path", recursive="0").text = str(dictionary_dir)
         changed = True
-    if not changed:
-        return False
+    if check or not changed:
+        return changed
 
     config_file.parent.mkdir(parents=True, exist_ok=True)
     mode = stat.S_IMODE(config_file.stat().st_mode) if config_file.exists() else 0o600
@@ -90,11 +101,17 @@ def configure(config_file, dictionary_dir):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, required=True)
-    parser.add_argument("--dictionary", type=Path, required=True)
+    parser.add_argument("--dictionary", type=Path, help="Explicitly add this dictionary directory.")
+    parser.add_argument("--check", action="store_true", help="Check preferences without writing files.")
     parser.add_argument("--skip-running", action="store_true")
     args = parser.parse_args()
+    if args.check:
+        if configure(args.config, args.dictionary, check=True):
+            raise RuntimeError("Preferences need updating. Quit GoldenDict, then run goldendict-anki-config.")
+        print("GoldenDict preferences match; no files changed.")
+        return
     if goldendict_running():
-        message = "Quit GoldenDict (including its tray icon), then run anki-longman-setup."
+        message = "Quit GoldenDict (including its tray icon), then run goldendict-anki-config."
         if args.skip_running:
             print(f"GoldenDict configuration deferred. {message}")
             return

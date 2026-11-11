@@ -234,7 +234,6 @@ def user_install(args):
         "Videos",
         "VMs/disk",
         "VMs/iso",
-        "Dictionary/Longman",
     ):
         (base / directory).mkdir(parents=True, exist_ok=True)
     run("xdg-user-dirs-update")
@@ -267,8 +266,6 @@ def user_install(args):
         ROOT / "lib/vocabulary/scripts/configure-goldendict.py",
         "--config",
         base / ".config/goldendict/config",
-        "--dictionary",
-        base / "Dictionary/Longman",
         "--skip-running",
     )
     run(
@@ -324,7 +321,13 @@ def system_install(args):
     items = manifest()["system"]
     install_files(items, Path("/"), backup=args.backup, dry_run=args.dry_run)
     if args.dry_run:
+        print(
+            "Would rebuild initramfs with the installed Plymouth theme: mkinitcpio -P"
+        )
         return
+    # Boot reads the theme from initramfs, while shutdown reads the system copy.
+    # Always rebuild so rerunning this stage retries a previously failed build.
+    run("mkinitcpio", "-P")
     groups = []
     for group in ("wheel", "libvirt", "kvm"):
         try:
@@ -450,7 +453,11 @@ def aur(args):
             run("paru", "-Gp", "--", name)
         else:
             # Never bypass review, dependency checks, checksums or installation prompts.
-            run("paru", "-S", "--needed", "--review", "--noremovemake", "--", name)
+            # Paru refreshes cached sudo credentials during long unprivileged builds.
+            run(
+                "paru", "-S", "--needed", "--review", "--noremovemake",
+                "--sudoloop", "--", name,
+            )
 
     package_jobs(
         packages(args.group), action, keep_going=args.keep_going, dry_run=args.dry_run
@@ -475,6 +482,13 @@ def local_packages(args):
             if source.is_file():
                 shutil.copy2(source, path / source.name)
         print(recipe.read_text())
+        if getattr(args, "unattended", False):
+            run(
+                "paru", "-Bi", "--needed", "--skipreview", "--noconfirm",
+                "--sudoloop", "--noremovemake", "--", path,
+                stdin=subprocess.DEVNULL,
+            )
+            return
         if input(f"Build reviewed local recipe {name}? [y/N] ").strip().lower() != "y":
             raise RuntimeError("Recipe not approved")
         run("makepkg", "--syncdeps", "--install", "--needed", cwd=path)
@@ -500,6 +514,9 @@ def flatpak_install(args):
     require_arch()
     if os.geteuid() == 0:
         raise RuntimeError("Flatpaks belong to your login user; run without sudo.")
+    if args.dry_run and not shutil.which("flatpak"):
+        print("Would install user Flatpaks:", ", ".join(packages("flatpak")))
+        return
     present = set(
         subprocess.check_output(
             ["flatpak", "list", "--user", "--app", "--columns=application"],
@@ -513,6 +530,7 @@ def flatpak_install(args):
     if not pending:
         print("User Flatpaks already installed.")
         return
+    flags = ("--assumeyes", "--noninteractive") if getattr(args, "unattended", False) else ()
     run(
         "flatpak",
         "remote-add",
@@ -521,7 +539,44 @@ def flatpak_install(args):
         "flathub",
         "https://dl.flathub.org/repo/flathub.flatpakrepo",
     )
-    run("flatpak", "install", "--user", "flathub", *pending)
+    run("flatpak", "install", "--user", *flags, "flathub", *pending)
+
+
+def apps_install(args):
+    """One native Paru transaction, then the existing local/Flatpak stages."""
+    require_arch()
+    if os.geteuid() == 0:
+        raise RuntimeError("Run apps as your normal login user, without sudo.")
+    if any(group not in OFFICIAL_GROUPS for group in args.groups):
+        raise RuntimeError("Use official groups only: " + ", ".join(OFFICIAL_GROUPS))
+    if not args.dry_run and not shutil.which("paru"):
+        raise RuntimeError("Bootstrap Paru first using docs/packages.md; no packages were changed.")
+    names = list(dict.fromkeys(
+        name for group in (*args.groups, "aur") for name in packages(group)
+    ))
+    command = [
+        "paru", "-Syu", "--needed", "--sudoloop", "--batchinstall", "--noremovemake",
+        "--nofailfast" if args.keep_going else "--failfast",
+    ]
+    if args.unattended:
+        command.extend(("--skipreview", "--noconfirm"))
+        print("Unattended: package defaults accepted; recipe review skipped for this run.")
+    else:
+        command.append("--review")
+    command.extend(("--", *names))
+    if args.dry_run:
+        print("Would run:", " ".join(command))
+    elif args.unattended:
+        run(*command, stdin=subprocess.DEVNULL)
+    else:
+        run(*command)
+    # A failed full upgrade must stop before later stages; never catch that failure.
+    local_packages(args)
+    flatpak_install(args)
+    if args.dry_run:
+        print("Dry run complete; no packages changed.")
+    else:
+        print("Package stages complete. Apply home/system configuration separately.")
 
 
 def doctor(args):
@@ -563,7 +618,6 @@ def doctor(args):
         "sioyek",
         "nvim",
         "brave",
-        "google-chrome-stable",
     )
     for name in commands:
         path = shutil.which(name)
@@ -733,7 +787,7 @@ def main():
     p.add_argument("--dry-run", action="store_true")
     p.set_defaults(func=user_install)
     p = sub.add_parser(
-        "system", help="copy system settings; enable services for next boot"
+        "system", help="copy system settings, rebuild initramfs and enable services"
     )
     p.add_argument("--user", required=True)
     p.add_argument("--backup", action="store_true")
@@ -747,6 +801,17 @@ def main():
     )
     p.add_argument("--dry-run", action="store_true")
     p.set_defaults(func=official_packages)
+    p = sub.add_parser(
+        "apps", help="install/update official and AUR packages together, then local/Flatpak"
+    )
+    p.add_argument("groups", nargs="*", default=list(OFFICIAL_GROUPS))
+    p.add_argument("--dry-run", action="store_true")
+    p.add_argument("--keep-going", action="store_true", help="let Paru try independent AUR builds after failures")
+    p.add_argument(
+        "--unattended", action="store_true",
+        help="skip recipe review and accept package-tool defaults for this run",
+    )
+    p.set_defaults(func=apps_install)
     p = sub.add_parser(
         "package-status", help="read-only installed and repository package inventory"
     )

@@ -2,8 +2,50 @@
 
 Run these commands as the normal login user. This is the installation procedure;
 the historical audit/deployment record is in [audit.md](audit.md). Read Arch news before upgrading.
-Do not run `pacman -Sy` alone, bypass dependency checks, disable signature checks,
-or use `--noconfirm`. AUR recipes are arbitrary code, including binary recipes.
+Do not run `pacman -Sy` alone, bypass dependency checks or disable signature checks.
+The normal stages retain review. The explicit `apps --unattended` mode below
+skips review and accepts package-tool defaults for this run, as requested.
+AUR recipes are arbitrary code, including binary recipes.
+
+## One command for the package stages
+
+After bootstrapping Paru once, preview and then choose one mode:
+
+```bash
+./install apps --unattended --keep-going --dry-run
+./install apps --unattended --keep-going
+```
+
+Run as the normal login user, without `sudo` on the installer. Paru requests
+sudo authentication when needed and keeps it refreshed with its own `--sudoloop`
+during long work. With ordinary cached-credential policy this avoids repeated
+expiry prompts; special sudo policies or a new session may still authenticate.
+There is no sudoers change or installer-owned background password loop.
+
+The main transaction is one `paru -Syu` for the selected official groups plus
+`aur.txt`: full official/AUR upgrade, deduplicated targets, `--needed`,
+`--batchinstall`, retained make dependencies and normal dependency/signature
+checks. Existing foreign packages may therefore be upgraded too, unlike the
+missing-only legacy `aur --build` stage. `--keep-going` lets Paru try independent
+AUR builds; a nonzero main transaction stops the later stages and stays nonzero.
+
+Then the existing local-theme stage packages missing recipes using `paru -Bi`
+with the same sudo-loop/automatic mode, and Flatpak installs missing user apps
+with its native noninteractive options. `mysql84` is not added by this command;
+it remains the optional `aur-database` group. Home/system file deployment,
+service configuration, boot policy, dictionary data and Anki collection setup
+remain separate.
+
+`--unattended` passes `--skipreview --noconfirm` to Paru. This is appropriate only
+when you accept the configured package/recipe sources without reviewing them
+during that run. Unexpected dependency/signature/conflict failures are errors,
+not a reason to disable checks or report success. Run `./install apps` for the
+interactive one-transaction workflow with recipe review instead. Individual
+stages below remain useful for targeted retries and manual control.
+
+Keep the terminal/session running. If needed, use the desktop's existing
+keep-awake mode while waiting; unattended does not mean detached or immune to
+suspend/network failure. No actual update is performed by `--dry-run`.
 
 ## Sources
 
@@ -12,17 +54,24 @@ through `sudo pacman -Syu --needed`. All their names were found in this machine'
 sync databases during the audit. `./install package-status` checks again without
 refreshing databases or changing packages. `packages --dry-run` prints the command.
 
-Live [AUR RPC metadata](https://aur.archlinux.org/rpc/v5/info?arg[]=goldendict-ng&arg[]=libeb&arg[]=bibata-cursor-theme&arg[]=bibata-cursor-theme-bin&arg[]=python-clickgen&arg[]=sioyek&arg[]=sioyek-git&arg[]=paru-bin)
-was checked on 2026-11-10:
+Prefer official repository binaries, then upstream binaries packaged through AUR.
+Keep source builds when no suitable binary package is available. AUR's `--build`
+stage also packages downloaded binaries; it does not always compile software.
+
+Live [AUR RPC metadata](https://aur.archlinux.org/rpc/v5/info?arg[]=tofi&arg[]=tofi-bin&arg[]=goldendict-ng&arg[]=goldendict-ng-appimage&arg[]=fcitx5-lotus-bin&arg[]=sioyek-git&arg[]=sioyek-appimage&arg[]=swayview-bin)
+and the binary recipes were checked on 2026-11-11:
 
 | Target | Decision |
 | --- | --- |
-| goldendict-ng | AUR source; depends on AUR libeb, which makepkg cannot fetch itself |
+| goldendict-ng | Keep current native source package (26.11.0); AUR AppImage recipe is outdated (23.09.29); libeb also builds from AUR |
 | bibata-cursor-theme | Source recipe requires AUR python-clickgen>=2.0.0 |
 | bibata-cursor-theme-bin | Use checksummed Bibata upstream release assets; avoids cursor generation |
-| sioyek-git | Keep existing choice; `sioyek` absent from queried AUR and local official DBs |
-| brave-bin, google-chrome, visual-studio-code-bin | Existing vendor binaries repackaged by AUR recipes |
-| tofi, fcitx5-lotus, swayview, gruvbox-plus-icon-theme | Keep verified existing AUR names |
+| sioyek-git | Keep native development source package; stable AppImage 2.0.0 is older than the installed version |
+| fcitx5-lotus-bin | Checksummed upstream Arch Linux binaries; keeps the Lotus server service |
+| swayview-bin | Checksummed upstream executable; avoids a Rust build |
+| brave-bin, visual-studio-code-bin | Existing vendor binaries repackaged by AUR recipes |
+| tofi | Source build retained; no tofi-bin found in AUR |
+| gruvbox-plus-icon-theme | Copy upstream icon assets; no application compilation |
 | mysql84 | Optional source build, outside the desktop list |
 | paru-bin | Verified bootstrap option using upstream precompiled release |
 
@@ -32,6 +81,16 @@ and conflicts with `bibata-cursor-theme`. Pacman may ask to replace an existing
 source variant; review that prompt. Binary packaging avoids compilation but still
 requires trusting both the upstream publisher and the reviewed packaging code.
 No third-party binary repository or signing key is added.
+
+On an existing machine, the next `./install aur --build` offers to replace
+`fcitx5-lotus` and `swayview` with their binary variants through normal package
+conflict prompts. Do not uninstall them first. Already installed Tofi,
+GoldenDict and Sioyek are skipped; they are not rebuilt on every installer run.
+
+Sioyek stays on `sioyek-git` to retain the newer native version and avoid
+downgrading configuration or databases to the stable 2.0.0 AppImage. No AppImage
+runtime is added. Source builds remain for Tofi, GoldenDict/libeb and Sioyek;
+the local GTK recipe only generates theme CSS.
 
 ## Bootstrap Paru once
 
@@ -83,6 +142,16 @@ Read each review screen, including AUR dependencies, `.install` files and patche
 `--noremovemake` retains build dependencies, avoiding automatic removals and
 repeated downloads. Each independent AUR target gets a separate helper invocation
 so `--keep-going` can continue after a failure. Shared dependencies are reused.
+
+The build stage also passes `--sudoloop`: Paru periodically refreshes cached sudo
+credentials while it is running, so a long build is less likely to require
+another password before package installation. This is Paru's own mechanism, not
+a permanent change to sudoers. The first authentication, a new terminal/session,
+or a policy requiring fresh authentication may still prompt. Build steps remain
+unprivileged. Recipe review and pacman's installation/conflict confirmations
+are separate from password prompts and remain interactive. `--prepare` only reads
+recipes and does not start a sudo loop.
+
 Without `--keep-going`, stop at the first failure. Both modes exit nonzero on any
 failure, retaining the helper's original diagnostics on the terminal.
 
@@ -93,7 +162,8 @@ Paru uses its own cache. Preserve local recipe edits there before migrating them
 
 Rerun the same stage after fixing a failure. Installed AUR/local/Flatpak targets
 are skipped; no stage-success file can incorrectly hide a missing package. AUR
-updates are separate: full official upgrade, then `paru -Sua --review --noremovemake`.
+updates are separate: full official upgrade, then
+`paru -Sua --review --noremovemake --sudoloop`.
 To deliberately rebuild an installed target, use Paru directly after review.
 The local GTK installer also skips installed versions; use a reviewed manual
 `makepkg -si` for a changed local recipe. AUR/devel sources and rolling Arch are
@@ -112,6 +182,8 @@ sudo ./install system --user "$USER" --backup
 These apply configuration, enable services and start the user maintenance timers;
 run them only when ready. The system stage refuses competing network managers,
 never disables them, and does not restart networking or the login manager.
+It rebuilds initramfs after copying the Plymouth theme; a failed build stops
+the stage and must be resolved before rebooting.
 It copies laptop policy including zram, lid/sleep and firewall settings: review
 these explicitly for the machine. It does not edit partitions, boot entries,
 kernel command lines, swap partitions, firmware or accounts' existing data.
@@ -141,6 +213,6 @@ interruption. If a backup rename crosses filesystems, the installer stops rather
 than falling back to a potentially incomplete copy; the original remains intact.
 Keep these backups until the installation is validated.
 
-Independent stages are intentional. A `setup` command was evaluated but deferred:
-a single command would mix package review, optional failures, home replacement and
-root service policy. The sequence above is easier to inspect and resume.
+The `apps` entry point groups package work only. File deployment stays in the
+independent `user`/`system` stages so package automation does not implicitly
+replace home files or apply hardware/boot policy.

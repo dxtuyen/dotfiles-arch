@@ -65,6 +65,11 @@ Giữ nguyên đường dẫn checkout sau khi link. Nếu move repo, chạy l�
 
 ## Stage và quyền
 
+- `apps`: một transaction Paru cho kho chính thức + AUR, rồi tái sử dụng stage
+  theme local và Flatpak. `--unattended` chấp nhận mặc định công cụ và bỏ review
+  trong lượt đó; Paru sở hữu sudo-loop, không có daemon hay policy sudo riêng.
+  Đây là luồng cài/nâng cấp gói, không tự áp file `user`/`system`.
+
 - `packages`: full upgrade và gói chính thức qua pacman.
 - `aur --build`: Paru giải quyết dependency và review recipe trước khi build;
   makepkg chạy bằng user, pacman nâng quyền khi cài gói/dependency.
@@ -72,8 +77,8 @@ Giữ nguyên đường dẫn checkout sau khi link. Nếu move repo, chạy l�
 - `local-packages`: build PKGBUILD ghim commit/checksum trong repo.
 - `flatpak`: TickTick ở phạm vi user.
 - `user`: file home, enable user unit; không đụng bootloader/phân vùng.
-- `system`: chép `/etc`, helper `/usr/local/bin`, enable service cho lần boot
-  sau; không restart mạng/login manager lúc cài.
+- `system`: chép `/etc`, helper `/usr/local/bin`, theme Plymouth, tạo lại
+  initramfs và enable service cho lần boot sau; không restart mạng/login manager.
 - `doctor`: kiểm tra trên Arch; không tự sửa hoặc sleep máy.
 
 Boot, partition, UUID swap và tài khoản có bước riêng trong hướng dẫn.
