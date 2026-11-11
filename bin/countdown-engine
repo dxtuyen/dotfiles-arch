@@ -197,14 +197,15 @@ maybe_log_current() {
 
 notify_waybar() {
   # Signal 8 = countdown time, 10 = play/pause control, 7 = idle inhibition.
-  pkill -RTMIN+8 waybar 2>/dev/null || true
-  pkill -RTMIN+10 waybar 2>/dev/null || true
-  pkill -RTMIN+7 waybar 2>/dev/null || true
+  # Skip Waybar until its handler is installed: an early RT signal terminates it.
+  pkill --require-handler --exact --euid "$UID" -RTMIN+8 waybar 2>/dev/null || true
+  pkill --require-handler --exact --euid "$UID" -RTMIN+10 waybar 2>/dev/null || true
+  pkill --require-handler --exact --euid "$UID" -RTMIN+7 waybar 2>/dev/null || true
 }
 
 notify_clock() {
   # Refresh only the countdown time every second.
-  pkill -RTMIN+8 waybar 2>/dev/null || true
+  pkill --require-handler --exact --euid "$UID" -RTMIN+8 waybar 2>/dev/null || true
 }
 
 stop_state_watcher() {

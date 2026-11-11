@@ -276,8 +276,9 @@ less packages/local/gruvbox-gtk-theme/PKGBUILD
 ```
 
 Impala/iwd có binary trong kho chính thức; không có bước build ứng dụng Wi-Fi.
-Sau khi vào Sway, menu mở Impala trong Foot với theme Gruvbox. Việc lưu mạng và
-tự kết nối thuộc iwd, không phụ thuộc cửa sổ Impala đang mở.
+Sau khi vào Sway, menu mở Impala trong Foot bằng user thường, dùng màu và
+phím mặc định của Impala. Việc lưu mạng và tự kết nối thuộc iwd, không phụ
+thuộc cửa sổ Impala đang mở. Khi cần chia sẻ QR, tự chạy `sudo impala`.
 
 Brave native (`brave-bin`) là trình duyệt duy nhất trong danh sách cài đặt; Brave
 và VS Code bản Microsoft cài qua AUR.

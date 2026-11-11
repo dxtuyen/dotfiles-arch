@@ -67,11 +67,6 @@
       "mode": "link"
     },
     {
-      "source": "config/impala/config.toml",
-      "target": ".config/impala/config.toml",
-      "mode": "link"
-    },
-    {
       "source": "config/mako/config",
       "target": ".config/mako/config",
       "mode": "link"

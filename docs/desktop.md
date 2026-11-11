@@ -103,6 +103,9 @@ Countdown worker theo dõi state bằng inotify. Waybar chỉ render state và n
 signal; không điều khiển service trong mỗi lượt render. Lịch sử ở
 `~/.local/state/countdown-history.log`; state runtime reset khi kết thúc login
 session. Khôi phục history không đồng nghĩa khôi phục timer đang chạy.
+Engine chỉ gửi tín hiệu tới đúng process Waybar của cùng user đã cài handler
+cho tín hiệu đó (`pkill --require-handler --exact --euid`). Nhờ vậy, tín hiệu
+cập nhật lúc vào phiên không làm Waybar thoát trước khi sẵn sàng nhận.
 
 ## Media, mạng và màn hình
 
@@ -113,10 +116,11 @@ Utilities → Wi-Fi đều mở Impala. iwd lưu mạng, cấp IP và tự kết
 do systemd-resolved xử lý. Đóng Impala không làm mất kết nối.
 
 Lần đầu chọn Wi-Fi và nhập mật khẩu. Trong danh sách mạng đã biết, kiểm tra
-Autoconnect đã bật; phím `t` đổi trạng thái này. `r` đổi giữa các danh sách,
-`s` bật/tắt quét, `o` bật/tắt thiết bị, Esc thoát. Mật khẩu/profile được lưu
-riêng ở `/var/lib/iwd`, không cần mở Impala mỗi lần boot. Dòng chọn dùng nền
-`#45403d` để phân biệt với nền Foot. Xem [quản lý Wi-Fi](wifi.md).
+Autoconnect đã bật; phím `t` đổi trạng thái này. `Tab` chuyển vùng/danh sách,
+`s` quét một lượt, `o` bật/tắt thiết bị, `q` thoát. Mật khẩu/profile được lưu
+riêng ở `/var/lib/iwd`, không cần mở Impala mỗi lần boot. Impala dùng màu và
+phím mặc định, chạy bằng user thường; chỉ khi cần Share mới tự mở
+`sudo impala` trong Foot. Xem [quản lý Wi-Fi](wifi.md).
 
 Night light dùng `wlsunset@MODE.service`, chỉ lưu lựa chọn sau khi service đã
 khởi động thành công. Menu đọc trạng thái service; preference ở

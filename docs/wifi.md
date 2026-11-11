@@ -8,12 +8,14 @@ Không cần build ứng dụng Wi-Fi.
 ## Kết nối và lưu mạng
 
 Nhấn icon Wi-Fi trên Waybar hoặc Utilities → Wi-Fi để mở Impala trong Foot.
+Foot và Impala chạy bằng tài khoản thường. Repo không cấp theme hay phím tắt
+riêng cho Impala; dùng mặc định của ứng dụng, nhấn `q` để thoát.
 Ở console trước khi cài font có thể chạy `impala --ascii`.
 
 1. Chọn Wi-Fi và nhập mật khẩu ở lần kết nối đầu.
 2. Mạng đã kết nối được iwd nhớ trong danh sách known networks.
 3. Kiểm tra Autoconnect bật; dùng `t` để bật nếu hiện đang tắt. Đừng toggle khi
-   nó đã bật. `r` chuyển danh sách trong Impala.
+   nó đã bật. `Tab` chuyển giữa các vùng/danh sách trong Impala.
 4. Thoát Impala. iwd tiếp tục giữ kết nối và tự kết nối mạng đã lưu khi khả dụng.
 
 `iwd.service` được enable để chạy từ lúc boot, không cần đợi mở Sway/Impala.
@@ -38,7 +40,15 @@ interface Wi-Fi. Cấu hình này phục vụ Wi-Fi; Ethernet/VPN cần được
 riêng khi có nhu cầu, không có service quản lý chúng được bật sẵn.
 
 Tài khoản thuộc `wheel` theo hướng dẫn cài đặt có quyền dùng iwd qua D-Bus;
-không chạy Impala bằng sudo. Giao diện/theme ở `config/impala/config.toml`.
+chạy `impala` trực tiếp bằng tài khoản thường vẫn đủ để kết nối/quét mạng.
+Riêng Share (`p`) trong Impala 0.9.0 đọc `Passphrase` trực tiếp từ profile
+`/var/lib/iwd/*.psk`. Khi cần chia sẻ, mở Foot rồi chạy `sudo impala`; xác thực
+sudo khi được hỏi, chọn mạng đã lưu và nhấn `p`. Profile cần có `Passphrase`
+đã lưu; root không bổ sung khả năng chia sẻ cho mọi loại mạng. Thoát bằng `q`
+sau khi dùng. Không có quy tắc sudoers riêng để miễn mật khẩu cho Impala.
+
+Phím mặc định: `s` quét một lượt, `Tab` chuyển vùng, mũi tên chọn mạng,
+`Enter` kết nối/ngắt kết nối. Impala 0.9.0 chưa có ô gõ tên để lọc mạng.
 
 ## Kiểm tra sau cài đặt
 
