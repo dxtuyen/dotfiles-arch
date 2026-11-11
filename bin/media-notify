@@ -66,23 +66,33 @@ set_brightness() {
 }
 
 change_volume() {
-  local status level step
-  status="$(wpctl get-volume @DEFAULT_AUDIO_SINK@)"
+  local sink sink_id status level step increment=5
+  local headphone_pattern='device\.form-factor = "(headset|headphone|hands-free)"'
+  sink="$(wpctl inspect --referenced @DEFAULT_AUDIO_SINK@)"
+  read -r _ sink_id _ <<< "$sink"
+  sink_id="${sink_id%,}"
+  [[ "$sink_id" =~ ^[0-9]+$ ]] || return 1
+  # Bluetooth headphones need finer control; speakers keep the usual step.
+  if [[ "$sink" == *'device.api = "bluez5"'* && "$sink" =~ $headphone_pattern ]]; then
+    increment=1
+  fi
+  # Keep the whole operation on this sink even if the default changes midway.
+  status="$(wpctl get-volume "$sink_id")"
   read -r _ level _ <<< "$status"
   if [ "$1" = up ]; then
-    step=5%+
+    step="$increment%+"
     # Restore a manually muted level first; only step up from mute if it was zero.
     if [[ "$status" == *MUTED* && ! "$level" =~ ^0(\.0+)?$ ]]; then
       step=0%+
     fi
-    wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ "$step"
+    wpctl set-volume -l 1.0 "$sink_id" "$step"
     if [[ "$status" == *MUTED* ]]; then
-      wpctl set-mute @DEFAULT_AUDIO_SINK@ 0
+      wpctl set-mute "$sink_id" 0
     fi
   else
-    wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%-
-    if [[ "$status" != *MUTED* ]] && awk -v level="$level" 'BEGIN { exit(level > 0.05) }'; then
-      wpctl set-mute @DEFAULT_AUDIO_SINK@ 1
+    wpctl set-volume -l 1.0 "$sink_id" "$increment%-"
+    if [[ "$status" != *MUTED* ]] && awk -v level="$level" -v increment="$increment" 'BEGIN { exit(level > increment / 100) }'; then
+      wpctl set-mute "$sink_id" 1
     fi
   fi
 }

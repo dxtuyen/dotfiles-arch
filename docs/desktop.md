@@ -145,7 +145,10 @@ cập nhật lúc vào phiên không làm Waybar thoát trước khi sẵn sàng
 
 ## Media, mạng và màn hình
 
-Volume thay 5%, giới hạn 0–100%; giảm đến 0 thì mute, tăng từ 0 về 5% và unmute.
+Phím volume thay 1 điểm phần trăm với tai nghe Bluetooth, 5 điểm với các đầu ra
+khác (kể cả loa Bluetooth), giới hạn 0–100%. Giảm đến 0 thì mute; tăng từ 0
+về 1% hoặc 5% theo thiết bị và unmute. Tăng khi đang mute ở mức khác 0 chỉ
+khôi phục mức đó, không tăng thêm.
 Mic/speaker mute mỗi lần nhấn một lần. Brightness thay 10%, tối thiểu 5%.
 WireMix/Bluetui/Impala chạy trong Foot. Nhấn trái/phải icon Wi-Fi hoặc chọn
 Utilities → Wi-Fi đều mở Impala. iwd lưu mạng, cấp IP và tự kết nối lại; DNS
