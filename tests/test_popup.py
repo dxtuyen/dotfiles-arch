@@ -10,12 +10,17 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-APP_ID = "md.obsidian.Obsidian"
-MARK = "popup-obsidian"
 
 
 @unittest.skipUnless(shutil.which("sway") and shutil.which("foot"), "needs Sway and Foot")
 class Popup(unittest.TestCase):
+    APP_ID = "md.obsidian.Obsidian"
+    MARK = "popup-obsidian"
+    MATCHES = (
+        'app_id="(?i)^(md\\.obsidian\\.)?obsidian$"',
+        'class="(?i)^(md\\.obsidian\\.)?obsidian$"',
+    )
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(prefix="popup-regression-")
         self.addCleanup(self.tmp.cleanup)
@@ -34,8 +39,8 @@ class Popup(unittest.TestCase):
             "xwayland disable\n"
             "focus_follows_mouse no\n"
             "output * mode 1280x800\n"
-            f'for_window [app_id="{APP_ID}"] floating enable, '
-            f"move scratchpad, scratchpad show, mark --add {MARK}\n"
+            f'for_window [app_id="{self.APP_ID}"] floating enable, '
+            f"move scratchpad, scratchpad show, mark --add {self.MARK}\n"
         )
         self.log = (self.runtime / "sway.log").open("w+")
         self.addCleanup(self.log.close)
@@ -88,7 +93,7 @@ class Popup(unittest.TestCase):
         def walk(node, workspace=None):
             if node.get("type") == "workspace":
                 workspace = node["name"]
-            if node.get("app_id") == APP_ID:
+            if node.get("app_id") == self.APP_ID:
                 windows[node["id"]] = dict(node, workspace=workspace)
             for child in node.get("nodes", []) + node.get("floating_nodes", []):
                 walk(child, workspace)
@@ -99,19 +104,19 @@ class Popup(unittest.TestCase):
     def open_window(self):
         old_ids = set(self.windows())
         client = subprocess.Popen(
-            ["foot", "--config=/dev/null", f"--app-id={APP_ID}", "cat"],
+            ["foot", "--config=/dev/null", f"--app-id={self.APP_ID}", "cat"],
             env=self.env,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
         self.addCleanup(self.stop_process, client)
         new_id = self.wait_for(lambda: next(iter(set(self.windows()) - old_ids), None))
-        self.wait_for(lambda: MARK in self.windows()[new_id]["marks"])
+        self.wait_for(lambda: self.MARK in self.windows()[new_id]["marks"])
         return client, new_id
 
     def toggle(self, *matches):
         marker = self.runtime / "unexpected launch"
-        args = [str(ROOT / "bin/sway-popup"), MARK]
+        args = [str(ROOT / "bin/sway-popup"), self.MARK]
         for match in matches:
             args.extend(("--match", match))
         args.extend(("--", "touch", str(marker)))
@@ -123,7 +128,7 @@ class Popup(unittest.TestCase):
     def test_closed_picker_reclaims_original(self):
         _, original = self.open_window()
         picker, picker_id = self.open_window()
-        self.assertNotIn(MARK, self.windows()[original]["marks"])
+        self.assertNotIn(self.MARK, self.windows()[original]["marks"])
         self.stop_process(picker)
         self.wait_for(lambda: picker_id not in self.windows())
         subprocess.run(
@@ -132,13 +137,10 @@ class Popup(unittest.TestCase):
             capture_output=True,
             check=True,
         )
-        result, launched = self.toggle(
-            'app_id="(?i)^(md\\.obsidian\\.)?obsidian$"',
-            'class="(?i)^(md\\.obsidian\\.)?obsidian$"',
-        )
+        result, launched = self.toggle(*self.MATCHES)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(set(self.windows()), {original})
-        self.assertIn(MARK, self.windows()[original]["marks"])
+        self.assertIn(self.MARK, self.windows()[original]["marks"])
         self.assertTrue(self.windows()[original]["focused"])
         self.assertFalse(launched.exists())
 
@@ -153,7 +155,7 @@ class Popup(unittest.TestCase):
         self.assertFalse(launched.exists())
 
     def test_absent_application_launches(self):
-        result, launched = self.toggle(f'app_id="{APP_ID}"')
+        result, launched = self.toggle(f'app_id="{self.APP_ID}"')
         self.assertEqual(result.returncode, 0, result.stderr)
         self.wait_for(launched.exists)
 
@@ -162,3 +164,12 @@ class Popup(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertTrue(result.stderr)
         self.assertFalse(launched.exists())
+
+
+class TickTickPopup(Popup):
+    APP_ID = "com.ticktick.TickTick"
+    MARK = "popup-ticktick"
+    MATCHES = (
+        'app_id="(?i)^(com\\.ticktick\\.)?ticktick$"',
+        'class="(?i)^(com\\.ticktick\\.)?ticktick$"',
+    )

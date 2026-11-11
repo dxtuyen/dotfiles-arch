@@ -57,9 +57,10 @@ không tự dựng lại window manager bằng Python. Popup đang hiện nhưng
 sẽ được focus trước; nhấn tiếp mới ẩn. Đóng/mở lại cửa sổ sau khi đổi window
 rule để rule gắn mark mới. Obsidian 70%×85%, TickTick 60%×75% ở lần mở đầu.
 
-Mark của Sway là duy nhất cho một cửa sổ. Cửa sổ chọn vault Obsidian mới có
-thể lấy mark rồi mang nó mất khi đóng. Nếu mark không còn, `obsidian-toggle`
-nhờ Sway tìm lại cửa sổ theo app_id/class, gắn lại mark rồi toggle; chỉ launch
+Mark của Sway là duy nhất cho một cửa sổ. Cửa sổ chọn vault Obsidian hoặc cửa
+sổ phụ TickTick có thể lấy mark rồi mang nó mất khi đóng. Nếu mark không còn,
+`obsidian-toggle` và `ticktick-toggle` nhờ Sway tìm lại cửa sổ theo app_id/class,
+gắn lại mark rồi toggle; chỉ launch
 khi không còn cửa sổ phù hợp. Helper dùng command IPC, không giữ PID hoặc đọc
 cây cửa sổ. Lỗi IPC ngoài trường hợp không có cửa sổ vẫn được báo và dừng.
 

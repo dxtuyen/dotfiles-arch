@@ -1,3 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-exec "$HOME/.local/bin/sway-popup" popup-ticktick -- flatpak run --user com.ticktick.TickTick
+exec "$HOME/.local/bin/sway-popup" popup-ticktick \
+  --match 'app_id="(?i)^(com\.ticktick\.)?ticktick$"' \
+  --match 'class="(?i)^(com\.ticktick\.)?ticktick$"' \
+  -- flatpak run --user com.ticktick.TickTick
