@@ -367,6 +367,11 @@
       "mode": "link"
     },
     {
+      "source": "bin/scratchpad-menu",
+      "target": ".local/bin/scratchpad-menu",
+      "mode": "link"
+    },
+    {
       "source": "bin/scratchpad-terminal",
       "target": ".local/bin/scratchpad-terminal",
       "mode": "link"
@@ -518,6 +523,12 @@
     }
   ],
   "system": [
+    {
+      "source": "system/etc/UPower/UPower.conf.d/60-laptop.conf",
+      "target": "etc/UPower/UPower.conf.d/60-laptop.conf",
+      "mode": "copy",
+      "permissions": "644"
+    },
     {
       "source": "system/etc/bluetooth/main.conf",
       "target": "etc/bluetooth/main.conf",

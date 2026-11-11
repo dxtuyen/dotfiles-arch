@@ -345,6 +345,7 @@ def system_install(args):
         "systemd-timesyncd.service",
         "bluetooth.service",
         "power-profiles-daemon.service",
+        "upower.service",
         "keyd.service",
         "earlyoom.service",
         "fstrim.timer",
@@ -608,6 +609,7 @@ def doctor(args):
         "wpctl",
         "paplay",
         "brightnessctl",
+        "upower",
         "fcitx5",
         "impala",
         "iwctl",
@@ -676,7 +678,7 @@ def doctor(args):
             failures.append("failed user units" if scope else "failed system units")
     check("findmnt", "/boot")
     check("swapon", "--show")
-    for unit in ("iwd.service", "systemd-resolved.service"):
+    for unit in ("iwd.service", "systemd-resolved.service", "upower.service"):
         check("systemctl", "is-enabled", "--quiet", unit)
     print(
         "Check resume=UUID= and disk swap, then test lock, suspend and hibernate on the laptop: docs/installation.md."

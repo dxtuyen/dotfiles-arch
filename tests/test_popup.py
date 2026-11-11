@@ -4,6 +4,7 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 import time
 import unittest
@@ -16,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class Popup(unittest.TestCase):
     APP_ID = "md.obsidian.Obsidian"
     MARK = "popup-obsidian"
+    MENU_TITLE_PREFIX = ""
     MATCHES = (
         'app_id="(?i)^(md\\.obsidian\\.)?obsidian$"',
         'class="(?i)^(md\\.obsidian\\.)?obsidian$"',
@@ -101,10 +103,10 @@ class Popup(unittest.TestCase):
         walk(json.loads(result.stdout))
         return windows
 
-    def open_window(self):
+    def open_window(self, title="foot"):
         old_ids = set(self.windows())
         client = subprocess.Popen(
-            ["foot", "--config=/dev/null", f"--app-id={self.APP_ID}", "cat"],
+            ["foot", "--config=/dev/null", f"--app-id={self.APP_ID}", f"--title={title}", "cat"],
             env=self.env,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
@@ -165,6 +167,94 @@ class Popup(unittest.TestCase):
         self.assertTrue(result.stderr)
         self.assertFalse(launched.exists())
 
+    def menu_environment(self):
+        library = self.runtime / ".local/lib/dotfiles"
+        library.mkdir(parents=True)
+        (library / "tofi-menu.sh").symlink_to(ROOT / "lib/tofi-menu.sh")
+        tofi = self.runtime / "tofi"
+        tofi.write_text(
+            f"#!{sys.executable}\n"
+            "import json, os, pathlib, subprocess, sys\n"
+            "choices = sys.stdin.read()\n"
+            "pathlib.Path(os.environ['TEST_MENU_INPUT']).write_text(choices)\n"
+            "pathlib.Path(os.environ['TEST_MENU_INPUT'] + '.args').write_text(json.dumps(sys.argv[1:]))\n"
+            "if os.environ.get('TEST_MENU_CANCEL') != '1':\n"
+            "    identifier = os.environ.get('TEST_MENU_SHOW_ID')\n"
+            "    if identifier:\n"
+            "        subprocess.run(['swaymsg', '-q', f'[con_id={identifier}] scratchpad show'], check=True)\n"
+            "    print(choices.splitlines()[int(os.environ.get('TEST_MENU_ROW', '0'))])\n"
+        )
+        notify = self.runtime / "notify-send"
+        notify.write_text("#!/bin/sh\nexit 0\n")
+        for command in (tofi, notify):
+            command.chmod(0o755)
+        return dict(
+            self.env, HOME=str(self.runtime),
+            PATH=str(self.runtime) + os.pathsep + self.env["PATH"],
+            TEST_MENU_INPUT=str(self.runtime / "menu-input"),
+        )
+
+    def test_scratchpad_menu_lists_only_hidden_windows_and_tracks_recall(self):
+        _, first = self.open_window("Same title")
+        _, second = self.open_window("Same title")
+        for identifier in (first, second):
+            subprocess.run(
+                ["swaymsg", "-q", f"[con_id={identifier}] move scratchpad"],
+                env=self.env, check=True,
+            )
+        subprocess.run(["swaymsg", "-q", "workspace number 2"], env=self.env, check=True)
+        env = dict(self.menu_environment(), TEST_MENU_ROW="1")
+
+        def select():
+            subprocess.run([ROOT / "bin/scratchpad-menu"], env=env,
+                           capture_output=True, text=True, check=True, timeout=5)
+
+        select()
+        rows = Path(env["TEST_MENU_INPUT"]).read_text().splitlines()
+        self.assertEqual(rows, [f"1. {self.MENU_TITLE_PREFIX}Same title",
+                                f"2. {self.MENU_TITLE_PREFIX}Same title"])
+        arguments = json.loads(Path(env["TEST_MENU_INPUT"] + ".args").read_text())
+        self.assertIn("--width=720", arguments)
+        self.assertEqual(self.windows()[first]["workspace"], "__i3_scratch")
+        self.assertEqual(self.windows()[second]["workspace"], "2")
+        self.assertTrue(self.windows()[second]["focused"])
+        # The recalled window is omitted; only the remaining hidden one is listed.
+        env["TEST_MENU_ROW"] = "0"
+        select()
+        self.assertEqual(Path(env["TEST_MENU_INPUT"]).read_text().splitlines(),
+                         [f"1. {self.MENU_TITLE_PREFIX}Same title"])
+        self.assertEqual(self.windows()[first]["workspace"], "2")
+        # Once hidden again, it returns to the list, even from another workspace.
+        subprocess.run(["swaymsg", "-q", f"[con_id={second}] move scratchpad"],
+                       env=self.env, check=True)
+        subprocess.run(["swaymsg", "-q", "workspace number 3"], env=self.env, check=True)
+        select()
+        self.assertEqual(self.windows()[second]["workspace"], "3")
+        self.assertTrue(self.windows()[second]["focused"])
+        self.assertEqual(self.windows()[first]["workspace"], "2")
+        subprocess.run(["swaymsg", "-q", f"[con_id={second}] move scratchpad"],
+                       env=self.env, check=True)
+        env["TEST_MENU_CANCEL"] = "1"
+        select()
+        self.assertEqual(self.windows()[first]["workspace"], "2")
+        self.assertEqual(self.windows()[second]["workspace"], "__i3_scratch")
+        # If the window becomes visible during selection, selecting it must not hide it.
+        env["TEST_MENU_CANCEL"] = "0"
+        env["TEST_MENU_SHOW_ID"] = str(second)
+        select()
+        self.assertEqual(self.windows()[second]["workspace"], "3")
+        self.assertTrue(self.windows()[second]["focused"])
+
+    def test_empty_scratchpad_menu_does_not_open_selector(self):
+        env = self.menu_environment()
+        subprocess.run([ROOT / "bin/scratchpad-menu"], env=env,
+                       capture_output=True, text=True, check=True, timeout=5)
+        self.assertFalse(Path(env["TEST_MENU_INPUT"]).exists())
+        self.open_window()
+        subprocess.run([ROOT / "bin/scratchpad-menu"], env=env,
+                       capture_output=True, text=True, check=True, timeout=5)
+        self.assertFalse(Path(env["TEST_MENU_INPUT"]).exists())
+
 
 class TickTickPopup(Popup):
     APP_ID = "com.ticktick.TickTick"
@@ -173,3 +263,10 @@ class TickTickPopup(Popup):
         'app_id="(?i)^(com\\.ticktick\\.)?ticktick$"',
         'class="(?i)^(com\\.ticktick\\.)?ticktick$"',
     )
+
+
+class TerminalPopup(Popup):
+    APP_ID = "scratchpad-terminal"
+    MARK = "popup-terminal"
+    MENU_TITLE_PREFIX = "T · "
+    MATCHES = ('app_id="scratchpad-terminal"',)

@@ -52,8 +52,8 @@ window#waybar {
   /* Preserve the previous GTK theme's sizing independently of colors. */
   min-width: 18px;
   min-height: 18px;
-  margin: 0;
-  padding: 0 5px;
+  margin: 0 2px;
+  padding: 0 8px;
   font-size: 15px;
   transition: none;
 }
@@ -61,6 +61,7 @@ window#waybar {
   background: #32302f;
   box-shadow: none;
 }
+#workspaces button.empty { color: @muted; }
 #workspaces button.focused, #workspaces button.active {
   color: @txt-strong;
   background: #3c3836;

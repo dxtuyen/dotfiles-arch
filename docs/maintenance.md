@@ -205,6 +205,9 @@ systemctl --failed
 journalctl --user -b -u swayidle -u session-lock -u swaylock -u countdown-engine
 sudo journalctl -b -u greetd -u iwd -u systemd-resolved
 sudo journalctl -b -u systemd-hibernate.service -u systemd-suspend-then-hibernate.service
+systemctl status upower.service
+upower --dump
+sudo journalctl -b -u upower.service
 ```
 
 Nếu screen sharing/file picker lỗi: kiểm tra `XDG_CURRENT_DESKTOP=sway` trong

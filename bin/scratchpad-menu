@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# List hidden scratchpad windows on demand; select by ID, never by title.
+set -euo pipefail
+# shellcheck source=../lib/tofi-menu.sh
+source "$HOME/.local/lib/dotfiles/tofi-menu.sh"
+
+[ "$#" -eq 0 ] || { echo 'Usage: scratchpad-menu' >&2; exit 2; }
+
+windows_json=$(swaymsg -r -t get_tree | jq -c '
+  def scratchpads:
+    if (.scratchpad_state? // "none") != "none" then
+      {id, label: (
+        [.. | objects | select(.pid? != null) |
+          ((if .app_id == "scratchpad-terminal" then "T · " else "" end) +
+           (.name // "Untitled"))] | unique | join(" | ") |
+        gsub("[[:cntrl:]]"; " ") |
+        if . == "" then "Scratchpad window" else . end
+      )}
+    else
+      (.nodes[]?, .floating_nodes[]?) | scratchpads
+    end;
+  [.. | objects | select(.type? == "workspace" and .name? == "__i3_scratch") |
+    scratchpads]
+')
+count=$(jq 'length' <<< "$windows_json")
+if [ "$count" -eq 0 ]; then
+  notify-send -a scratchpad -i window -t 2000 Scratchpad 'No scratchpad windows'
+  exit 0
+fi
+
+rows=$count
+[ "$rows" -le 10 ] || rows=10
+choice=$(jq -r 'to_entries[] | "\(.key + 1). \(.value.label)"' <<< "$windows_json" |
+  menu_pick S "$rows" 0 'Type to filter · Enter to show · Esc to cancel' 720) || exit 0
+[[ "$choice" =~ ^[0-9]+$ ]] && [ "$choice" -lt "$count" ] || exit 0
+id=$(jq -r --argjson index "$choice" '.[$index].id' <<< "$windows_json")
+[[ "$id" =~ ^[0-9]+$ ]] || exit 1
+
+# A window shown while the menu was open must be focused, rather than hidden.
+if response=$(swaymsg -r "[con_id=$id workspace=__focused__] focus"); then
+  exit 0
+fi
+case "$response" in
+  *'"error": "No matching node."'*) ;;
+  *) printf '%s\n' "$response" >&2; exit 1 ;;
+esac
+# Reuse the native popup recall sequence for a hidden/other-workspace container.
+exec swaymsg -q "[con_id=$id] move container to workspace current, move scratchpad, scratchpad show"

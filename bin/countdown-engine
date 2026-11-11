@@ -288,7 +288,7 @@ ensure_daemon() {
   systemctl --user --no-block start countdown-engine.service
 }
 
-# Clear the "sleep auto-pause" marker when the user acts manually.
+# Clean up sleep markers left by older engine versions.
 clear_sleep_marker() {
   rm -f "$SLEEP_MARKER" 2>/dev/null || true
 }
@@ -461,9 +461,6 @@ case "${1:-status}" in
         fi
         ;;
     esac
-    if [ "$action" = sleep-pause ] && [ -n "$DURATION" ]; then
-      touch "$SLEEP_MARKER"
-    fi
     state_unlock
     notify_finished
     if [ "$changed" -eq 1 ] || [ "$inhibition_cleared" -eq 1 ]; then
@@ -473,10 +470,6 @@ case "${1:-status}" in
       case "$action" in
         resume) notify-send -a countdown -i "chronometer" -t 2000 "Focus" "Resumed ▶" ;;
         pause) notify-send -a countdown -i "chronometer" -t 2000 "Focus" "Paused ⏸" ;;
-        lock-pause)
-          notify-send -a countdown -i "chronometer" -t 3000 \
-            "Focus" "Screen locked — session paused ⏸ (unlock, then press ▶)"
-          ;;
       esac
     fi
     ;;
@@ -678,34 +671,38 @@ case "${1:-status}" in
     fi
     ;;
 
+  unlock-notify)
+    # ExecStopPost also runs on startup failure and forced stops. Only a clean
+    # swaylock exit in a live session may produce the reminder; never resume it.
+    [ "${SERVICE_RESULT:-}" = success ] &&
+      [ "${EXIT_CODE:-}" = exited ] &&
+      [ "${EXIT_STATUS:-}" = 0 ] || exit 0
+    systemctl --user --quiet is-active sway-session.target || exit 0
+    # write_state uses atomic rename, so one read gives a complete snapshot.
+    read_state
+    if [ -n "$DURATION" ] && [ "$RUNNING" = false ] &&
+       [ "${REMAINING:-0}" -gt 0 ]; then
+      printf -v remaining_text '%02d:%02d' "$((REMAINING / 60))" "$((REMAINING % 60))"
+      notify-send -a countdown -i "chronometer" -t 8000 \
+        "Focus" "Session paused ⏸ — $remaining_text remaining (press ▶ to continue)"
+    fi
+    ;;
+
   sleep-resume)
-    # Machine woke: do NOT auto-resume — the session STAYS paused, the user
-    # presses ▶ to continue (same after unlocking). Remaining behavior:
-    # expired during sleep -> finalize; no marker -> just sync anti-idle.
+    # Wake only reconciles state. Remind after unlocking, when it is visible.
     state_lock
     read_state
-    woken_paused=0
     finished_duration=""
     finalize_if_expired || exit 1
-    if [ -f "$SLEEP_MARKER" ]; then
-      rm -f "$SLEEP_MARKER" 2>/dev/null || true
-      if [ "$RUNNING" != "true" ] && [ -n "$REMAINING" ] && [ "$REMAINING" -gt 0 ]; then
-        # REMAINING was preserved by sleep-pause -> keep it, just notify.
-        woken_paused=1
-      fi
-    fi
+    clear_sleep_marker
     sync_idle_inhibit
     state_unlock
     notify_finished
-    if [ "$woken_paused" -eq 1 ]; then
-      notify-send -a countdown -i "chronometer" -t 5000 \
-        "Focus" "Just woke up — unlock, session is PAUSED ⏸ (press ▶ to continue)"
-    fi
     notify_waybar
     ;;
 
   *)
-    echo "Usage: countdown-engine {start <1-480>|add <1-480>|pause|resume|toggle|reset|status|inhibit|inhibit-state|inhibit-toggle|idle-allowed|lock-pause|sleep-pause|sleep-resume|daemon}" >&2
+    echo "Usage: countdown-engine {start <1-480>|add <1-480>|pause|resume|toggle|reset|status|inhibit|inhibit-state|inhibit-toggle|idle-allowed|lock-pause|sleep-pause|sleep-resume|unlock-notify|daemon}" >&2
     exit 1
     ;;
 esac

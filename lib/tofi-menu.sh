@@ -4,18 +4,19 @@ menu_item() {
   printf '%s  %s\n' "$2" "$1"
 }
 
-# Arguments: title, visible rows, selected row, optional detail.
+# Arguments: title, visible rows, selected row, optional detail and width.
 # Tofi 0.9.1 returns labels, so map the selection to its original zero-based
 # index. Show the selected row first because Tofi cannot preselect a row.
 menu_pick() {
-  local selected=${3:-0} detail=${4:-↑/↓ · Enter · Esc} choice i
-  local -a items
+  local selected=${3:-0} detail=${4:-↑/↓ · Enter · Esc} width=${5:-} choice i
+  local -a items layout_args=()
+  [[ -z "$width" ]] || layout_args+=(--width="$width")
   mapfile -t items
   ((${#items[@]})) || return 1
   detail=${detail//$'\n'/ · }
   choice=$(
     printf '%s\n' "${items[@]:selected}" "${items[@]:0:selected}" |
-      tofi --history=false --require-match=true \
+      tofi "${layout_args[@]}" --history=false --require-match=true \
         --num-results="$2" --height="$((56 + 32 * $2))" \
         --prompt-text="$1 ❯ " --placeholder-text="$detail"
   ) || return 1

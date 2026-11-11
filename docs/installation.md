@@ -289,7 +289,8 @@ TickTick cài per-user từ Flathub. Font, Qt binding cho Lotus, portal, PipeWir
 
 Bước này dành cho cài mới. Trước stage `system`, đọc các file trong `system/etc/`,
 đặc biệt `systemd/zram-generator.conf`, `systemd/logind.conf.d/10-laptop.conf`,
-`systemd/sleep.conf.d/10-laptop.conf` và `nftables.conf`. Stage này chép cả policy
+`systemd/sleep.conf.d/10-laptop.conf`, `UPower/UPower.conf.d/60-laptop.conf`
+và `nftables.conf`. Stage này chép cả policy
 swap/ngủ/firewall; `--backup` chỉ giữ bản cũ, không bỏ qua các policy đó.
 Máy đang chạy chỉ đổi giao diện thì không cần chạy lại stage `system`.
 
@@ -367,7 +368,11 @@ Thực hiện lần lượt:
 Khi áp dụng đầy đủ policy của repo, lid/manual sleep hoạt động trên AC; tự sleep
 do idle chỉ xảy ra trên pin.
 Mặc định màn hình tắt sau 5 phút, khóa sau 10 phút, ngủ sau 15 phút. Khóa thủ
-công: màn hình tắt sau 10 giây. Suspend-then-hibernate dùng delay 1 giờ.
+công: màn hình tắt sau 10 giây. Suspend-then-hibernate không đặt delay cố định;
+systemd chuyển sang hibernate khi pin yếu (dưới khoảng 5%), tùy phần cứng.
+Khi máy đang thức, Waybar cảnh báo qua Mako ở 15%, UPower tự hibernate ở 10%
+khi dùng pin. UPower được cài trong nhóm base và enable ở system stage, không
+phụ thuộc Waybar để thực hiện hibernate.
 Nếu hibernate chưa hoạt động, sửa resume/swap trước khi dựa vào tự ngủ/lid.
 Trong lúc sửa có thể đổi `HandleLidSwitch*` và lệnh sleep về `suspend` rồi reboot.
 

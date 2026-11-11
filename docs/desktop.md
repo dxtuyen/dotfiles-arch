@@ -38,6 +38,7 @@ File `share/color-schemes/gruvbox-material.conf` là palette dành riêng cho Qt
 | Super+B/V; Super+S/W/E | Split ngang/dọc; stacking/tabbed/toggle split |
 | Super+F / Super+Shift+Space | Fullscreen / floating |
 | Super+- / Super+Shift+- | Hiện scratchpad / đưa cửa sổ vào scratchpad |
+| Super+Z | Danh sách scratchpad; chọn cửa sổ để gọi ra |
 | Super+R | Chế độ resize; Enter/Esc thoát |
 | Super+C | Countdown |
 | Super+U / Super+P | Utilities / power menu |
@@ -50,7 +51,32 @@ File `share/color-schemes/gruvbox-material.conf` là palette dành riêng cho Qt
 | Super+T / Super+Shift+T / Super+Ctrl+T | Dịch sang Anh / Việt / sửa tiếng Anh |
 | Super+Alt+T | Bật/tắt touchpad |
 
+## Workspace
+
+Workspace có tên `1.Study`, `2.Dev`, `3.Misc`, `10.Anki`. Waybar chỉ ghim ba
+workspace đầu và hiện số + icon: sách mở, code, lưới ứng dụng. Anki dùng icon hai
+thẻ chồng nhau với số `0`, hiện trên thanh khi workspace tồn tại.
+Workspace trống dùng màu muted (`grey1 #928374` của Gruvbox Material), cùng
+Bluetooth tắt/idle; workspace đang chọn và workspace có thông báo khẩn vẫn nổi bật.
+Study dành cho giáo trình, NotebookLM và AI hỗ trợ học; Dev dành
+cho terminal, code, máy ảo và AI hỗ trợ thực hành; Misc dành cho web, email,
+nhắn tin, lịch gia sư, mạng xã hội và các việc riêng khác.
+Anki tự mở ở workspace 10 (`Super+0`). Obsidian vẫn là popup dùng được từ mọi workspace.
+Trình duyệt và AI có thể mở ở cả Study lẫn Dev tùy công việc.
+`Super+số` chọn workspace; thêm Shift để chuyển cửa sổ. Các workspace 4–9
+vẫn dùng theo số và hiện trên thanh khi tồn tại.
+
 ## Popup và menu
+
+`Super+Z` hoặc bấm biểu tượng scratchpad trên Waybar mở danh sách tiêu đề cửa sổ
+đang ẩn, có đánh số bằng Tofi, không hiện app ID. Menu rộng 720 px, nhãn `S ❯`; các menu khác
+giữ kích thước mặc định. Gõ để lọc, Enter gọi cửa sổ về workspace hiện tại, Esc hủy.
+Cửa sổ đã lấy ra không còn trong danh sách; ẩn lại thì trở về ở lần mở menu sau.
+Chọn theo container ID nên tiêu đề trùng
+không gọi nhầm cửa sổ. Sau khi chọn, `Super+Q` đóng cửa sổ như bình thường.
+Popup terminal `Super+grave` có nhãn `T · ~/thư-mục` trong menu để dễ nhận ra.
+Menu chỉ chạy khi được gọi, không có daemon hay polling. App ẩn trong scratchpad
+vẫn chạy; menu không tự tạm ngưng ứng dụng.
 
 Sway sở hữu geometry, focus và scratchpad; helper chỉ quyết định launch/toggle,
 không tự dựng lại window manager bằng Python. Popup đang hiện nhưng chưa focus
@@ -91,14 +117,23 @@ Sửa giao diện khóa có hiệu lực ở lần khóa mới, không cần res
   menu Suspend và lid vẫn hoạt động.
 - Khóa thành công hoặc chuẩn bị sleep: Countdown pause, giữ thời gian còn lại,
   xóa keep-awake thủ công. Mở khóa/wake không tự resume timer.
+- Sau khi mở khóa, Mako nhắc một lần nếu Countdown đang pause và còn thời gian,
+  kể cả timer đã pause thủ công. Không gửi lời nhắc lúc khóa hoặc vừa wake.
 - Khi áp dụng policy system của repo: lid undocked ngủ cả khi cắm sạc; docked
-  thì bỏ qua. Sau một giờ suspend,
-  systemd chuyển sang hibernate theo khả năng phần cứng.
+  thì bỏ qua. Không đặt deadline hibernate theo thời gian khóa hoặc thời gian ngủ.
+- Đang thức và dùng pin: Waybar gửi cảnh báo Mako khi vào mức 15% hoặc thấp hơn;
+  UPower tự hibernate ở 10%, kể cả khi đang có idle inhibitor.
+- Đang suspend-then-hibernate: systemd dùng cơ chế pin yếu (dưới khoảng 5%) để
+  chuyển sang hibernate, tùy hỗ trợ đánh thức của phần cứng. Không dùng mốc một giờ.
 
 Deadline ở `systemd/user/swayidle.service`; timeout locked ở
 `locked-display.service`; timer kiểm tra nguồn ở `idle-suspend.timer`.
-Lid/hibernate delay ở `system/etc/systemd/`. Khi chỉnh, giữ screen-off < lock < sleep.
-Chạy kiểm tra rồi áp dụng file system nếu đã đổi; reboot để logind dùng cấu hình mới.
+Lid/sleep ở `system/etc/systemd/`; ngưỡng pin ở
+`system/etc/UPower/UPower.conf.d/60-laptop.conf`, cảnh báo ở `config/waybar/config`.
+Khi chỉnh, giữ screen-off < lock < sleep. Chạy kiểm tra rồi áp dụng file system
+nếu đã đổi; reload logind và restart UPower, hoặc reboot, để dùng policy mới.
+Laptop mới cần thiết lập swap/resume và thử hibernate rồi khôi phục phiên thành
+công trước khi dựa vào bảo vệ pin tự động; xem `docs/installation.md`.
 
 Countdown worker theo dõi state bằng inotify. Waybar chỉ render state và nhận
 signal; không điều khiển service trong mỗi lượt render. Lịch sử ở

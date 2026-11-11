@@ -107,10 +107,18 @@ xuất môi trường sang D-Bus/systemd rồi start `sway-session.target`. Wrap
 target khi compositor thoát. Service con do systemd giám sát; không autostart
 trùng qua `.bashrc`, XDG và Sway.
 
-Khóa thành công mới kích hoạt `session-locked.target`. Countdown đăng ký target
-để pause; session không gọi thẳng Countdown. Countdown giữ logind idle inhibitor
+Swaylock chạy foreground; `--ready-fd` báo khóa thành công cho systemd qua
+`systemd-notify`, rồi mới kích hoạt `session-locked.target`. Countdown đăng ký
+target để pause. Khi swaylock thoát bình thường trong session còn hoạt động,
+`ExecStopPost` gọi Countdown để nhắc timer đang pause; lỗi khóa hoặc bị kill
+không gửi lời nhắc. Countdown giữ logind idle inhibitor
 theo process, theo dõi state bằng inotify. Worker cập nhật đồng hồ khi chạy;
 Waybar nhận tín hiệu thay vì poll.
+
+Pin yếu dùng cơ chế gốc: Waybar gửi Mako khi vào mức cảnh báo 15% lúc xả pin;
+UPower hibernate ở 10% khi máy đang thức. Khi suspend-then-hibernate, systemd
+quản lý đánh thức để hibernate theo pin yếu, không đặt delay cố định. UPower
+chạy ở system scope và được enable khi cài; không thêm daemon theo dõi pin riêng.
 
 ## Tối ưu có thể kiểm chứng
 

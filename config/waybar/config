@@ -12,8 +12,11 @@
       ],
       "format-plugged": "<span font_family='Font Awesome 7 Free'></span> {capacity}%",
       "states": {
-        "critical": 15,
-        "warning": 25
+        "critical": 10,
+        "warning": 15
+      },
+      "events": {
+        "on-discharging-warning": "notify-send -a power -u critical -i battery-low -t 15000 'Low battery' 'Battery at 15% or lower. Connect power; automatic hibernation at 10%.'"
       }
     },
     "bluetooth": {
@@ -141,12 +144,25 @@
     "spacing": 2,
     "sway/scratchpad": {
       "format": "<span font_family='Font Awesome 7 Free'></span> {count}",
+      "on-click": "~/.local/bin/scratchpad-menu",
       "show-empty": false,
       "tooltip": true,
       "tooltip-format": "{app}: {title}"
     },
     "sway/workspaces": {
-      "disable-scroll": true
+      "disable-scroll": true,
+      "format": "{icon}",
+      "format-icons": {
+        "1.Study": "1 <span font_family='Font Awesome 7 Free' weight='900'></span>",
+        "2.Dev": "2 <span font_family='Font Awesome 7 Free' weight='900'></span>",
+        "3.Misc": "3 <span font_family='Font Awesome 7 Free' weight='900'></span>",
+        "10.Anki": "0 <span font_family='Font Awesome 7 Free' weight='900'></span>"
+      },
+      "persistent-workspaces": {
+        "1.Study": [],
+        "2.Dev": [],
+        "3.Misc": []
+      }
     },
     "tray": {
       "icon-size": 16,

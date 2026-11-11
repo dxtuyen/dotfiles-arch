@@ -25,5 +25,6 @@ earlyoom
 zram-generator
 keyd
 power-profiles-daemon
+upower
 bluez
 bluez-utils
