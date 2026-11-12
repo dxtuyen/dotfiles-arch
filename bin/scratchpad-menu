@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
-# List hidden scratchpad windows on demand; select by ID, never by title.
+# List or show hidden scratchpad windows on demand; select by ID, never by title.
 set -euo pipefail
 # shellcheck source=../lib/tofi-menu.sh
 source "$HOME/.local/lib/dotfiles/tofi-menu.sh"
 
-[ "$#" -eq 0 ] || { echo 'Usage: scratchpad-menu' >&2; exit 2; }
+if [ "$#" -gt 1 ] || { [ "$#" -eq 1 ] && [ "$1" != --show-all ]; }; then
+  echo 'Usage: scratchpad-menu [--show-all]' >&2
+  exit 2
+fi
 
 windows_json=$(swaymsg -r -t get_tree | jq -c '
   def scratchpads:
@@ -26,6 +29,11 @@ count=$(jq 'length' <<< "$windows_json")
 if [ "$count" -eq 0 ]; then
   notify-send -a scratchpad -i window -t 2000 Scratchpad 'No scratchpad windows'
   exit 0
+fi
+
+if [ "${1:-}" = --show-all ]; then
+  commands=$(jq -r 'map("[con_id=\(.id)] scratchpad show") | join("; ")' <<< "$windows_json")
+  exec swaymsg -q "$commands"
 fi
 
 rows=$count

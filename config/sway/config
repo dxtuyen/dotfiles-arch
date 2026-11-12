@@ -115,7 +115,9 @@ bindsym --no-repeat Mod1+Tab workspace back_and_forth
 # Toggle Sway's native scratchpad; Shift+Mod+- sends the focused window there.
 bindsym $mod+minus scratchpad show
 bindsym $mod+Shift+minus move scratchpad
-bindsym --no-repeat $mod+z exec ~/.local/bin/scratchpad-menu
+# Select a hidden scratchpad window, or show all hidden windows here.
+bindsym --no-repeat $mod+equal exec ~/.local/bin/scratchpad-menu
+bindsym --no-repeat $mod+Shift+equal exec ~/.local/bin/scratchpad-menu --show-all
 # Mod+Tab opens the Sway workspace overview.
 bindsym $mod+Tab exec pkill -x swayview || swayview
 bindsym $mod+q kill

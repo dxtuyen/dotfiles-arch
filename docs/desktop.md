@@ -38,7 +38,8 @@ File `share/color-schemes/gruvbox-material.conf` là palette dành riêng cho Qt
 | Super+B/V; Super+S/W/E | Split ngang/dọc; stacking/tabbed/toggle split |
 | Super+F / Super+Shift+Space | Fullscreen / floating |
 | Super+- / Super+Shift+- | Hiện scratchpad / đưa cửa sổ vào scratchpad |
-| Super+Z | Danh sách scratchpad; chọn cửa sổ để gọi ra |
+| Super+= | Danh sách scratchpad; chọn cửa sổ để gọi ra |
+| Super+Shift+= | Hiện toàn bộ cửa sổ đang ẩn trong scratchpad ở workspace hiện tại |
 | Super+R | Chế độ resize; Enter/Esc thoát |
 | Super+C | Countdown |
 | Super+U / Super+P | Utilities / power menu |
@@ -68,13 +69,15 @@ vẫn dùng theo số và hiện trên thanh khi tồn tại.
 
 ## Popup và menu
 
-`Super+Z` hoặc bấm biểu tượng scratchpad trên Waybar mở danh sách tiêu đề cửa sổ
+`Super+=` hoặc bấm biểu tượng scratchpad trên Waybar mở danh sách tiêu đề cửa sổ
 đang ẩn, có đánh số bằng Tofi, không hiện app ID. Menu rộng 720 px, nhãn `S ❯`; các menu khác
 giữ kích thước mặc định. Gõ để lọc, Enter gọi cửa sổ về workspace hiện tại, Esc hủy.
 Cửa sổ đã lấy ra không còn trong danh sách; ẩn lại thì trở về ở lần mở menu sau.
 Chọn theo container ID nên tiêu đề trùng
 không gọi nhầm cửa sổ. Sau khi chọn, `Super+Q` đóng cửa sổ như bình thường.
 Popup terminal `Super+grave` có nhãn `T · ~/thư-mục` trong menu để dễ nhận ra.
+`Super+Shift+=` gọi toàn bộ cửa sổ đang ẩn trong scratchpad ra workspace hiện tại;
+nhấn lại không ẩn các cửa sổ vừa gọi ra.
 Menu chỉ chạy khi được gọi, không có daemon hay polling. App ẩn trong scratchpad
 vẫn chạy; menu không tự tạm ngưng ứng dụng.
 

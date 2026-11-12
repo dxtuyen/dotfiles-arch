@@ -245,6 +245,31 @@ class Popup(unittest.TestCase):
         self.assertEqual(self.windows()[second]["workspace"], "3")
         self.assertTrue(self.windows()[second]["focused"])
 
+    def test_show_all_recalls_only_hidden_windows_without_selector(self):
+        _, visible = self.open_window("Already visible")
+        hidden = []
+        for title in ("Hidden one", "Hidden two"):
+            _, identifier = self.open_window(title)
+            subprocess.run(
+                ["swaymsg", "-q", f"[con_id={identifier}] move scratchpad"],
+                env=self.env, check=True,
+            )
+            hidden.append(identifier)
+        subprocess.run(["swaymsg", "-q", "workspace number 2"], env=self.env, check=True)
+        env = self.menu_environment()
+        # Repeating with an empty scratchpad must leave recalled windows visible.
+        for _ in range(2):
+            subprocess.run(
+                [ROOT / "bin/scratchpad-menu", "--show-all"], env=env,
+                capture_output=True, text=True, check=True, timeout=5,
+            )
+            windows = self.windows()
+            for identifier in hidden:
+                self.assertEqual(windows[identifier]["workspace"], "2")
+                self.assertNotEqual(windows[identifier]["scratchpad_state"], "none")
+            self.assertEqual(windows[visible]["workspace"], "1")
+            self.assertFalse(Path(env["TEST_MENU_INPUT"]).exists())
+
     def test_empty_scratchpad_menu_does_not_open_selector(self):
         env = self.menu_environment()
         subprocess.run([ROOT / "bin/scratchpad-menu"], env=env,
