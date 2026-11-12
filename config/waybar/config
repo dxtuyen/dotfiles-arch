@@ -150,18 +150,19 @@
       "tooltip-format": "{app}: {title}"
     },
     "sway/workspaces": {
+      "disable-auto-back-and-forth": true,
       "disable-scroll": true,
       "format": "{icon}",
       "format-icons": {
-        "1.Study": "1 <span font_family='Font Awesome 7 Free' weight='900'></span>",
-        "2.Dev": "2 <span font_family='Font Awesome 7 Free' weight='900'></span>",
-        "3.Misc": "3 <span font_family='Font Awesome 7 Free' weight='900'></span>",
-        "10.Anki": "0 <span font_family='Font Awesome 7 Free' weight='900'></span>"
+        "1": "1 <span font_family='Font Awesome 7 Free' weight='900'></span>",
+        "2": "2 <span font_family='Font Awesome 7 Free' weight='900'></span>",
+        "3": "3 <span font_family='Font Awesome 7 Free' weight='900'></span>",
+        "10": "0 <span font_family='Font Awesome 7 Free' weight='900'></span>"
       },
       "persistent-workspaces": {
-        "1.Study": [],
-        "2.Dev": [],
-        "3.Misc": []
+        "1": [],
+        "2": [],
+        "3": []
       }
     },
     "tray": {

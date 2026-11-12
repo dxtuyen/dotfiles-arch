@@ -241,6 +241,7 @@ class SystemInstall(unittest.TestCase):
                 i.subprocess, "run", return_value=SimpleNamespace(returncode=1)
             )
         )
+        self.deploy = i.install_files
         self.files = stack.enter_context(patch.object(i, "install_files"))
         self.run = stack.enter_context(patch.object(i, "run"))
         self.args = SimpleNamespace(user="test", backup=True, dry_run=False)
@@ -265,6 +266,36 @@ class SystemInstall(unittest.TestCase):
         with self.assertRaises(subprocess.CalledProcessError):
             i.system_install(self.args)
         self.run.assert_called_once_with("mkinitcpio", "-P")
+
+    def test_system_stage_deploys_and_enables_single_dhcp_owner_without_restart(self):
+        i.system_install(self.args)
+        items, base = self.files.call_args.args
+        with tempfile.TemporaryDirectory() as directory:
+            destination = Path(directory)
+            networking = [item for item in items if item["target"] in (
+                "etc/iwd/main.conf", "etc/systemd/network/20-wifi.network"
+            )]
+            self.assertEqual(len(networking), 2)
+            self.deploy(networking, destination)
+            self.assertIn("EnableNetworkConfiguration=false", (
+                destination / "etc/iwd/main.conf").read_text())
+            self.assertIn("UseGateway=yes", (
+                destination / "etc/systemd/network/20-wifi.network").read_text())
+        enabled = [call.args for call in self.run.call_args_list
+                   if call.args[:2] == ("systemctl", "enable")]
+        for unit in ("iwd.service", "systemd-networkd.service", "systemd-resolved.service"):
+            self.assertTrue(any(unit in command for command in enabled))
+        self.assertFalse(any("restart" in call.args or "--now" in call.args
+                             for call in self.run.call_args_list))
+
+    def test_other_global_dhcp_clients_block_install_before_files_are_changed(self):
+        for conflict in ("dhcpcd.service", "connman.service"):
+            with self.subTest(conflict=conflict), patch.object(i.subprocess, "run") as query:
+                query.side_effect = lambda command, **kwargs: SimpleNamespace(
+                    returncode=0 if command[-1] == conflict else 1)
+                with self.assertRaisesRegex(RuntimeError, conflict):
+                    i.system_install(self.args)
+                self.files.assert_not_called()
 
 
     def test_common_stage_excludes_laptop_files_and_battery_service(self):

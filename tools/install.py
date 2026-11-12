@@ -297,6 +297,8 @@ def system_install(args):
         "NetworkManager.service",
         "NetworkManager-wait-online.service",
         "wpa_supplicant.service",
+        "dhcpcd.service",
+        "connman.service",
     ):
         enabled = (
             subprocess.run(
@@ -347,6 +349,7 @@ def system_install(args):
         "systemctl",
         "enable",
         "iwd.service",
+        "systemd-networkd.service",
         "systemd-resolved.service",
         "systemd-timesyncd.service",
         "bluetooth.service",
@@ -706,7 +709,12 @@ def doctor(args):
             failures.append("failed user units" if scope else "failed system units")
     check("findmnt", "/boot")
     check("swapon", "--show")
-    for unit in ("iwd.service", "systemd-resolved.service", "upower.service"):
+    for unit in (
+        "iwd.service",
+        "systemd-networkd.service",
+        "systemd-resolved.service",
+        "upower.service",
+    ):
         check("systemctl", "is-enabled", "--quiet", unit)
     if args.laptop:
         check("systemctl", "is-enabled", "--quiet", "battery-threshold.service")

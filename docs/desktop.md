@@ -53,7 +53,7 @@ File `share/color-schemes/gruvbox-material.conf` là palette dành riêng cho Qt
 
 ## Workspace
 
-Workspace có tên `1.Study`, `2.Dev`, `3.Misc`, `10.Anki`. Waybar chỉ ghim ba
+Workspace có tên số `1`, `2`, `3`, `10`. Waybar chỉ ghim ba
 workspace đầu và hiện số + icon: sách mở, code, lưới ứng dụng. Anki dùng icon hai
 thẻ chồng nhau với số `0`, hiện trên thanh khi workspace tồn tại.
 Workspace trống dùng màu muted (`grey1 #928374` của Gruvbox Material), cùng
@@ -94,7 +94,12 @@ Tofi dùng phím mũi tên hoặc Ctrl+J/K, Enter chọn, Esc hủy. Launcher l�
 menu tiện ích không lưu. Tofi không có icon ảnh hoặc chọn chuột; các biểu tượng
 menu là font glyph. Độ rộng mặc định 480 px. Helper giữ đúng action gốc khi lọc/reorder menu.
 Waybar đã bỏ nút nguồn; mở menu nguồn bằng `Super+P`.
-Workspace không ghim sẵn số; Waybar chỉ hiện các workspace đang tồn tại.
+Waybar ghim workspace 1–2–3; các workspace khác chỉ hiện khi đang tồn tại.
+Sway và Waybar dùng cùng định danh số `1`, `2`, `3`, `10`; Study/Dev/Misc/Anki
+được thể hiện bằng icon trên thanh. Không trộn tên `1.Study` với `1`: nút
+ghim của Waybar chọn theo tên chính xác, còn `workspace number 1` của Sway
+có thể tìm workspace theo số. Hai tên khác nhau có thể tạo hai workspace
+cùng số. Bấm lại workspace đang chọn không tự chuyển về workspace trước.
 
 ## Giao diện
 
@@ -163,8 +168,9 @@ mức âm lượng phần cứng của tai nghe phải khác 0; tăng phần m�
 cho phần cứng đang ở 0. Mức nghe được nhớ riêng theo thiết bị, không cân bằng
 độ lớn của tai nghe và loa theo cùng một phần trăm.
 WireMix/Bluetui/Impala chạy trong Foot. Nhấn trái/phải icon Wi-Fi hoặc chọn
-Utilities → Wi-Fi đều mở Impala. iwd lưu mạng, cấp IP và tự kết nối lại; DNS
-do systemd-resolved xử lý. Đóng Impala không làm mất kết nối.
+Utilities → Wi-Fi đều mở Impala. iwd lưu mạng và tự kết nối lại;
+systemd-networkd cấp IP/route qua DHCP, chuyển DNS cho systemd-resolved.
+Đóng Impala không làm mất kết nối.
 
 Lần đầu chọn Wi-Fi và nhập mật khẩu. Trong danh sách mạng đã biết, kiểm tra
 Autoconnect đã bật; phím `t` đổi trạng thái này. `Tab` chuyển vùng/danh sách,

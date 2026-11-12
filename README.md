@@ -1,7 +1,8 @@
 # Arch dotfiles
 
 Arch Linux + Sway/Wayland: Gruvbox Material Dark, Foot, Bash,
-LazyVim và Fcitx5-Lotus. Wi-Fi dùng iwd + Impala + systemd-resolved.
+LazyVim và Fcitx5-Lotus. Wi-Fi dùng iwd + Impala, DHCP qua systemd-networkd
+và DNS qua systemd-resolved.
 Máy hiện tại là laptop Intel, dùng một kernel `linux`, systemd-boot, ext4 và swap riêng.
 
 - **Cài mới:** [hướng dẫn từng bước](docs/installation.md).

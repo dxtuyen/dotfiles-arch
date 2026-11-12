@@ -200,12 +200,24 @@ Trong chroot, cấu hình Wi-Fi có DHCP và DNS ngay từ lần boot đầu:
 mkdir -p /etc/iwd
 cat > /etc/iwd/main.conf <<'EOF'
 [General]
-EnableNetworkConfiguration=true
+EnableNetworkConfiguration=false
+EOF
+mkdir -p /etc/systemd/network
+cat > /etc/systemd/network/20-wifi.network <<'EOF'
+[Match]
+Type=wlan
+WLANInterfaceType=station
 
 [Network]
-NameResolvingService=systemd
+DHCP=yes
+IPv6AcceptRA=yes
+
+[DHCPv4]
+UseRoutes=yes
+UseGateway=yes
+UseDNS=yes
 EOF
-systemctl enable iwd.service systemd-resolved.service systemd-timesyncd.service
+systemctl enable iwd.service systemd-networkd.service systemd-resolved.service systemd-timesyncd.service
 ln -sfn /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 exit
 umount -R /mnt
@@ -228,7 +240,10 @@ giữ Autoconnect bật cho mạng đã lưu; ở danh sách known networks, ph�
 
 Nếu cần CLI dự phòng, dùng `iwctl device list`, sau đó
 `iwctl station wlan0 connect "TEN_WIFI"` (thay `wlan0` bằng interface thật).
-Không chạy NetworkManager/wpa_supplicant để quản lý Wi-Fi này đồng thời.
+Không chạy NetworkManager/wpa_supplicant/dhcpcd/ConnMan để quản lý Wi-Fi này
+đồng thời. iwd chỉ kết nối Wi-Fi; networkd là DHCP client duy nhất, lấy cả
+gateway và DNS từ từng mạng. Match theo loại thiết bị, không phụ thuộc tên
+`wlan0`, SSID hay subnet. Xem [kiểm tra địa chỉ, route và DNS](wifi.md).
 
 ## 7. Lấy repo
 
@@ -336,7 +351,12 @@ sudo ln -sfn /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 resolvectl query archlinux.org
 ```
 
-iwd dùng DHCP tích hợp và gửi DNS cho resolved theo `/etc/iwd/main.conf`.
+iwd tắt DHCP tích hợp theo `/etc/iwd/main.conf`; systemd-networkd dùng
+`/etc/systemd/network/20-wifi.network` để nhận IP, route và DNS động.
+System stage chép cả hai file và enable iwd/networkd/resolved cho boot sau.
+Máy đang dùng bản cũ cần [chuyển quyền DHCP](wifi.md#áp-dụng-trên-máy-đang-dùng)
+từ console tại máy hoặc reboot sau khi cài; không chỉ bật thêm networkd
+trong khi iwd vẫn đang chạy cấu hình DHCP cũ.
 Cho các user service âm thanh hoạt động theo socket/vendor preset:
 
 ```bash
@@ -357,7 +377,7 @@ swapon --show
 findmnt /boot
 sudo bootctl status
 sudo nft -c -f /etc/nftables.conf
-sudo systemctl is-enabled greetd iwd systemd-resolved keyd nftables
+sudo systemctl is-enabled greetd iwd systemd-networkd systemd-resolved keyd nftables
 sudo reboot
 ```
 

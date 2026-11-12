@@ -30,3 +30,10 @@ và dùng full upgrade.
   [gói Arch chính thức](https://archlinux.org/packages/extra/x86_64/impala/).
 - [Cấu hình iwd](https://man.archlinux.org/man/iwd.config.5.en) và
   [profile/Autoconnect](https://man.archlinux.org/man/iwd.network.5.en).
+- [systemd.network](https://www.freedesktop.org/software/systemd/man/latest/systemd.network.html):
+  match Wi-Fi station, DHCP, UseGateway/UseRoutes và DNS động.
+- [ELL 0.83: DHCP lease parser](https://kernel.googlesource.com/pub/scm/libs/ell/ell/+/refs/tags/0.83/ell/dhcp-lease.c)
+  và [netconfig](https://kernel.googlesource.com/pub/scm/libs/ell/ell/+/refs/tags/0.83/ell/netconfig.c):
+  Router option chỉ được nhận khi dài đúng 4 byte; thiếu gateway thì không tạo default route.
+  [RFC 2132 §3.5](https://www.rfc-editor.org/rfc/rfc2132.html#section-3.5)
+  cho phép một danh sách router.

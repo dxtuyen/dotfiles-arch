@@ -548,6 +548,12 @@
       "permissions": "644"
     },
     {
+      "source": "system/etc/systemd/network/20-wifi.network",
+      "target": "etc/systemd/network/20-wifi.network",
+      "mode": "copy",
+      "permissions": "644"
+    },
+    {
       "source": "system/etc/keyd/default.conf",
       "target": "etc/keyd/default.conf",
       "mode": "copy",

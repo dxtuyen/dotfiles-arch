@@ -55,11 +55,13 @@ thấp hơn ở `~/.local/share/applications/mimeapps.list`. Neovim giữ plugin
 trong checkout; plugin nằm ngoài repo. Theme GTK riêng là gói pacman có phiên
 bản. Impala/iwd dùng binary từ kho chính thức.
 
-Wi-Fi có một nơi quản lý: iwd sở hữu kết nối, profile lưu và IP/DHCP;
-systemd-resolved xử lý DNS. Impala chỉ là giao diện, không phải daemon cần
-autostart. Cấu hình hiện tại dành cho Wi-Fi; không bật thêm networkd hoặc
-NetworkManager cùng quản lý interface đó. Profile/mật khẩu ở `/var/lib/iwd`,
-không ở trong repo.
+Wi-Fi phân công rõ: iwd sở hữu kết nối và profile; systemd-networkd sở hữu
+IP/DHCP, route và chuyển DNS nhận được cho systemd-resolved. DHCP tích hợp
+của iwd bị tắt để chỉ có một DHCP client. Impala chỉ là giao diện, không phải
+daemon cần autostart. File `20-wifi.network` chỉ match Wi-Fi station, không
+match Ethernet, bridge libvirt hoặc AP/P2P. Không chạy thêm NetworkManager,
+dhcpcd hay ConnMan cho cùng interface. Profile/mật khẩu ở `/var/lib/iwd`,
+không ở trong repo. Xem [Wi-Fi và kiểm tra route](wifi.md).
 
 Giữ nguyên đường dẫn checkout sau khi link. Nếu move repo, chạy lại stage
 `user --backup` từ chỗ mới. Bộ cài tự tìm checkout và home của người dùng.
