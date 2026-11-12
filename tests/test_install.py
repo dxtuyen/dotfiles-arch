@@ -267,6 +267,97 @@ class SystemInstall(unittest.TestCase):
         self.run.assert_called_once_with("mkinitcpio", "-P")
 
 
+    def test_common_stage_excludes_laptop_files_and_battery_service(self):
+        i.system_install(self.args)
+        items, base = self.files.call_args.args
+        self.assertEqual(base, Path("/"))
+        self.assertEqual(items, i.manifest()["system"])
+        self.assertTrue({item["target"] for item in items}.isdisjoint(
+            item["target"] for item in i.manifest()["laptop"]
+        ))
+        for call in self.run.call_args_list:
+            self.assertNotIn("battery-threshold.service", call.args)
+
+    def test_laptop_stage_only_installs_laptop_policy_and_enables_for_next_boot(self):
+        i.laptop_install(self.args)
+        self.assertEqual(self.files.call_args.args, (i.manifest()["laptop"], Path("/")))
+        self.assertEqual(
+            [call.args for call in self.run.call_args_list],
+            [("systemctl", "daemon-reload"), ("systemctl", "enable", "battery-threshold.service")],
+        )
+
+    def test_laptop_dry_run_does_not_reload_or_enable(self):
+        self.args.dry_run = True
+        i.laptop_install(self.args)
+        self.assertTrue(self.files.call_args.kwargs["dry_run"])
+        self.run.assert_not_called()
+
+    def test_laptop_requires_root_before_writing(self):
+        with patch.object(i.os, "geteuid", return_value=1000):
+            with self.assertRaisesRegex(RuntimeError, "sudo ./install laptop"):
+                i.laptop_install(self.args)
+        self.files.assert_not_called()
+        self.run.assert_not_called()
+
+    def test_laptop_install_failure_does_not_enable_service(self):
+        self.files.side_effect = RuntimeError("unmanaged laptop config")
+        with self.assertRaisesRegex(RuntimeError, "unmanaged"):
+            i.laptop_install(self.args)
+        self.run.assert_not_called()
+
+
+class SystemInventory(unittest.TestCase):
+    def test_doctor_selects_laptop_files_only_when_requested(self):
+        data = i.manifest()
+        self.assertEqual(i.system_files(), data["system"])
+        self.assertEqual(i.system_files(laptop=True), data["system"] + data["laptop"])
+        self.assertEqual(len(data["laptop"]), 5)
+
+    def test_manifest_rejects_duplicate_across_common_and_laptop(self):
+        data = i.manifest()
+        data["laptop"].append(dict(data["system"][0]))
+        with patch.object(i.json, "loads", return_value=data):
+            with self.assertRaisesRegex(RuntimeError, "Duplicate target"):
+                i.manifest()
+
+    def test_manifest_rejects_overlap_across_common_and_laptop(self):
+        data = i.manifest()
+        data["laptop"][0]["target"] = data["system"][0]["target"] + "/child"
+        with patch.object(i.json, "loads", return_value=data):
+            with self.assertRaisesRegex(RuntimeError, "Overlapping"):
+                i.manifest()
+
+    def test_repeated_stages_are_idempotent_and_common_preserves_laptop_files(self):
+        with tempfile.TemporaryDirectory() as directory, contextlib.redirect_stdout(io.StringIO()):
+            base = Path(directory)
+            data = i.manifest()
+            i.install_files(data["system"], base)
+            self.assertFalse(any((base / item["target"]).exists() for item in data["laptop"]))
+            i.install_files(data["laptop"], base)
+            self.assertIsNone(i.install_files(data["system"], base))
+            self.assertIsNone(i.install_files(data["laptop"], base))
+            for item in data["laptop"]:
+                self.assertTrue(i.unchanged(item, base / item["target"], base))
+
+    def test_doctor_checks_laptop_enablement_only_when_requested(self):
+        for laptop in (False, True):
+            with self.subTest(laptop=laptop), contextlib.ExitStack() as stack:
+                stack.enter_context(contextlib.redirect_stdout(io.StringIO()))
+                stack.enter_context(patch.object(i, "require_arch"))
+                stack.enter_context(patch.object(i.shutil, "which", return_value="/usr/bin/mock"))
+                stack.enter_context(patch.object(i, "unchanged", return_value=True))
+                stack.enter_context(patch.object(Path, "is_file", return_value=True))
+                stack.enter_context(patch.object(i, "manifest", return_value={"home": [], "system": [], "laptop": []}))
+                stack.enter_context(patch.object(i.subprocess, "run", return_value=SimpleNamespace(returncode=0, stdout="", stderr="")))
+                run = stack.enter_context(patch.object(i, "run"))
+                i.doctor(SimpleNamespace(laptop=laptop))
+                commands = [call.args for call in run.call_args_list]
+                self.assertEqual(
+                    ("systemctl", "is-enabled", "--quiet", "battery-threshold.service") in commands,
+                    laptop,
+                )
+
+
 class Packages(unittest.TestCase):
     def setUp(self):
         self.output = contextlib.redirect_stdout(io.StringIO())

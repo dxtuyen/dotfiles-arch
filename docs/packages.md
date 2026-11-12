@@ -176,6 +176,11 @@ After inspecting the file plan and differences against current files:
 sudo ./install system --user "$USER" --backup --dry-run
 # Review system/etc and diff it against /etc before the next command.
 sudo ./install system --user "$USER" --backup
+# Laptop only, after checking swap/resume:
+sudo ./install laptop --backup --dry-run
+sudo ./install laptop --backup
+./install doctor --laptop
+# PC: skip laptop and use the common check instead:
 ./install doctor
 ```
 
@@ -184,12 +189,15 @@ run them only when ready. The system stage refuses competing network managers,
 never disables them, and does not restart networking or the login manager.
 It rebuilds initramfs after copying the Plymouth theme; a failed build stops
 the stage and must be resolved before rebooting.
-It copies laptop policy including zram, lid/sleep and firewall settings: review
-these explicitly for the machine. It does not edit partitions, boot entries,
+It copies common zram and firewall settings. The separate, explicitly selected
+`laptop` stage copies battery, lid/sleep policy and the charge-threshold helper;
+it only reloads systemd and enables the battery service for the next boot.
+See [PC/laptop installation](hardware.md). Neither stage edits partitions, boot entries,
 kernel command lines, swap partitions, firmware or accounts' existing data.
 On an existing machine, do not rerun the system stage merely to apply UI changes.
-There is currently no hardware-policy opt-out flag. If you intentionally keep
-logind/sleep/zram policy different from the repo, doctor reports those differences.
+The common stage preserves any laptop policy already installed. `doctor` checks
+common files; `doctor --laptop` includes laptop files and battery-service enablement.
+If you intentionally keep a selected stage's policy different, doctor reports it.
 Do not reboot until boot/resume/DNS have been checked using installation.md.
 
 ## File recovery

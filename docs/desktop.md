@@ -110,7 +110,7 @@ Sửa giao diện khóa có hiệu lực ở lần khóa mới, không cần res
 ## Session và Countdown
 
 - Không hoạt động: màn hình tắt sau 5 phút, khóa sau 10 phút.
-- Không hoạt động 15 phút: suspend-then-hibernate khi dùng pin. Trên AC tiếp tục
+- Sau stage `laptop`, không hoạt động 15 phút: suspend-then-hibernate khi dùng pin. Trên AC tiếp tục
   khóa/tắt màn hình, kiểm tra lại nguồn mỗi 30 giây sau deadline.
 - Khóa thủ công: sau 10 giây không input thì tắt màn hình. Input bật lại để mở khóa.
 - Countdown đang chạy hoặc keep-awake giữ **idle inhibitor**; explicit lock,
@@ -119,7 +119,7 @@ Sửa giao diện khóa có hiệu lực ở lần khóa mới, không cần res
   xóa keep-awake thủ công. Mở khóa/wake không tự resume timer.
 - Sau khi mở khóa, Mako nhắc một lần nếu Countdown đang pause và còn thời gian,
   kể cả timer đã pause thủ công. Không gửi lời nhắc lúc khóa hoặc vừa wake.
-- Khi áp dụng policy system của repo: lid undocked ngủ cả khi cắm sạc; docked
+- Khi áp dụng stage `laptop`: lid undocked ngủ cả khi cắm sạc; docked
   thì bỏ qua. Không đặt deadline hibernate theo thời gian khóa hoặc thời gian ngủ.
 - Đang thức và dùng pin: Waybar gửi cảnh báo Mako khi vào mức 15% hoặc thấp hơn;
   UPower tự hibernate ở 10%, kể cả khi đang có idle inhibitor.
@@ -128,6 +128,9 @@ Sửa giao diện khóa có hiệu lực ở lần khóa mới, không cần res
 
 Deadline ở `systemd/user/swayidle.service`; timeout locked ở
 `locked-display.service`; timer kiểm tra nguồn ở `idle-suspend.timer`.
+Chỉ cài stage chung: idle giữ khóa/tắt màn hình, không tự ngủ theo policy laptop;
+menu Suspend dùng `suspend`. Sau stage laptop (có drop-in sleep), menu dùng
+`suspend-then-hibernate`. Hành vi này giữ nguyên trên laptop đã cài bằng bộ cài cũ.
 Lid/sleep ở `system/etc/systemd/`; ngưỡng pin ở
 `system/etc/UPower/UPower.conf.d/60-laptop.conf`, cảnh báo ở `config/waybar/config`.
 Khi chỉnh, giữ screen-off < lock < sleep. Chạy kiểm tra rồi áp dụng file system
@@ -145,11 +148,20 @@ cập nhật lúc vào phiên không làm Waybar thoát trước khi sẵn sàng
 
 ## Media, mạng và màn hình
 
-Phím volume thay 1 điểm phần trăm với tai nghe Bluetooth, 5 điểm với các đầu ra
-khác (kể cả loa Bluetooth), giới hạn 0–100%. Giảm đến 0 thì mute; tăng từ 0
-về 1% hoặc 5% theo thiết bị và unmute. Tăng khi đang mute ở mức khác 0 chỉ
+Phím volume thay 5 điểm phần trăm cho mọi đầu ra (loa và tai nghe Bluetooth),
+giới hạn 0–100%. Giảm đến 0 thì mute; tăng từ 0 về 5% và unmute.
+Tăng khi đang mute ở mức khác 0 chỉ
 khôi phục mức đó, không tăng thêm.
 Mic/speaker mute mỗi lần nhấn một lần. Brightness thay 10%, tối thiểu 5%.
+Nút Play/Pause, Pause, Stop, Next/Previous (kể cả nút tai nghe Bluetooth phát
+sự kiện AVRCP) gọi `playerctl` qua MPRIS; ứng dụng cần hỗ trợ media session.
+Đã tắt đồng bộ âm lượng phần cứng Bluetooth nên nút volume của tai nghe có thể
+chỉnh mức riêng, độc lập thanh âm lượng máy; chức năng phát/tạm dừng vẫn riêng biệt.
+EW47 đã thử đồng bộ nhưng âm lượng quá lớn nên giữ chế độ phần mềm,
+với bước chỉnh 5 điểm phần trăm trên máy. Sau khi chuyển từ đồng bộ sang riêng,
+mức âm lượng phần cứng của tai nghe phải khác 0; tăng phần mềm không thể bù
+cho phần cứng đang ở 0. Mức nghe được nhớ riêng theo thiết bị, không cân bằng
+độ lớn của tai nghe và loa theo cùng một phần trăm.
 WireMix/Bluetui/Impala chạy trong Foot. Nhấn trái/phải icon Wi-Fi hoặc chọn
 Utilities → Wi-Fi đều mở Impala. iwd lưu mạng, cấp IP và tự kết nối lại; DNS
 do systemd-resolved xử lý. Đóng Impala không làm mất kết nối.

@@ -67,15 +67,10 @@ set_brightness() {
 
 change_volume() {
   local sink sink_id status level step increment=5
-  local headphone_pattern='device\.form-factor = "(headset|headphone|hands-free)"'
-  sink="$(wpctl inspect --referenced @DEFAULT_AUDIO_SINK@)"
+  sink="$(wpctl inspect @DEFAULT_AUDIO_SINK@)"
   read -r _ sink_id _ <<< "$sink"
   sink_id="${sink_id%,}"
   [[ "$sink_id" =~ ^[0-9]+$ ]] || return 1
-  # Bluetooth headphones need finer control; speakers keep the usual step.
-  if [[ "$sink" == *'device.api = "bluez5"'* && "$sink" =~ $headphone_pattern ]]; then
-    increment=1
-  fi
   # Keep the whole operation on this sink even if the default changes midway.
   status="$(wpctl get-volume "$sink_id")"
   read -r _ level _ <<< "$status"

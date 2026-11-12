@@ -97,9 +97,12 @@ Gruvbox icons chỉ chép asset. Không đổi sang build toàn bộ ứng dụn
 Sửa file gốc trong repo, chạy `python tools/check.py`, reload ứng dụng tương ứng.
 Với symlink, không cần chạy bộ cài để thay nội dung. Thêm file/đổi manifest thì
 chạy `./install user --backup --dry-run`, xem kết quả rồi `./install user --backup`.
-Sửa file system: xem dry-run trước khi chạy lại stage `system --backup`;
-stage này chép cả zram/logind/sleep, kể cả policy đang được giữ khác repo.
-Chỉ áp dụng sau khi đã review các file đó.
+Sửa file system: xem dry-run trước khi chạy lại stage `system --backup`
+cho cấu hình chung (gồm zram/firewall), hoặc `laptop --backup` cho pin/lid/sleep.
+Chỉ áp dụng sau khi đã review các file thuộc stage đó. PC kiểm tra bằng
+`./install doctor`; laptop dùng `./install doctor --laptop`.
+Stage chung giữ nguyên file laptop đã cài; xem [chọn phần cứng](hardware.md)
+khi chuyển từ bộ cài cũ hoặc tái sử dụng hệ đã có policy laptop.
 Chạy `systemctl --user daemon-reload` khi đổi unit; logout/login để test vòng đời
 session, tránh restart riêng lock service khi đang thao tác. Waybar reload bằng
 `systemctl --user reload waybar.service`; Foot/Tofi/Impala đọc cấu hình khi mở mới.
@@ -109,10 +112,46 @@ Giữ plugin lock của Neovim trong Git sau khi review. Seed Fcitx không tự 
 setting qua GUI. Muốn reset một seed, backup file đó rồi xóa riêng nó trước khi
 chạy lại user stage. Không xóa cả `.config`.
 
+## Zram và swap đĩa
+
+Policy trong `system/etc/systemd/zram-generator.conf`: zram bằng nửa RAM,
+nén zstd, priority 100. Swap đĩa priority 10 ở ví dụ cài đặt vẫn giữ cho
+overflow và ảnh hibernate. Dung lượng zram là dung lượng logic, không phải
+RAM bị giữ sẵn ngay khi bật.
+
+Khi bật zram, đặt `zswap.enabled=0` trong dòng `options` của boot entry đang dùng
+(ví dụ systemd-boot: `/boot/loader/entries/arch.conf`). Giữ nguyên UUID root/resume
+và các tham số khác. Bước boot này làm riêng theo máy; installer không tự sửa entry.
+Không cần rebuild initramfs chỉ vì đổi dòng options của entry systemd-boot này.
+
+Máy đã cài gói và chỉ thiếu file zram có thể áp dụng riêng:
+
+```bash
+sudo install -m 644 system/etc/systemd/zram-generator.conf /etc/systemd/zram-generator.conf
+# Áp zswap.enabled=0 cho phiên đang chạy (nếu kernel có zswap)
+if [ -e /sys/module/zswap/parameters/enabled ]; then
+  printf 'N\n' | sudo tee /sys/module/zswap/parameters/enabled
+fi
+sudo systemctl daemon-reload
+sudo systemctl start dev-zram0.swap
+swapon --show
+zramctl
+```
+
+Đọc/backup file đích trước khi dùng lệnh `install` nếu máy đã có cấu hình riêng.
+Đây là quy trình tạo zram mới; khi zram đã hoạt động, thay size/thuật toán cần
+chuyển dữ liệu ra trước hoặc reboot, không restart swap giữa lúc thiếu RAM.
+Generator tự tạo unit mỗi lần boot, không cần `systemctl enable` unit zram.
+Kiểm tra `zswap.enabled=0` có hiệu lực sau reboot bằng `/proc/cmdline` và
+`/sys/module/zswap/parameters/enabled` (nếu tồn tại). Không tắt swap đĩa để
+"chỉ dùng zram" khi còn cần hibernate. Xem [zram-generator](https://github.com/systemd/zram-generator)
+và [zswap của kernel](https://www.kernel.org/doc/html/latest/admin-guide/mm/zswap.html).
+
 ## Backup/restore một lần cài file
 
 User backup: `~/.local/state/dotfiles/backups/TIMESTAMP/`.
-System backup: `/var/lib/dotfiles/backups/TIMESTAMP/`.
+System/laptop backup: `/var/lib/dotfiles/backups/TIMESTAMP/` (mỗi lần cài là
+transaction riêng).
 
 ```bash
 ./install restore "$HOME/.local/state/dotfiles/backups/TIMESTAMP" --dry-run
@@ -198,8 +237,11 @@ Không chạy lệnh create đè lên disk guest đã restore.
 
 ## Chẩn đoán
 
+Laptop dùng `./install doctor --laptop`; các lệnh pin/hibernate bên dưới dành
+cho máy đã cài stage laptop. PC dùng `./install doctor` để kiểm tra phần chung.
+
 ```bash
-./install doctor
+./install doctor --laptop
 systemctl --user --failed
 systemctl --failed
 journalctl --user -b -u swayidle -u session-lock -u swaylock -u countdown-engine

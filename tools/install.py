@@ -81,9 +81,9 @@ def manifest():
     data = json.loads((ROOT / "install-manifest.json").read_text())
     if data.get("version") != 1:
         raise RuntimeError("Unsupported installation manifest")
-    for group in ("home", "system"):
+    for groups in (("home",), ("system", "laptop")):
         seen = set()
-        for item in data.get(group, []):
+        for item in (item for group in groups for item in data.get(group, [])):
             src = (ROOT / item["source"]).resolve()
             target = Path(item["target"])
             if not src.is_relative_to(ROOT) or not src.exists():
@@ -100,6 +100,12 @@ def manifest():
             if any(other in path.parents for other in targets):
                 raise RuntimeError(f"Overlapping installation targets: {path}")
     return data
+
+
+def system_files(*, laptop=False):
+    """Common files are always selected; laptop policy is explicitly opt-in."""
+    data = manifest()
+    return data["system"] + (data["laptop"] if laptop else [])
 
 
 def exists(path):
@@ -351,12 +357,33 @@ def system_install(args):
         "fstrim.timer",
         "nftables.service",
         "greetd.service",
-        "battery-threshold.service",
     )
     # Do not restart networking, the login manager, key mappings or suspend services during installation.
     run("systemctl", "enable", f"fcitx5-lotus-server@{args.user}.service")
     print(
-        "System files installed. Reboot after checking ./install doctor. MySQL and libvirt remain on demand."
+        "Common system files installed. Laptop: also run sudo ./install laptop --backup, "
+        "then ./install doctor --laptop. PC: ./install doctor. "
+        "Existing laptop policy is preserved. Reboot after checking. "
+        "MySQL and libvirt remain on demand."
+    )
+
+
+def laptop_install(args):
+    require_arch()
+    if os.geteuid() != 0:
+        raise RuntimeError("Run: sudo ./install laptop --backup")
+    install_files(
+        manifest()["laptop"], Path("/"), backup=args.backup, dry_run=args.dry_run
+    )
+    if args.dry_run:
+        print("Would reload systemd and enable battery-threshold.service for the next boot.")
+        return
+    run("systemctl", "daemon-reload")
+    run("systemctl", "enable", "battery-threshold.service")
+    print(
+        "Laptop policy installed: charge thresholds, lid/sleep and low-battery hibernation. "
+        "Run ./install doctor --laptop. Reboot to apply after verifying swap/resume. "
+        "This stage does not install common system files or rebuild initramfs."
     )
 
 
@@ -607,6 +634,7 @@ def doctor(args):
         "jq",
         "inotifywait",
         "wpctl",
+        "playerctl",
         "paplay",
         "brightnessctl",
         "upower",
@@ -631,7 +659,7 @@ def doctor(args):
         if not unchanged(item, dest, Path.home()):
             failures.append(str(dest))
             print("FAIL configuration", dest)
-    for item in manifest()["system"]:
+    for item in system_files(laptop=args.laptop):
         dest = Path("/") / item["target"]
         if not unchanged(item, dest, Path("/")):
             failures.append(str(dest))
@@ -680,9 +708,14 @@ def doctor(args):
     check("swapon", "--show")
     for unit in ("iwd.service", "systemd-resolved.service", "upower.service"):
         check("systemctl", "is-enabled", "--quiet", unit)
-    print(
-        "Check resume=UUID= and disk swap, then test lock, suspend and hibernate on the laptop: docs/installation.md."
-    )
+    if args.laptop:
+        check("systemctl", "is-enabled", "--quiet", "battery-threshold.service")
+        print(
+            "Check resume=UUID= and disk swap, then test lock, suspend and hibernate "
+            "on the laptop: docs/installation.md."
+        )
+    else:
+        print("Checked common configuration only. Use doctor --laptop for laptop policy.")
     if failures:
         raise RuntimeError(
             f"{len(failures)} check(s) failed; resolve them before relying on the desktop."
@@ -789,12 +822,18 @@ def main():
     p.add_argument("--dry-run", action="store_true")
     p.set_defaults(func=user_install)
     p = sub.add_parser(
-        "system", help="copy system settings, rebuild initramfs and enable services"
+        "system", help="install common system settings, rebuild initramfs and enable services"
     )
     p.add_argument("--user", required=True)
     p.add_argument("--backup", action="store_true")
     p.add_argument("--dry-run", action="store_true")
     p.set_defaults(func=system_install)
+    p = sub.add_parser(
+        "laptop", help="add laptop charge, lid and sleep policy after the system stage"
+    )
+    p.add_argument("--backup", action="store_true")
+    p.add_argument("--dry-run", action="store_true")
+    p.set_defaults(func=laptop_install)
     p = sub.add_parser("packages", help="full system upgrade and official packages")
     p.add_argument(
         "groups",
@@ -842,6 +881,7 @@ def main():
     p.add_argument("--dry-run", action="store_true")
     p.set_defaults(func=flatpak_install)
     p = sub.add_parser("doctor", help="verify packages, files and service definitions")
+    p.add_argument("--laptop", action="store_true", help="also verify laptop files and battery-threshold service enablement")
     p.set_defaults(func=doctor)
     p = sub.add_parser("restore", help="restore one file-install transaction")
     p.add_argument("transaction")

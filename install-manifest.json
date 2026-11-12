@@ -524,12 +524,6 @@
   ],
   "system": [
     {
-      "source": "system/etc/UPower/UPower.conf.d/60-laptop.conf",
-      "target": "etc/UPower/UPower.conf.d/60-laptop.conf",
-      "mode": "copy",
-      "permissions": "644"
-    },
-    {
       "source": "system/etc/bluetooth/main.conf",
       "target": "etc/bluetooth/main.conf",
       "mode": "copy",
@@ -584,24 +578,6 @@
       "permissions": "644"
     },
     {
-      "source": "system/etc/systemd/logind.conf.d/10-laptop.conf",
-      "target": "etc/systemd/logind.conf.d/10-laptop.conf",
-      "mode": "copy",
-      "permissions": "644"
-    },
-    {
-      "source": "system/etc/systemd/sleep.conf.d/10-laptop.conf",
-      "target": "etc/systemd/sleep.conf.d/10-laptop.conf",
-      "mode": "copy",
-      "permissions": "644"
-    },
-    {
-      "source": "system/etc/systemd/system/battery-threshold.service",
-      "target": "etc/systemd/system/battery-threshold.service",
-      "mode": "copy",
-      "permissions": "644"
-    },
-    {
       "source": "system/etc/systemd/zram-generator.conf",
       "target": "etc/systemd/zram-generator.conf",
       "mode": "copy",
@@ -616,12 +592,6 @@
     {
       "source": "system/bin/dotfiles-sway",
       "target": "usr/local/bin/dotfiles-sway",
-      "mode": "copy",
-      "permissions": "755"
-    },
-    {
-      "source": "system/bin/set-battery-threshold",
-      "target": "usr/local/bin/set-battery-threshold",
       "mode": "copy",
       "permissions": "755"
     },
@@ -665,5 +635,37 @@
     "swayidle.service",
     "trash-clean.timer",
     "waybar.service"
+  ],
+  "laptop": [
+    {
+      "source": "system/etc/UPower/UPower.conf.d/60-laptop.conf",
+      "target": "etc/UPower/UPower.conf.d/60-laptop.conf",
+      "mode": "copy",
+      "permissions": "644"
+    },
+    {
+      "source": "system/etc/systemd/logind.conf.d/10-laptop.conf",
+      "target": "etc/systemd/logind.conf.d/10-laptop.conf",
+      "mode": "copy",
+      "permissions": "644"
+    },
+    {
+      "source": "system/etc/systemd/sleep.conf.d/10-laptop.conf",
+      "target": "etc/systemd/sleep.conf.d/10-laptop.conf",
+      "mode": "copy",
+      "permissions": "644"
+    },
+    {
+      "source": "system/etc/systemd/system/battery-threshold.service",
+      "target": "etc/systemd/system/battery-threshold.service",
+      "mode": "copy",
+      "permissions": "644"
+    },
+    {
+      "source": "system/bin/set-battery-threshold",
+      "target": "usr/local/bin/set-battery-threshold",
+      "mode": "copy",
+      "permissions": "755"
+    }
   ]
 }

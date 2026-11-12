@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# The laptop stage explicitly installs this policy; common installs only lock.
+[ -f /etc/systemd/sleep.conf.d/10-laptop.conf ] || exit 0
+
 discharging=false
 for supply in /sys/class/power_supply/*; do
   # Peripherals such as mice must affect neither AC nor battery detection.

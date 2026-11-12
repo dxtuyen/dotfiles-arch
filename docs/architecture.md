@@ -1,6 +1,7 @@
 # Kiến trúc
 
-Repo là nguồn cấu hình của laptop Arch: quản lý file, dependency và service.
+Repo là nguồn cấu hình Arch: quản lý file, dependency và service chung,
+với stage laptop riêng cho máy hiện tại.
 Dữ liệu và trạng thái ứng dụng nằm ngoài repo. Ứng dụng đọc cấu hình gốc;
 không có framework sinh cấu hình hoặc theme chạy nền.
 
@@ -77,13 +78,19 @@ Giữ nguyên đường dẫn checkout sau khi link. Nếu move repo, chạy l�
 - `local-packages`: build PKGBUILD ghim commit/checksum trong repo.
 - `flatpak`: TickTick ở phạm vi user.
 - `user`: file home, enable user unit; không đụng bootloader/phân vùng.
-- `system`: chép `/etc`, helper `/usr/local/bin`, theme Plymouth, tạo lại
-  initramfs và enable service cho lần boot sau; không restart mạng/login manager.
-- `doctor`: kiểm tra trên Arch; không tự sửa hoặc sleep máy.
+- `system`: chép cấu hình chung `/etc`, helper `/usr/local/bin`, theme Plymouth,
+  zram/firewall; tạo lại initramfs và enable service cho boot sau.
+- `laptop`: chép riêng UPower pin yếu, logind lid, sleep, service/helper giới hạn
+  sạc; chỉ daemon-reload và enable battery-threshold cho boot sau. Không restart
+  dịch vụ đang dùng, không rebuild initramfs. Chạy sau `system` trên laptop.
+- `doctor`: kiểm tra phần chung trên Arch; `doctor --laptop` kiểm tra thêm file
+  laptop và enablement của battery-threshold. Không tự sửa hoặc sleep máy.
 
 Boot, partition, UUID swap và tài khoản có bước riêng trong hướng dẫn.
-MySQL server tùy chọn vì build nguồn tốn thời gian. Stage `system` vẫn gồm policy
-zram/lid/sleep; chưa tách thành stage phần cứng riêng. Đọc plan trước khi chạy lại.
+MySQL server tùy chọn vì build nguồn tốn thời gian. Manifest có ba nhóm `home`,
+`system`, `laptop`; hai nhóm root được kiểm tra chung để ngăn target trùng/chồng.
+Bạn tự chọn stage; bộ cài không tự nhận diện phần cứng. Chạy lại `system` không
+gỡ file/service laptop đã cài. Xem [PC/laptop](hardware.md) trước khi chuyển máy.
 
 Shell dùng prompt Bash thuần, giữ Fzf/zoxide/direnv. Starship không còn được
 khởi tạo hoặc yêu cầu trong package list; file theme cũ được giữ để tham khảo.
@@ -115,10 +122,12 @@ không gửi lời nhắc. Countdown giữ logind idle inhibitor
 theo process, theo dõi state bằng inotify. Worker cập nhật đồng hồ khi chạy;
 Waybar nhận tín hiệu thay vì poll.
 
-Pin yếu dùng cơ chế gốc: Waybar gửi Mako khi vào mức cảnh báo 15% lúc xả pin;
+Sau stage `laptop`, pin yếu dùng cơ chế gốc: Waybar gửi Mako khi vào mức cảnh báo 15% lúc xả pin;
 UPower hibernate ở 10% khi máy đang thức. Khi suspend-then-hibernate, systemd
 quản lý đánh thức để hibernate theo pin yếu, không đặt delay cố định. UPower
-chạy ở system scope và được enable khi cài; không thêm daemon theo dõi pin riêng.
+chạy ở system scope và được enable trong stage chung; ngưỡng pin chỉ cài qua
+stage laptop. Khi thiếu drop-in sleep laptop, idle chỉ khóa/tắt màn hình và
+menu Suspend dùng suspend thường; khi drop-in được cài thì giữ suspend-then-hibernate.
 
 ## Tối ưu có thể kiểm chứng
 

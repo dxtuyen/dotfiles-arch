@@ -29,6 +29,7 @@ pipewire-pulse
 pipewire-jack
 qt6-wayland
 wireplumber
+playerctl
 libpulse
 libnotify
 brightnessctl

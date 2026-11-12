@@ -9,6 +9,10 @@ Dành cho laptop Intel: UEFI, một kernel `linux`, systemd-boot, ext4, swap ri�
 không mã hóa. USB dùng để boot bộ cài; Arch được cài vào SSD. Nếu thiết bị khác
 mô tả, xác định lại tên phân vùng trước khi chạy lệnh. Không có script tự chia ổ trong repo này.
 
+Phần cài dotfiles đã tách rõ: PC dùng `user` + `system`; laptop chạy thêm
+`laptop`. Bạn tự chọn lệnh, không có tự nhận diện loại máy. Xem [PC/laptop](hardware.md)
+cho máy khác Intel và các phần driver/mạng cần chuẩn bị riêng.
+
 ## 1. Boot USB và kết nối mạng
 
 Boot USB Arch ở chế độ **UEFI**. Với cấu hình dưới đây, tắt Secure Boot trong
@@ -109,6 +113,9 @@ UUID=UUID_SWAP_THAT none swap defaults,pri=10 0 0
 ```
 
 Zram của dotfiles dùng priority 100, kernel ưu tiên zram rồi đến disk swap.
+Dung lượng zram bằng nửa RAM, dùng zstd và chỉ chiếm RAM theo dữ liệu thực.
+Khi dùng zram, tắt zswap bằng `zswap.enabled=0` trong kernel command line để
+không chồng hai cơ chế nén swap. Swap đĩa vẫn giữ cho overflow và hibernate.
 Với ESP, thêm `umask=0077` vào options để hạn chế đọc boot files.
 
 ## 4. Locale, giờ và tài khoản trong chroot
@@ -172,7 +179,7 @@ cat > /boot/loader/entries/arch.conf <<EOF
 title Arch Linux
 linux /vmlinuz-linux
 initrd /initramfs-linux.img
-options root=UUID=$ARCH_ROOT_UUID rw resume=UUID=$ARCH_SWAP_UUID mem_sleep_default=deep quiet splash fbcon=nodefer
+options root=UUID=$ARCH_ROOT_UUID rw resume=UUID=$ARCH_SWAP_UUID zswap.enabled=0 mem_sleep_default=deep quiet splash fbcon=nodefer
 EOF
 cat /boot/loader/entries/arch.conf
 bootctl status
@@ -287,11 +294,10 @@ TickTick cài per-user từ Flathub. Font, Qt binding cho Lotus, portal, PipeWir
 
 ## 9. Áp dụng cấu hình
 
-Bước này dành cho cài mới. Trước stage `system`, đọc các file trong `system/etc/`,
-đặc biệt `systemd/zram-generator.conf`, `systemd/logind.conf.d/10-laptop.conf`,
-`systemd/sleep.conf.d/10-laptop.conf`, `UPower/UPower.conf.d/60-laptop.conf`
-và `nftables.conf`. Stage này chép cả policy
-swap/ngủ/firewall; `--backup` chỉ giữ bản cũ, không bỏ qua các policy đó.
+Bước này dành cho cài mới. Trước stage `system`, đọc các file chung trong
+`system/etc/`, đặc biệt `systemd/zram-generator.conf` và `nftables.conf`.
+Pin/lid/sleep nằm trong stage `laptop` riêng. `--backup` chỉ giữ bản cũ,
+không bỏ qua policy của stage bạn chọn.
 Máy đang chạy chỉ đổi giao diện thì không cần chạy lại stage `system`.
 
 ```bash
@@ -300,6 +306,19 @@ Máy đang chạy chỉ đổi giao diện thì không cần chạy lại stage 
 sudo ./install system --user "$USER" --backup --dry-run
 sudo ./install system --user "$USER" --backup
 ```
+
+PC dừng ở phần chung trên. Laptop chạy thêm sau khi kiểm tra swap/resume:
+
+```bash
+sudo ./install laptop --backup --dry-run
+sudo ./install laptop --backup
+```
+
+Stage laptop chép `systemd/logind.conf.d/10-laptop.conf`,
+`systemd/sleep.conf.d/10-laptop.conf`, `UPower/UPower.conf.d/60-laptop.conf`,
+service và helper ngưỡng sạc. Nó chỉ daemon-reload/enable ngưỡng sạc cho boot sau,
+không restart logind/UPower hoặc tạo lại initramfs. Reboot để áp policy mới.
+Chạy lại stage chung giữ nguyên policy laptop từ lần cài trước.
 
 User stage enable các unit; chỉ timer dọn rác/update Flatpak chạy ngay. Session
 lock/idle không bị gọi ở TTY. System stage chép sẵn theme Plymouth đã căn logo,
@@ -322,12 +341,13 @@ Cho các user service âm thanh hoạt động theo socket/vendor preset:
 
 ```bash
 systemctl --user enable --now pipewire.socket pipewire-pulse.socket wireplumber.service
-./install doctor
+./install doctor --laptop
 ```
 
-Doctor kiểm tra gói, file và service; không tự sửa hay sleep máy. Nếu cố ý giữ
-policy swap/ngủ khác repo, ba file tương ứng sẽ được báo khác cấu hình; không
-chạy lại stage `system` chỉ để xóa cảnh báo.
+PC dùng `./install doctor` để kiểm tra phần chung; laptop dùng `--laptop`
+như trên để kiểm tra thêm năm file và enablement của battery-threshold.
+Doctor không tự sửa hay sleep máy. Nếu cố ý giữ policy khác repo, file thuộc
+stage đang kiểm tra sẽ được báo khác cấu hình; không cài đè chỉ để xóa cảnh báo.
 
 Kiểm tra thêm:
 
@@ -362,17 +382,19 @@ Thực hiện lần lượt:
    Xem `git diff -- config/nvim/lazy-lock.json` sau bootstrap, giữ nguyên lockfile
    nếu chỉ muốn khôi phục các phiên bản plugin đã chốt.
 9. Đóng công việc đang làm, thử `systemctl suspend`, wake, nhập mật khẩu mở khóa.
-10. Thử `systemctl hibernate`; bật máy, xác nhận quay lại phiên trước đó.
-11. Thử `systemctl suspend-then-hibernate`; kiểm tra lid trên pin/AC và khi dock.
+10. Laptop hoặc máy đã cấu hình hibernate: thử `systemctl hibernate`; bật máy,
+    xác nhận quay lại phiên trước đó.
+11. Sau stage laptop: thử `systemctl suspend-then-hibernate`; kiểm tra lid trên
+    pin/AC và khi dock. PC chỉ cài phần chung không cần hai bài kiểm tra này.
 
-Khi áp dụng đầy đủ policy của repo, lid/manual sleep hoạt động trên AC; tự sleep
+Sau stage `laptop`, lid/manual sleep hoạt động trên AC; tự sleep
 do idle chỉ xảy ra trên pin.
 Mặc định màn hình tắt sau 5 phút, khóa sau 10 phút, ngủ sau 15 phút. Khóa thủ
 công: màn hình tắt sau 10 giây. Suspend-then-hibernate không đặt delay cố định;
 systemd chuyển sang hibernate khi pin yếu (dưới khoảng 5%), tùy phần cứng.
 Khi máy đang thức, Waybar cảnh báo qua Mako ở 15%, UPower tự hibernate ở 10%
-khi dùng pin. UPower được cài trong nhóm base và enable ở system stage, không
-phụ thuộc Waybar để thực hiện hibernate.
+khi dùng pin. UPower được cài trong nhóm base và enable ở system stage;
+ngưỡng hibernate 10% chỉ được áp qua stage laptop, không phụ thuộc Waybar.
 Nếu hibernate chưa hoạt động, sửa resume/swap trước khi dựa vào tự ngủ/lid.
 Trong lúc sửa có thể đổi `HandleLidSwitch*` và lệnh sleep về `suspend` rồi reboot.
 
