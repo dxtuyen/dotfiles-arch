@@ -1,0 +1,111 @@
+/* Use JetBrains Mono for text; icons specify their own font. */
+* {
+  font-family: "JetBrains Mono", "JetBrains Mono Nerd Font Mono", monospace;
+  font-size: 13px;
+  border: none;
+  border-radius: 0;
+}
+
+/* A quiet, continuous Gruvbox bar with a thin edge facing the windows. */
+@define-color txt #d4be98;
+@define-color txt-strong #ddc7a1;
+@define-color muted #928374;
+
+window#waybar {
+  background: #282828;
+  color: @txt;
+  border-top: 1px solid #3c3836;
+}
+
+#workspaces,
+#scratchpad,
+#mode,
+#clock {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  margin: 0 4px;
+  padding: 0 4px;
+}
+
+/* A compact overview launcher leading into the numbered workspaces. */
+#custom-swayview {
+  color: @txt;
+  background: transparent;
+  min-width: 18px;
+  margin: 0 2px 0 8px;
+  padding: 0 5px;
+}
+#custom-swayview:hover {
+  color: @txt-strong;
+  background: #32302f;
+}
+#workspaces { margin-left: 0; padding: 0; }
+#scratchpad { margin: 0 5px; padding: 0 2px; color: @txt; }
+#workspaces button {
+  color: @txt;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  box-shadow: none;
+  /* Preserve the previous GTK theme's sizing independently of colors. */
+  min-width: 18px;
+  min-height: 18px;
+  margin: 0 2px;
+  padding: 0 8px;
+  font-size: 15px;
+  transition: none;
+}
+#workspaces button:hover {
+  background: #32302f;
+  box-shadow: none;
+}
+#workspaces button.empty { color: @muted; }
+#workspaces button.focused, #workspaces button.active {
+  color: @txt-strong;
+  background: #3c3836;
+  border-bottom-color: #a89984;
+}
+#workspaces button.urgent { color: #e78a4e; border-bottom-color: #e78a4e; }
+#status {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  margin: 0;
+  padding: 0;
+}
+box#status > widget > * {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  margin: 0 4px;
+  padding: 0 2px;
+}
+#idle_inhibitor { min-width: 18px; margin: 0 2px; padding: 0 2px; }
+#idle_inhibitor.activated { color: #a9b665; }
+#idle_inhibitor.deactivated { color: @muted; }
+#clock { margin-left: 2px; margin-right: 2px; }
+#tray {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  margin: 0 8px 0 2px;
+  padding: 0 3px;
+}
+#mode { color: #7daea3; }
+#custom-status-divider {
+  border-left: 1px solid #45403d;
+  min-height: 14px;
+  margin: 0 1px;
+  padding: 0;
+}
+#clock { font-weight: bold; }
+#bluetooth.off, #bluetooth.disabled, #bluetooth.no-controller { color: @muted; }
+#bluetooth.connected { color: #a9b665; }
+#network.disconnected, #network.disabled { color: @muted; }
+#battery.warning { color: #d8a657; }
+#battery.critical { color: #ea6962; }
+#battery.charging { color: #a9b665; font-weight: bold; }
+#battery.plugged { color: #a9b665; }
+#pulseaudio.muted { color: @muted; }

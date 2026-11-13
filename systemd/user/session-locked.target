@@ -1,6 +1,0 @@
-[Unit]
-After=swaylock.service
-BindsTo=swaylock.service
-DefaultDependencies=false
-Description=Session is locked
-PartOf=swaylock.service

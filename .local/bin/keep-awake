@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+printf '\033[2J\033[HKEEP AWAKE: \033[1;32mON\033[0m\nSleep: \033[1;31mblocked\033[0m\n'
+
+inhibit_pid=''
+cleanup() {
+  trap - EXIT HUP INT TERM
+  if [[ -n "$inhibit_pid" ]]; then
+    kill "$inhibit_pid" 2>/dev/null || true
+    wait "$inhibit_pid" 2>/dev/null || true
+  fi
+}
+trap cleanup EXIT
+trap 'exit 0' HUP INT TERM
+
+systemd-inhibit --what=sleep --mode=block --why='Long task' sleep infinity &
+inhibit_pid=$!
+wait "$inhibit_pid"

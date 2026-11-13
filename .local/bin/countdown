@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# One terminal timer in a Sway popup.
+set -euo pipefail
+
+if [[ "${1:-}" != --start ]]; then
+  exec "$HOME/.local/bin/sway-popup" popup-countdown \
+    --match 'app_id="countdown"' -- "$0" --start
+fi
+
+# Serialize the prompt and terminal so repeated shortcuts cannot start two timers.
+exec 9>"$XDG_RUNTIME_DIR/countdown.lock"
+flock -n 9 || exit 0
+
+if ! command -v termdown >/dev/null; then
+  notify-send -a countdown -i dialog-error Countdown 'Install the termdown package first.'
+  exit 1
+fi
+
+# shellcheck source=../lib/tofi-menu.sh
+source "$HOME/.local/lib/dotfiles/tofi-menu.sh"
+minutes=$(menu_input 'Countdown' '1–480 · Enter to start' 'Minutes') || exit 0
+minutes="${minutes#"${minutes%%[![:space:]]*}"}"
+minutes="${minutes%"${minutes##*[![:space:]]}"}"
+[[ -n "$minutes" ]] || exit 0
+if ! [[ "$minutes" =~ ^[1-9][0-9]{0,2}$ ]] || ((minutes > 480)); then
+  notify-send -a countdown -i dialog-error Countdown 'Enter 1–480 minutes.'
+  exit 1
+fi
+
+# shellcheck disable=SC2016
+foot --app-id=countdown --title=Countdown bash -c '
+  termdown --alt-format --font big --no-bell "${1}m" && {
+    paplay /usr/share/sounds/freedesktop/stereo/complete.oga || true
+    notify-send -a countdown -i chronometer Countdown "${1}-minute timer complete"
+  }
+' bash "$minutes" 9>&-

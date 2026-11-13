@@ -1,0 +1,16 @@
+# Local state, secrets and build products never belong to dotfiles.
+__pycache__/
+*.pyc
+.venv/
+.ruff_cache/
+.vscode/
+*.swp
+*.tmp
+*.log
+.env
+*.key
+*.pem
+*.pkg.tar.*
+/src/
+/pkg/
+/dist/
