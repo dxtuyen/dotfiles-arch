@@ -26,3 +26,4 @@ else
 fi
 command -v direnv >/dev/null && eval "$(direnv hook bash)"
 command -v zoxide >/dev/null && eval "$(zoxide init bash)"
+
