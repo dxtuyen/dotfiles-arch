@@ -76,10 +76,10 @@ short view is extracted from `selected_text`, not from that lookup field.
 [`yanki-dark.css`](yanki-dark.css) styles Yanki-managed Anki note types. It provides a Markdown-friendly layout, bordered tables, blockquotes, GitHub-style alerts, links, inline code, highlights, and responsive images/video. It keeps formulas readable and applies dark colors to Shiki code blocks in Anki Night Mode. Its colors are maintained independently of the desktop palette.
 
 Inline math (`$...$`) stays in the text flow at the surrounding font size, even
-when it is the only formula in a paragraph. Use display math (`$$...$$`) for
-centered equations. Both forms scroll horizontally when wider than their container
-and retain their font size on narrow screens. Inline formulas can move as a whole
-to the next line; short formulas keep their baseline alignment with the text.
+when it is the only formula in a paragraph. It does not get its own horizontal
+scrollbar. Keep inline formulas short; use display math (`$$...$$`) for longer
+or centered equations. Oversized display equations can scroll horizontally on
+narrow screens while retaining their font size.
 
 For consistent parsing between Obsidian and Yanki, put display-math fences on
 separate lines. `$$...$$` on one line can become inline math in Yanki. Inside a

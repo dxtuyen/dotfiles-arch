@@ -117,8 +117,8 @@
   background-color: rgba(128, 128, 128, 0.12);
 }
 
-/* Keep inline math in the text flow. :only-child also matches math surrounded
-   by text nodes, so it cannot identify a standalone equation. */
+/* Keep inline math in the text flow without giving each formula its own
+   horizontal scroll area. Long equations belong in a display-math block. */
 .yanki .math-inline {
   display: inline-grid;
   align-items: baseline;
@@ -127,8 +127,6 @@
   max-width: 100%;
   padding: 0.2em 0.1em;
   margin-block: -0.2em;
-  overflow-x: auto;
-  overflow-y: hidden;
 }
 
 /* Center display equations that fit; scroll oversized ones from the left edge. */
@@ -197,7 +195,7 @@
   color: var(--shiki-dark, #e1e4e8) !important;
 }
 
-/* On narrow screens, wrap code; math keeps its size and scrolls when needed. */
+/* On narrow screens, wrap code; oversized display math remains scrollable. */
 @media screen and (max-width: 600px) {
   .yanki pre.shiki {
     padding: 0.7rem;
