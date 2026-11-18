@@ -6,7 +6,9 @@ Dotfiles are tracked in place by one bare Git repository at `~/.dotfiles.git`;
 
 ## Cài máy mới
 
-Sau khi cài Arch và tạo user, clone bare repo vào home:
+Sau khi cài Arch và tạo user, chuẩn bị OpenSSH và khóa có quyền truy cập GitHub
+theo [hướng dẫn cài Arch](docs/installation.md#7-clone-dotfiles-bare). Sau đó clone
+bare repo vào home:
 
 ```bash
 git clone --bare git@github.com:dxtuyen/dotfiles-arch.git "$HOME/.dotfiles.git"
@@ -31,6 +33,7 @@ AUR và Flatpak được cài riêng theo [ghi chú package](docs/packages.md). 
 ## Dùng và bảo trì
 
 ```bash
+cd "$HOME"
 dotfiles status
 dotfiles add .config/sway/config
 dotfiles commit -m 'Update Sway config'

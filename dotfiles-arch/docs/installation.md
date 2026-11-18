@@ -96,7 +96,7 @@ findmnt /mnt/boot
 
 ```bash
 pacstrap -K /mnt base linux linux-firmware intel-ucode \
-  mkinitcpio plymouth sudo iwd impala git python nano man-db man-pages
+  mkinitcpio plymouth sudo iwd impala git openssh python nano man-db man-pages
 genfstab -U /mnt >> /mnt/etc/fstab
 cat /mnt/etc/fstab
 arch-chroot /mnt
@@ -245,8 +245,12 @@ gateway và DNS từ từng mạng. Match theo loại thiết bị, không phụ
 
 ## 7. Clone dotfiles bare
 
-Sau khi migration branch được push, bare Git dùng `$HOME` làm worktree. Trên máy
-mới, chạy bằng user thường:
+Bare Git dùng `$HOME` làm worktree. Trên máy mới, dùng tài khoản thường và chuẩn
+bị khóa SSH cho GitHub trước khi clone. Dùng khóa đã có quyền truy cập repo hoặc
+tạo khóa bằng `ssh-keygen -t ed25519` rồi thêm khóa **công khai** vào tài khoản
+GitHub có quyền truy cập. Ở lần kết nối đầu, đối chiếu fingerprint máy chủ với
+danh sách chính thức của GitHub trước khi chấp nhận. Dùng `ssh -T git@github.com`
+để kiểm tra GitHub nhận đúng tài khoản, rồi chạy:
 
 ```bash
 git clone --bare git@github.com:dxtuyen/dotfiles-arch.git "$HOME/.dotfiles.git"

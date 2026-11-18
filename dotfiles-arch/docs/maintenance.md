@@ -3,8 +3,7 @@
 ## Cập nhật
 
 ```bash
-cd ~/dotfiles-arch
-git status
+dotfiles status
 sudo pacman -Syu
 ```
 
