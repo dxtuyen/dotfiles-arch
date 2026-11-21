@@ -2,3 +2,4 @@
 -- Match the opaque Gruvbox Material desktop and Foot terminal.
 vim.opt.termguicolors = true
 vim.opt.background = "dark"
+vim.opt.title = true
