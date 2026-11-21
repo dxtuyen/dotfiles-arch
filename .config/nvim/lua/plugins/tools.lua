@@ -14,6 +14,10 @@ return {
     },
   },
   {
+    "folke/noice.nvim",
+    opts = { lsp = { progress = { enabled = false } } },
+  },
+  {
     "stevearc/conform.nvim",
     opts = {
       formatters_by_ft = {
