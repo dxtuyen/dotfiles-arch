@@ -84,7 +84,7 @@ vẫn chạy; menu không tự tạm ngưng ứng dụng.
 Sway sở hữu geometry, focus và scratchpad; helper chỉ quyết định launch/toggle,
 không tự dựng lại window manager bằng Python. Popup đang hiện nhưng chưa focus
 sẽ được focus trước; nhấn tiếp mới ẩn. Đóng/mở lại cửa sổ sau khi đổi window
-rule để rule gắn mark mới. Obsidian 70%×85%, TickTick 60%×75% ở lần mở đầu.
+rule để rule gắn mark mới. Obsidian 70%×80%, TickTick 60%×75% ở lần mở đầu.
 
 Mark của Sway là duy nhất cho một cửa sổ. Cửa sổ chọn vault Obsidian hoặc cửa
 sổ phụ TickTick có thể lấy mark rồi mang nó mất khi đóng. Nếu mark không còn,

@@ -59,8 +59,8 @@ for_window [app_id="^countdown$"] floating enable, resize set width 520 px heigh
 # Keep the popup terminal at Foot's default size, as before.
 for_window [app_id="scratchpad-terminal"] move scratchpad, scratchpad show, mark --add popup-terminal
 # Native scratchpad toggles; the helper launches an absent application.
-for_window [app_id="(?i)^(md\.obsidian\.)?obsidian$"] floating enable, move scratchpad, scratchpad show, move position center, mark --add popup-obsidian
-for_window [class="(?i)^(md\.obsidian\.)?obsidian$"] floating enable, move scratchpad, scratchpad show, move position center, mark --add popup-obsidian
+for_window [app_id="(?i)^(md\.obsidian\.)?obsidian$"] floating enable, move scratchpad, scratchpad show, resize set width 70 ppt height 80 ppt, move position center, mark --add popup-obsidian
+for_window [class="(?i)^(md\.obsidian\.)?obsidian$"] floating enable, move scratchpad, scratchpad show, resize set width 70 ppt height 80 ppt, move position center, mark --add popup-obsidian
 # TickTick opens floating; Mod+i toggles it without quitting the app.
 for_window [app_id="(?i)^(com\.ticktick\.)?ticktick$"] floating enable, move scratchpad, scratchpad show, resize set width 60 ppt height 75 ppt, move position center, mark --add popup-ticktick
 for_window [class="(?i)^(com\.ticktick\.)?ticktick$"] floating enable, move scratchpad, scratchpad show, resize set width 60 ppt height 75 ppt, move position center, mark --add popup-ticktick
