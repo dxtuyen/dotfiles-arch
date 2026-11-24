@@ -4,21 +4,6 @@ Bare Git đặt worktree ở `$HOME`, metadata ở `~/.dotfiles.git`. File cấu
 được Git theo dõi nằm ngay tại đường dẫn ứng dụng sử dụng; không có symlink farm,
 manifest hay bộ cài home.
 
-Thêm alias một lần trong `~/.bashrc`:
-
-```bash
-alias dotfiles='/usr/bin/git --git-dir="$HOME/.dotfiles.git" --work-tree="$HOME"'
-```
-
-Ẩn file home không được theo dõi:
-
-```bash
-dotfiles config --local status.showUntrackedFiles no
-```
-
-Kiểm tra trước khi thêm file mới; bare repo coi `$HOME` là worktree nhưng chỉ
-theo dõi file đã `dotfiles add`.
-
 ## Đường dẫn
 
 | Nội dung | Đường dẫn đang dùng |
@@ -33,7 +18,7 @@ theo dõi file đã `dotfiles add`.
 | Package lists và hướng dẫn | `~/dotfiles-arch/` |
 
 Sway, Waybar, Foot và popup helpers nằm ở đường dẫn chạy thật trong home. Sửa
-trực tiếp rồi xem `dotfiles diff`. Seed Fcitx cũng được Git theo dõi như file
+trực tiếp rồi xem `dotfiles diff`. Cấu hình Fcitx cũng được Git theo dõi như file
 thường; nếu GUI sửa chúng, thay đổi sẽ hiện trong `dotfiles status`.
 
 ## Hệ thống và package

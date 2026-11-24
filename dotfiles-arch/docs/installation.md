@@ -1,15 +1,9 @@
 # Cài Arch từ A đến Z
 
-Hướng dẫn này cài Arch thủ công. Package list và cấu hình được quản lý riêng;
-xem [ghi chú package](packages.md) và README sau khi hệ thống khởi động.
-
-Dành cho laptop Intel: UEFI, một kernel `linux`, systemd-boot, ext4, swap riêng,
-không mã hóa. USB dùng để boot bộ cài; Arch được cài vào SSD. Nếu thiết bị khác
-mô tả, xác định lại tên phân vùng trước khi chạy lệnh. Không có script tự chia ổ trong repo này.
-
-Phần cài dotfiles đã tách rõ: PC dùng `user` + `system`; laptop chạy thêm
-`laptop`. Bạn tự chọn lệnh, không có tự nhận diện loại máy. Xem [PC/laptop](hardware.md)
-cho máy khác Intel và các phần driver/mạng cần chuẩn bị riêng.
+Cài mới từ USB lên SSD cho laptop Intel dùng UEFI, systemd-boot, ext4 và
+swap riêng. Quy trình đi qua môi trường USB, chroot, rồi tài khoản thường
+trên máy vừa cài. Với PC hoặc GPU khác, xem [lựa chọn phần cứng](hardware.md)
+trước khi chọn gói và cấu hình boot.
 
 ## 1. Boot USB và kết nối mạng
 
@@ -92,7 +86,7 @@ lsblk -f "$ARCH_DISK"
 findmnt /mnt/boot
 ```
 
-## 3. Cài hệ thống nền
+## 3. Cài hệ thống nền từ USB
 
 ```bash
 pacstrap -K /mnt base linux linux-firmware intel-ucode \
@@ -110,11 +104,8 @@ Trong fstab kiểm tra root ext4, ESP `/boot` và disk swap đúng UUID.
 UUID=UUID_SWAP_THAT none swap defaults,pri=10 0 0
 ```
 
-Zram của dotfiles dùng priority 100, kernel ưu tiên zram rồi đến disk swap.
-Dung lượng zram bằng nửa RAM, dùng zstd và chỉ chiếm RAM theo dữ liệu thực.
-Khi dùng zram, tắt zswap bằng `zswap.enabled=0` trong kernel command line để
-không chồng hai cơ chế nén swap. Swap đĩa vẫn giữ cho overflow và hibernate.
-Với ESP, thêm `umask=0077` vào options để hạn chế đọc boot files.
+Zram dùng priority 100. Swap đĩa ở priority 10 vẫn là đích hibernate.
+Với ESP, thêm `umask=0077` vào cột options của dòng `/boot`.
 
 ## 4. Locale, giờ và tài khoản trong chroot
 
@@ -165,14 +156,19 @@ editor no
 EOF
 ```
 
-Lấy UUID của root và swap vừa cài:
+Trong chroot, xác định phân vùng swap đúng bằng `lsblk -f` rồi thay đường dẫn
+ví dụ dưới đây.
 
 ```bash
+lsblk -f
 ARCH_ROOT_UUID=$(findmnt -n -o UUID /)
-ARCH_SWAP_DEVICE=$(blkid -L swap)
-ARCH_SWAP_UUID=$(blkid -s UUID -o value "$ARCH_SWAP_DEVICE")
+ARCH_SWAP_UUID=$(blkid -s UUID -o value /dev/nvme0n1p2)
 printf 'Root UUID: %s\nSwap UUID: %s\n' "$ARCH_ROOT_UUID" "$ARCH_SWAP_UUID"
-test -n "$ARCH_ROOT_UUID" && test -n "$ARCH_SWAP_UUID"
+```
+
+So hai UUID với `lsblk -f`. Khi đã xác nhận đúng root và swap đĩa, tạo boot entry.
+
+```bash
 cat > /boot/loader/entries/arch.conf <<EOF
 title Arch Linux
 linux /vmlinuz-linux
@@ -183,12 +179,8 @@ cat /boot/loader/entries/arch.conf
 bootctl status
 ```
 
-`microcode` hook đã ghép microcode vào initramfs. `mem_sleep_default=deep` giữ
-chế độ ngủ của máy hiện tại; nếu firmware không hỗ trợ hoặc wake có lỗi, bỏ
-tham số này ở entry `arch.conf` và kiểm tra lại. Máy dùng một kernel `linux`;
-USB Arch và các gói kernel cũ trong cache là đường khôi phục. Không tự thêm kernel.
-`fbcon=nodefer` cho console nhận framebuffer sớm để tránh đổi kích thước lúc
-tuigreet bắt đầu vẽ; kiểm tra kết quả khi boot trên phần cứng thực.
+Hook `microcode` ghép microcode vào initramfs. Tham số `mem_sleep_default=deep`
+dành cho laptop tham chiếu. Bỏ tham số này nếu firmware dùng chế độ ngủ khác.
 
 ## 6. Boot Arch lần đầu
 
@@ -216,8 +208,13 @@ UseGateway=yes
 UseDNS=yes
 EOF
 systemctl enable iwd.service systemd-networkd.service systemd-resolved.service systemd-timesyncd.service
-ln -sfn /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 exit
+```
+
+Trở lại shell của USB, đặt resolver cho hệ mới rồi tháo phân vùng.
+
+```bash
+ln -sfn /run/systemd/resolve/stub-resolv.conf /mnt/etc/resolv.conf
 umount -R /mnt
 reboot
 ```
@@ -232,16 +229,9 @@ ping -c 3 archlinux.org
 sudo -v
 ```
 
-iwd lưu profile/mật khẩu trong `/var/lib/iwd`. Để tự kết nối ở các lần sau,
-giữ Autoconnect bật cho mạng đã lưu; ở danh sách known networks, phím `t`
-đổi trạng thái này. Impala có thể đóng sau khi kết nối.
-
-Nếu cần CLI dự phòng, dùng `iwctl device list`, sau đó
-`iwctl station wlan0 connect "TEN_WIFI"` (thay `wlan0` bằng interface thật).
-Không chạy NetworkManager/wpa_supplicant/dhcpcd/ConnMan để quản lý Wi-Fi này
-đồng thời. iwd chỉ kết nối Wi-Fi; networkd là DHCP client duy nhất, lấy cả
-gateway và DNS từ từng mạng. Match theo loại thiết bị, không phụ thuộc tên
-`wlan0`, SSID hay subnet. Xem [kiểm tra địa chỉ, route và DNS](wifi.md).
+iwd lưu mạng ở `/var/lib/iwd`. Nếu kết nối được Wi-Fi nhưng chưa có Internet,
+kiểm tra route bằng `ip -4 route show default` và DNS bằng
+`resolvectl query archlinux.org`. Xem [chẩn đoán Wi-Fi](wifi.md).
 
 ## 7. Clone dotfiles bare
 
@@ -259,157 +249,61 @@ dotfiles config --local status.showUntrackedFiles no
 dotfiles checkout
 ```
 
-Nếu checkout dừng vì file đã tồn tại, kiểm tra file đó rồi chuyển nó ra trước khi
-chạy lại. Thêm alias vào `~/.bashrc` sau checkout.
+Nếu checkout báo file trùng, kiểm tra và chuyển riêng file đó sang nơi sao lưu
+rồi chạy lại. Bản `~/.bashrc` trong repo đã có alias `dotfiles`.
 
 ## 8. Cài package
 
-Cài gói kho chính thức và nâng cấp hệ thống cùng lúc:
+Cài các gói chính thức theo danh sách của máy Intel. Nếu dùng phần cứng khác,
+điều chỉnh driver trước khi cài.
 
 ```bash
-sudo pacman -Syu
-sudo pacman -S --needed - < "$HOME/dotfiles-arch/pkglist.txt"
+sudo pacman -Syu --needed - < "$HOME/dotfiles-arch/pkglist.txt"
 ```
 
-AUR nằm trong `packages/aur.txt`. Dùng Paru bằng user thường; kiểm tra và review
-PKGBUILD, dependency, `.install` và patch trước khi xác nhận. Xem
-[package notes](packages.md) để bootstrap Paru. Local PKGBUILD nằm trong
-`packages/local/`; build thủ công bằng `makepkg --syncdeps --install`.
-Flatpak tùy chọn nằm trong `packages/flatpak.txt`.
+Tiếp theo, cài các gói trong `packages/aur.txt` và theme GTK local. Danh sách
+Flatpak và MySQL là tùy chọn. Xem [cách cài Paru, AUR và Flatpak](packages.md).
 
 ## 9. Áp dụng cấu hình hệ thống
 
-File cấu hình user đã ở đúng đường dẫn sau `dotfiles checkout`; không cần chạy
-bộ cài. User units là tùy chọn:
+Từ TTY của user thường, đọc `setup-system.sh` và các file trong `system/`.
+Stage `system` chép cấu hình vào hệ thống, dựng lại initramfs, thêm nhóm cho
+user và enable các dịch vụ cho lần boot sau. Cài đủ các gói ở bước 8 trước,
+đặc biệt là `libvirt` và `fcitx5-lotus-bin`.
 
 ```bash
 cd "$HOME/dotfiles-arch"
 ./setup-user-services.sh
-```
-
-Trước khi áp cấu hình hệ thống, đọc các file trong `system/`. Script chép file
-vào `/etc` và `/usr/local`, rồi enable service và dựng lại initramfs:
-
-```bash
 sudo ./setup-system.sh system "$USER"
+systemctl --user enable --now pipewire.socket pipewire-pulse.socket wireplumber.service
 ```
 
-Laptop sau khi kiểm tra swap/resume:
+**Laptop dùng hibernate.** Kiểm tra `swapon --show`, đối chiếu `resume=UUID=…`
+trong `/proc/cmdline` với UUID swap đĩa. Lưu công việc, chạy
+`systemctl hibernate`, bật máy và xác nhận quay lại đúng phiên. Sau khi thử
+thành công, áp policy nắp máy, pin và sạc. PC bỏ qua lệnh này.
 
 ```bash
 sudo ./setup-system.sh laptop
 ```
 
-Không chạy laptop stage trên PC. Driver, boot entry, phân vùng và swap vẫn phải
-chọn theo máy trong các bước cài đặt phía trên.
+Kiểm tra `systemctl is-enabled greetd iwd systemd-networkd systemd-resolved`
+rồi chạy `sudo reboot` để khởi động desktop.
 
-Impala/iwd có binary trong kho chính thức; không có bước build ứng dụng Wi-Fi.
-Sau khi vào Sway, menu mở Impala trong Foot bằng user thường, dùng màu và
-phím mặc định của Impala. Việc lưu mạng và tự kết nối thuộc iwd, không phụ
-thuộc cửa sổ Impala đang mở. Khi cần chia sẻ QR, tự chạy `sudo impala`.
+## 10. Kiểm tra sau khi đăng nhập
 
-Brave native (`brave-bin`) là trình duyệt duy nhất trong danh sách cài đặt; Brave
-và VS Code bản Microsoft cài qua AUR.
-TickTick cài per-user từ Flathub. Font, Qt binding cho Lotus, portal, PipeWire, các công cụ workflow
-đã nằm trong danh sách chính thức.
-
-## Áp dụng cấu hình
-
-File home đã ở đúng đường dẫn sau `dotfiles checkout`. Từ
-`~/dotfiles-arch`, cài user units nếu cần và đọc script cấu hình hệ thống trước
-khi chạy:
+Đăng nhập qua tuigreet, mở terminal trong Sway rồi chạy bằng user thường.
 
 ```bash
-./setup-user-services.sh
-sudo ./setup-system.sh system "$USER"
-```
-
-Laptop sau khi kiểm tra swap/resume:
-
-```bash
-sudo ./setup-system.sh laptop
-```
-
-System stage chép file vào `/etc`/`/usr/local`, dựng initramfs và enable dịch vụ.
-Laptop stage chép policy pin/ngủ riêng. Xem [PC/laptop](hardware.md) trước khi
-chọn stage. Package, user config và system config là các bước độc lập.
-
-Hoàn tất DNS symlink sau khi resolved đã chạy:
-
-```bash
-sudo systemctl enable --now systemd-resolved.service
-sudo cp --archive --no-clobber /etc/resolv.conf /etc/resolv.conf.before-dotfiles
-sudo ln -sfn /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+~/dotfiles-arch/check-health.sh
+systemctl --user is-active sway-session.target waybar.service fcitx5.service
+wpctl status
 resolvectl query archlinux.org
 ```
 
-iwd tắt DHCP tích hợp theo `/etc/iwd/main.conf`; systemd-networkd dùng
-`/etc/systemd/network/20-wifi.network` để nhận IP, route và DNS động. Máy đang
-chạy bản cũ cần [chuyển quyền DHCP](wifi.md#áp-dụng-trên-máy-đang-dùng) từ
-console tại máy hoặc reboot sau khi cài.
-
-Cho các user service âm thanh hoạt động theo socket/vendor preset:
-
-```bash
-systemctl --user enable --now pipewire.socket pipewire-pulse.socket wireplumber.service
-./check-health.sh
-```
-
-`./check-health.sh` kiểm tra các lệnh desktop cốt lõi và unit systemd lỗi.
-Nó không xác minh swap/resume; hãy kiểm tra thủ công trên laptop.
-
-Kiểm tra thêm:
-
-```bash
-cat /proc/cmdline
-swapon --show
-findmnt /boot
-sudo bootctl status
-sudo nft -c -f /etc/nftables.conf
-sudo systemctl is-enabled greetd iwd systemd-networkd systemd-resolved keyd nftables
-sudo reboot
-```
-
-## 10. Đăng nhập Sway và kiểm tra thực tế
-
-Tuigreet hiện trên VT1. Nhập user/mật khẩu; `Super+Enter` mở Foot,
-`Super+D` mở Tofi. Ảnh nền Arch xanh dịu/Gruvbox đã có trong repo, không tải mạng.
-Thực hiện lần lượt:
-
-1. `systemctl --user --failed`, `systemctl --failed`: xử lý mọi service lỗi.
-2. `Super+Enter`, `Super+D`, Waybar, thông báo `notify-send test` hoạt động.
-3. Lotus: thử tiếng Việt trong Foot, Brave, ứng dụng GTK/Qt; `fcitx5-configtool`
-   kiểm tra Lotus trong profile. Kiểm tra `sudo systemctl status fcitx5-lotus-server@$USER`.
-4. `wpctl status` phải thấy loa và microphone. Máy Intel dùng SOF cần
-   `sof-firmware` (đã có trong package list); nếu không có soundcard, xem
-   `journalctl -k -b` để tìm lỗi firmware. Thử volume/mic/brightness và Bluetooth.
-5. Network menu, Wi-Fi reconnect; thử file picker và chia sẻ màn hình qua portal.
-6. `Super+O/I/G` và popup terminal; `Alt+Tab` đổi hai workspace vừa dùng.
-7. `Super+C`: nhập phút rồi xem Countdown trong popup Foot; Waybar không hiển thị timer.
-   `Space` pause/resume; `Q` kết thúc timer. Icon mắt Waybar bật/tắt chống idle riêng.
-   Thử screenshot/clipboard và dịch thuật.
-8. `nvim`, `:Lazy restore`, `:LazyHealth`; kiểm tra language tools khi mở project.
-   Xem `dotfiles diff -- .config/nvim/lazy-lock.json` sau bootstrap, giữ nguyên lockfile
-   nếu chỉ muốn khôi phục các phiên bản plugin đã chốt.
-9. Đóng công việc đang làm, thử `systemctl suspend`, wake, nhập mật khẩu mở khóa.
-10. Laptop hoặc máy đã cấu hình hibernate: thử `systemctl hibernate`; bật máy,
-    xác nhận quay lại phiên trước đó.
-11. Sau stage laptop: thử `systemctl suspend-then-hibernate`; kiểm tra lid trên
-    pin/AC và khi dock. PC chỉ cài phần chung không cần hai bài kiểm tra này.
-
-Sau stage `laptop`, lid/manual sleep hoạt động trên AC; tự sleep
-do idle chỉ xảy ra trên pin.
-Mặc định màn hình tắt sau 5 phút, khóa sau 10 phút, ngủ sau 15 phút. Khóa thủ
-công: màn hình tắt sau 10 giây. Suspend-then-hibernate không đặt delay cố định;
-systemd chuyển sang hibernate khi pin yếu (dưới khoảng 5%), tùy phần cứng.
-Khi máy đang thức, Waybar cảnh báo qua Mako ở 15%, UPower tự hibernate ở 10%
-khi dùng pin. UPower được cài trong nhóm base và enable ở system stage;
-ngưỡng hibernate 10% chỉ được áp qua stage laptop, không phụ thuộc Waybar.
-Nếu hibernate chưa hoạt động, sửa resume/swap trước khi dựa vào tự ngủ/lid.
-Trong lúc sửa có thể đổi `HandleLidSwitch*` và lệnh sleep về `suspend` rồi reboot.
-
-Kiểm tra phần cứng là bắt buộc: container không kiểm chứng được firmware,
-resume, mức pin hoặc driver âm thanh thực.
+Kiểm tra thấy loa và micro, gõ được tiếng Việt và kết nối lại Wi-Fi sau reboot.
+Nếu đã áp policy laptop, lưu công việc rồi thử `systemctl suspend-then-hibernate`
+và mở khóa sau khi đánh thức máy.
 
 ## 11. Nếu không vào được desktop
 
@@ -421,10 +315,8 @@ sudo journalctl -b -u greetd
 journalctl --user -b -u swayidle -u session-lock -u swaylock
 ```
 
-Thử `~/.local/bin/dotfiles-sway` từ TTY để thấy lỗi. Nếu đã có Sway chạy,
-logout phiên đó trước. Nếu kernel mới lỗi, dùng USB Arch và hướng dẫn recovery
-bên dưới; máy không có entry LTS mặc định.
-
-Nếu không boot được: boot lại USB UEFI, kết nối mạng, mount root/ESP đúng như
-mục 2, `arch-chroot /mnt`, kiểm tra fstab/entry/UUID, chạy `mkinitcpio -P` và
-`bootctl --esp-path=/boot install`. Không format lại phân vùng khi đang sửa boot.
+Nếu Sway chưa chạy, thử `~/.local/bin/dotfiles-sway` từ TTY để thấy lỗi.
+Nếu máy dừng trước màn hình đăng nhập, boot USB ở chế độ UEFI, mount lại root
+vào `/mnt` và ESP vào `/mnt/boot` rồi vào `arch-chroot /mnt`. Kiểm tra UUID
+trong fstab và boot entry. Chỉ dựng lại initramfs khi cần sửa kernel/hooks,
+và chỉ cài lại systemd-boot khi file bootloader bị mất hoặc hỏng.

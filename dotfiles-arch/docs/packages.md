@@ -1,20 +1,6 @@
-# Package lists
+# Cài gói cho máy mới
 
-Giữ package management ở công cụ Arch và Paru. Đọc Arch news trước khi nâng cấp;
-không chạy `pacman -Sy` riêng lẻ.
-
-## Kho chính thức
-
-Danh sách đầy đủ nằm trong `pkglist.txt`:
-
-```bash
-sudo pacman -Syu --needed
-sudo pacman -S --needed - < ~/dotfiles-arch/pkglist.txt
-```
-
-Lệnh đầu full upgrade; lệnh sau cài các package trong danh sách. Chọn một trong
-hai luồng phù hợp: `pacman -Syu --needed - < ...` để nâng cấp và cài cùng lúc,
-hoặc hai lệnh trên để xem rõ từng bước.
+Cài gói kho chính thức theo [bước 8](installation.md#8-cài-package). Thực hiện các bước sau trong tài khoản thường.
 
 ## AUR
 
@@ -30,25 +16,21 @@ makepkg --syncdeps --install
 cd "$HOME/dotfiles-arch"
 ```
 
-Các package AUR đang dùng được liệt kê trong `packages/aur.txt`. Cài từng package
-bằng Paru để review recipe/dependency trong lời nhắc trước khi xác nhận.
-`packages/aur-database.txt` là nhóm MySQL tùy chọn. Local PKGBUILD nằm trong
-`packages/local/`; đọc recipe rồi chạy `makepkg --syncdeps --install` từ thư mục
-của recipe. Chạy Paru/makepkg bằng user thường, không dùng `sudo`.
+Đọc danh sách `packages/aur.txt`. Cài từng gói bằng `paru -S --needed TÊN_GÓI`, xem PKGBUILD và dependency trước khi xác nhận. Stage chung cần unit Lotus do `fcitx5-lotus-bin` cung cấp.
 
-Không có chế độ unattended hoặc tự động xử lý lỗi; giữ review, dependency check
-và chữ ký mặc định của công cụ.
-
-## Flatpak và inventory
-
-`packages/flatpak.txt` ghi ứng dụng Flatpak tùy chọn. Cài thủ công với `flatpak
-install --user flathub APP_ID`. Xem inventory hiện tại bằng:
+## Theme GTK local
 
 ```bash
-pacman -Q
-pacman -Qm
-flatpak list --user
+cd "$HOME/dotfiles-arch/packages/local/gruvbox-gtk-theme"
+less PKGBUILD
+makepkg --syncdeps --install
 ```
 
-Bare Git chỉ theo dõi cấu hình; package cài đặt và trạng thái runtime vẫn do
-pacman, Paru và Flatpak quản lý.
+## Gói tùy chọn
+
+MySQL được liệt kê riêng trong `packages/aur-database.txt`. Nếu dùng ứng dụng trong `packages/flatpak.txt`, thêm Flathub cho user rồi cài theo app ID.
+
+```bash
+flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+flatpak install --user flathub com.ticktick.TickTick
+```
