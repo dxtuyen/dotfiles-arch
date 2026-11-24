@@ -1,7 +1,7 @@
 [Service]
 Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin
 ExecStart=/usr/bin/swayidle -w \
-  timeout 10 '/usr/bin/swaymsg "output * power off"' \
+  timeout 15 '/usr/bin/swaymsg "output * power off"' \
   resume '/usr/bin/swaymsg "output * power on"'
 
 ExecStopPost=-/usr/bin/swaymsg 'output * power on'
