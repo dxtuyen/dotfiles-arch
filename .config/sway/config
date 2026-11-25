@@ -210,8 +210,7 @@ bindsym $mod+Escape exec ~/.local/bin/lock-screen
 bindsym $mod+t exec ~/.local/bin/quick-lang vi-en
 bindsym $mod+Shift+t exec ~/.local/bin/quick-lang en-vi
 bindsym $mod+Ctrl+t exec ~/.local/bin/quick-lang fix
-# Show GoldenDict or hide it to the tray.
-bindsym --no-repeat $mod+g exec ~/.local/bin/dict-toggle
+bindsym --no-repeat $mod+g exec env QT_QPA_PLATFORMTHEME=qt6ct QT_STYLE_OVERRIDE=Fusion goldendict
 bindsym $mod+Mod1+t exec ~/.local/bin/toggle-touchpad
 bindsym $mod+Print exec ~/.local/bin/screenshot-menu
 bindsym --no-repeat Print exec ~/.local/bin/screenshot selection-clipboard
