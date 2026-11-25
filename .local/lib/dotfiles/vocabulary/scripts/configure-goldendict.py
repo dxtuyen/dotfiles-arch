@@ -47,7 +47,13 @@ def configure(config_file, dictionary_dir=None, *, check=False):
             changed = True
 
     preferences = ensure(root, "preferences")
-    for tag, text in {"displayStyle": "modern", "darkMode": "1", "darkReaderMode": "0"}.items():
+    for tag, text in {
+        "displayStyle": "modern",
+        "darkMode": "1",
+        "darkReaderMode": "0",
+        "enableTrayIcon": "1",
+        "closeToTray": "1",
+    }.items():
         value(preferences, tag, text)
     anki = ensure(preferences, "ankiConnectServer")
     if anki.get("enabled") != "1":

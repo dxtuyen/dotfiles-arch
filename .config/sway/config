@@ -70,8 +70,8 @@ for_window [app_id="bluetui"] floating enable, resize set 750 px 500 px
 for_window [app_id="impala"] floating enable, resize set width 60 ppt height 65 ppt
 for_window [title="htop"] floating enable, resize set width 50 ppt height 70 ppt
 
-# GoldenDict joins the native scratchpad for Mod+g.
-for_window [app_id="io.github.xiaoyifang.goldendict_ng"] floating enable, move scratchpad, scratchpad show, resize set width 50 ppt height 65 ppt, mark --add popup-dictionary
+# GoldenDict manages hiding through its tray icon.
+for_window [app_id="io.github.xiaoyifang.goldendict_ng"] floating enable, resize set width 50 ppt height 65 ppt, move position center
 # Sioyek: new windows open on the focused workspace.
 for_window [app_id="(?i)^sioyek$"] move container to workspace current
 
@@ -210,7 +210,7 @@ bindsym $mod+Escape exec ~/.local/bin/lock-screen
 bindsym $mod+t exec ~/.local/bin/quick-lang vi-en
 bindsym $mod+Shift+t exec ~/.local/bin/quick-lang en-vi
 bindsym $mod+Ctrl+t exec ~/.local/bin/quick-lang fix
-# Toggle the GoldenDict scratchpad window.
+# Show GoldenDict or hide it to the tray.
 bindsym --no-repeat $mod+g exec ~/.local/bin/dict-toggle
 bindsym $mod+Mod1+t exec ~/.local/bin/toggle-touchpad
 bindsym $mod+Print exec ~/.local/bin/screenshot-menu
