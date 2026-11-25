@@ -27,8 +27,8 @@ once in Anki; dictionary files and AnkiWeb login are personal data, kept outside
 the repository.
 
 On another machine, sync the existing AnkiWeb collection first; the note type,
-templates, review history, and media travel with the collection. Quit GoldenDict
-using its tray menu, open Anki with AnkiConnect enabled, close the card template
+templates, review history, and media travel with the collection. Close the main
+GoldenDict window, open Anki with AnkiConnect enabled, close the card template
 editor, and run:
 
 ```bash

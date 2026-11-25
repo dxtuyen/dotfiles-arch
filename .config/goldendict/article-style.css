@@ -246,3 +246,7 @@ a:hover { color: #89b482; }
 :where(.mdict:has(.entry)) .chwd a {background-color:#32302f!important;color:#89b482!important}
 :where(.mdict:has(.entry)) .chwd .hw {color:#89b482!important}
 :where(.mdict:has(.entry)) .arrow {color:#d4be98!important;border-color:#5a524c!important}
+
+:where(.mdict:has(.entry)) img[src*="spkr_"] {
+  filter: contrast(0.75) brightness(1.6);
+}

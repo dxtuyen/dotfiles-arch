@@ -26,7 +26,8 @@ goldendict-anki-config --check
    restart Anki. Anki Sync không cài add-on cho máy mới. Nếu restore add-on từ
    backup, kiểm tra tương thích với phiên bản Anki đang dùng.
 5. Giữ cửa sổ Anki chính mở, hoàn tất import/sync/chuyển profile và đóng các
-   cửa sổ import/card editor. Quit GoldenDict trong tray, rồi chạy:
+   cửa sổ import/card editor. Nếu GoldenDict đang ẩn, nhấn `Mod+G` để gọi lại.
+   Đóng cửa sổ GoldenDict để thoát ứng dụng, rồi chạy:
 
    ```bash
    anki-longman-setup

@@ -51,8 +51,9 @@ def configure(config_file, dictionary_dir=None, *, check=False):
         "displayStyle": "modern",
         "darkMode": "1",
         "darkReaderMode": "0",
-        "enableTrayIcon": "1",
-        "closeToTray": "1",
+        "enableTrayIcon": "0",
+        "closeToTray": "0",
+        "startToTray": "0",
     }.items():
         value(preferences, tag, text)
     anki = ensure(preferences, "ankiConnectServer")
@@ -117,7 +118,7 @@ def main():
         print("GoldenDict preferences match; no files changed.")
         return
     if goldendict_running():
-        message = "Quit GoldenDict (including its tray icon), then run goldendict-anki-config."
+        message = "Quit GoldenDict, then run goldendict-anki-config."
         if args.skip_running:
             print(f"GoldenDict configuration deferred. {message}")
             return

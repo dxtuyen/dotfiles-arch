@@ -70,8 +70,9 @@ for_window [app_id="bluetui"] floating enable, resize set 750 px 500 px
 for_window [app_id="impala"] floating enable, resize set width 60 ppt height 65 ppt
 for_window [title="htop"] floating enable, resize set width 50 ppt height 70 ppt
 
-# GoldenDict manages hiding through its tray icon.
-for_window [app_id="io.github.xiaoyifang.goldendict_ng"] floating enable, resize set width 50 ppt height 65 ppt, move position center
+# Only the lookup window uses the scratchpad. Its title may start with the word.
+set $gd_main app_id="^io[.]github[.]xiaoyifang[.]goldendict_ng$" title="^(.* - )?GoldenDict-ng$"
+for_window [$gd_main] floating enable, move scratchpad, scratchpad show, resize set width 50 ppt height 65 ppt, move position center, mark --add popup-goldendict
 # Sioyek: new windows open on the focused workspace.
 for_window [app_id="(?i)^sioyek$"] move container to workspace current
 
@@ -105,6 +106,7 @@ bindsym $mod+Return exec $term
 bindsym --no-repeat $mod+grave exec ~/.local/bin/scratchpad-terminal
 bindsym --no-repeat $mod+o exec ~/.local/bin/obsidian-toggle
 bindsym --no-repeat $mod+i exec ~/.local/bin/ticktick-toggle
+bindsym --no-repeat $mod+g exec ~/.local/bin/sway-popup popup-goldendict --match '$gd_main' -- env QT_QPA_PLATFORMTHEME=qt6ct QT_STYLE_OVERRIDE=Fusion goldendict
 bindsym --no-repeat $mod+d exec $menu
 # Return to the workspace just left; repeat to toggle between the two.
 bindsym --no-repeat Mod1+Tab workspace back_and_forth
@@ -210,7 +212,6 @@ bindsym $mod+Escape exec ~/.local/bin/lock-screen
 bindsym $mod+t exec ~/.local/bin/quick-lang vi-en
 bindsym $mod+Shift+t exec ~/.local/bin/quick-lang en-vi
 bindsym $mod+Ctrl+t exec ~/.local/bin/quick-lang fix
-bindsym --no-repeat $mod+g exec env QT_QPA_PLATFORMTHEME=qt6ct QT_STYLE_OVERRIDE=Fusion goldendict
 bindsym $mod+Mod1+t exec ~/.local/bin/toggle-touchpad
 bindsym $mod+Print exec ~/.local/bin/screenshot-menu
 bindsym --no-repeat Print exec ~/.local/bin/screenshot selection-clipboard
