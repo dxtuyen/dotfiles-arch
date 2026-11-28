@@ -17,4 +17,3 @@ jq
 fastfetch
 libreoffice-fresh
 anki
-termdown

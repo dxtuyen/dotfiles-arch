@@ -16,10 +16,6 @@ width=350
 [app-name=brightness]
 default-timeout=2000
 
-[app-name=countdown]
-border-color=#a89984
-default-timeout=5000
-
 [app-name=power]
 default-timeout=2000
 

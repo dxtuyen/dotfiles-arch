@@ -54,14 +54,12 @@ client.placeholder       #282828 #282828 #d4be98 #45403d #45403d
 client.background        #282828
 
 # Floating rules
-# Give the full HH:MM:SS timer room to render.
-for_window [app_id="^countdown$"] floating enable, resize set width 520 px height 200 px, move scratchpad, scratchpad show, mark --add popup-countdown
 # Keep the popup terminal at Foot's default size, as before.
 for_window [app_id="scratchpad-terminal"] move scratchpad, scratchpad show, mark --add popup-terminal
 # Native scratchpad toggles; the helper launches an absent application.
 for_window [app_id="(?i)^(md\.obsidian\.)?obsidian$"] floating enable, move scratchpad, scratchpad show, resize set width 70 ppt height 80 ppt, move position center, mark --add popup-obsidian
 for_window [class="(?i)^(md\.obsidian\.)?obsidian$"] floating enable, move scratchpad, scratchpad show, resize set width 70 ppt height 80 ppt, move position center, mark --add popup-obsidian
-# TickTick opens floating; Mod+i toggles it without quitting the app.
+# Mod+c shows or hides the floating TickTick window.
 for_window [app_id="(?i)^(com\.ticktick\.)?ticktick$"] floating enable, move scratchpad, scratchpad show, resize set width 60 ppt height 75 ppt, move position center, mark --add popup-ticktick
 for_window [class="(?i)^(com\.ticktick\.)?ticktick$"] floating enable, move scratchpad, scratchpad show, resize set width 60 ppt height 75 ppt, move position center, mark --add popup-ticktick
 # WireMix runs inside Foot; keep the audio mixer in a compact floating window.
@@ -105,13 +103,12 @@ for_window [app_id="(?i)^google-chrome$"] inhibit_idle fullscreen
 bindsym $mod+Return exec $term
 bindsym --no-repeat $mod+grave exec ~/.local/bin/scratchpad-terminal
 bindsym --no-repeat $mod+o exec ~/.local/bin/obsidian-toggle
-bindsym --no-repeat $mod+i exec ~/.local/bin/ticktick-toggle
+bindsym --no-repeat $mod+c exec ~/.local/bin/ticktick-toggle
 bindsym --no-repeat $mod+g exec ~/.local/bin/sway-popup popup-goldendict --match '$gd_main' -- env QT_QPA_PLATFORMTHEME=qt6ct QT_STYLE_OVERRIDE=Fusion goldendict
 bindsym --no-repeat $mod+d exec $menu
 # Return to the workspace just left; repeat to toggle between the two.
 bindsym --no-repeat Mod1+Tab workspace back_and_forth
 # Mod+u opens utilities; Mod+p opens power actions.
-# Mod+c opens Countdown.
 # Toggle Sway's native scratchpad; Shift+Mod+- sends the focused window there.
 bindsym $mod+minus scratchpad show
 bindsym $mod+Shift+minus move scratchpad
@@ -124,7 +121,6 @@ bindsym $mod+q kill
 
 bindsym $mod+Shift+c exec ~/.local/bin/refresh-session
 bindsym $mod+Shift+e exec swaynag -t warning -m 'Exit Sway?' -B 'Yes, exit sway' 'swaymsg exit'
-bindsym $mod+c exec ~/.local/bin/countdown
 # Focus movement
 bindsym $mod+$left focus left
 bindsym $mod+$down focus down

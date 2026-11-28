@@ -109,7 +109,6 @@ jq
 fastfetch
 libreoffice-fresh
 anki
-termdown
 python
 python-virtualenv
 uv
